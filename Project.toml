@@ -1,7 +1,7 @@
 name = "AsType"
 uuid = "ca91d8e0-3195-446d-9999-6c164cca1bdd"
 authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [compat]
 julia = "1"
