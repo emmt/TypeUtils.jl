@@ -11,6 +11,15 @@ yields `x` converted to type `T`.
 as(::Type{T}, x::T) where {T} = x
 as(::Type{T}, x) where {T} = convert(T, x)::T
 
+# Use the constructor to convert to Cartesian index.
+as(::Type{T}, x::T) where {T<:CartesianIndex} = x
+as(::Type{CartesianIndex}, x::Tuple{Vararg{Integer}}) = CartesianIndex(x)
+as(::Type{CartesianIndex{N}}, x::NTuple{N,Integer}) where {N} = CartesianIndex{N}(x)
+
+# Convert Cartesian indices to tuples.
+as(::Type{Tuple}, x::CartesianIndex) = Tuple(x)
+as(::Type{Tuple}, x::CartesianIndices) = x.indices
+
 """
     as(T)
 
