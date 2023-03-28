@@ -19,6 +19,11 @@ using Test
 
     @test as(Tuple, CartesianIndex((1,2,3))) === (1,2,3)
     @test as(Tuple, CartesianIndices((2:5, -1:4))) === (2:5, -1:4)
+
+    @test as(String, :hello) == "hello"
+    @test as(String, :hello) isa String
+    @test as(Symbol, "hello") === :hello
+
 end
 
 end # module

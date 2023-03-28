@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/emmt/AsType.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/AsType.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/AsType.jl?svg=true)](https://ci.appveyor.com/project/emmt/AsType-jl) [![Coverage](https://codecov.io/gh/emmt/AsType.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/AsType.jl)
 
-`AsType` is a super tiny [Julia](https://www.julialang.org) package providing a
+`AsType` is a small [Julia](https://www.julialang.org) package providing a
 single method, `as`, designed to *cast* its argument to a given type. The name
 was inspired by the Zig built-in function
 [`@as`](https://ziglang.org/documentation/master/#as).
@@ -16,6 +16,25 @@ as(T, x)
 yields `x` converted to type `T`. It behaves like a lazy version of
 `convert(T,x)::T` doing nothing if `x` is already of type `T` and performing
 the conversion and the type assertion otherwise.
+
+The `as` method calls `convert` by default but implement conversions not
+supported by `convert` so it is a bit more versatile while relaxing the bother
+to remember which method to call to perform the intended conversion. For
+example:
+
+``` julia
+julia> as(Tuple, CartesianIndex(1,2,3)) # yields the tuple of the indices
+(1, 2, 3)
+
+julia> as(Tuple, CartesianIndices(((-2:5), (1:3)))) # yields the tuple of the index ranges
+(-2:5, 1:3)
+
+julia> as(String, :hello) # converts symbol to string
+"hello"
+
+julia> as(Symbol, "hello") # converts string to symbol
+:hello
+```
 
 Another usage is:
 

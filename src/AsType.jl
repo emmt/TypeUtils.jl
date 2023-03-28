@@ -20,6 +20,10 @@ as(::Type{CartesianIndex{N}}, x::NTuple{N,Integer}) where {N} = CartesianIndex{N
 as(::Type{Tuple}, x::CartesianIndex) = Tuple(x)
 as(::Type{Tuple}, x::CartesianIndices) = x.indices
 
+# Conversion between symbols and strings is not supported by `convert`.
+as(::Type{String}, x::Symbol) = String(x)
+as(::Type{Symbol}, x::String) = Symbol(x)
+
 """
     as(T)
 
