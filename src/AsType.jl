@@ -2,6 +2,8 @@ module AsType
 
 export as
 
+using Requires
+
 """
     as(T, x)
 
@@ -33,5 +35,20 @@ yields a callable object which converts its argument to type `T`.
 as(::Type{T}) where {T} = As{T}()
 struct As{T} <: Function; end
 (::As{T})(x) where {T} = as(T, x)
+
+function __init__()
+    @require TwoDimensional="1907e7ba-7586-4310-a2ba-dd01462aeb50" begin
+        for (type,N,T) in ((:(TwoDimensional.Point), 2, Real),
+                           (:(TwoDimensional.WeightedPoint), 3, AbstractFloat),
+                           (:(TwoDimensional.BoundingBox), 4, Real),)
+            @eval begin
+                as(::Type{$type}, x::NTuple{$N,$T}) = $type(x...)
+                as(::Type{$type{T}}, x::NTuple{$N,$T}) where {T} = $type{T}(x...)
+                as(::Type{Tuple}, x::$type) = Tuple(x)
+                as(::Type{NTuple{$N,T}}, x::$type) where {T<:$T} = map(as(T), Tuple(x))
+            end
+        end
+    end
+end
 
 end

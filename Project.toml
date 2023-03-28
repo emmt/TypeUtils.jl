@@ -3,11 +3,15 @@ uuid = "ca91d8e0-3195-446d-9999-6c164cca1bdd"
 authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
 version = "0.1.1"
 
+[deps]
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
 [compat]
 julia = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TwoDimensional = "1907e7ba-7586-4310-a2ba-dd01462aeb50"
 
 [targets]
-test = ["Test"]
+test = ["Test", "TwoDimensional"]
