@@ -13,14 +13,20 @@ yields `x` converted to type `T`.
 as(::Type{T}, x::T) where {T} = x
 as(::Type{T}, x) where {T} = convert(T, x)::T
 
-# Use the constructor to convert to Cartesian index.
-as(::Type{T}, x::T) where {T<:CartesianIndex} = x
-as(::Type{CartesianIndex}, x::Tuple{Vararg{Integer}}) = CartesianIndex(x)
-as(::Type{CartesianIndex{N}}, x::NTuple{N,Integer}) where {N} = CartesianIndex{N}(x)
-
-# Convert Cartesian indices to tuples.
+# Convert Cartesian index/indices to/from tuples.
 as(::Type{Tuple}, x::CartesianIndex) = Tuple(x)
 as(::Type{Tuple}, x::CartesianIndices) = x.indices
+for X in (:CartesianIndex, :CartesianIndices)
+    @eval begin
+        # For more specific tuple types, first extract tuple contents, then
+        # convert to the specific tuple type.
+        as(::Type{T}, x::$X) where {T<:Tuple} = as(T, as(Tuple, x))
+
+        # Use the constructors to convert tuples to Cartesian index/indices.
+        as(::Type{$X}, x::Tuple) = $X(x)::$X
+        as(::Type{$X{N}}, x::NTuple{N,Any}) where {N} = $X(x)::$X{N}
+    end
+end
 
 # Conversion between symbols and strings is not supported by `convert`.
 as(::Type{String}, x::Symbol) = String(x)

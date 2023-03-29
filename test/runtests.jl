@@ -12,14 +12,22 @@ import TwoDimensional
     @test_throws Exception as(Int, π)
     @test map(as(Int), (Int8(1), Int16(2), Int32(3), Int64(4))) === (1,2,3,4)
 
+    @test as(Tuple, CartesianIndex((1,2,3))) === (1,2,3)
+    @test as(NTuple{3}, CartesianIndex((1,2,3))) === (1,2,3)
+    @test as(Tuple, CartesianIndices((2:5, -1:4))) === (2:5, -1:4)
+    @test as(NTuple{2}, CartesianIndices((2:5, -1:4))) === (2:5, -1:4)
+
     @test as(CartesianIndex,()) === CartesianIndex()
     @test as(CartesianIndex, CartesianIndex((1,2,3))) === CartesianIndex((1,2,3))
     @test as(CartesianIndex{3}, CartesianIndex((1,2,3))) === CartesianIndex((1,2,3))
     @test as(CartesianIndex, (0x1,2,Int16(3))) === CartesianIndex((1,2,3))
     @test as(CartesianIndex{3}, (0x1,2,Int16(3))) === CartesianIndex((1,2,3))
 
-    @test as(Tuple, CartesianIndex((1,2,3))) === (1,2,3)
-    @test as(Tuple, CartesianIndices((2:5, -1:4))) === (2:5, -1:4)
+    @test as(CartesianIndices,()) === CartesianIndices(())
+    @test as(CartesianIndices,(2:3,6)) === CartesianIndices((2:3,6))
+    @test as(CartesianIndices,CartesianIndices((2:3,6))) === CartesianIndices((2:3,6))
+    @test as(CartesianIndices{3},(2:3,6,-1:4)) === CartesianIndices((2:3,6,-1:4))
+    @test as(CartesianIndices{3},CartesianIndices((2:3,6,-1:4))) === CartesianIndices((2:3,6,-1:4))
 
     @test as(String, :hello) == "hello"
     @test as(String, :hello) isa String
