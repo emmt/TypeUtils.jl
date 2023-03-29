@@ -13,20 +13,20 @@ A first possible usage is:
 as(T, x)
 ```
 
-yields `x` converted to type `T`. It behaves like a lazy version of
+which yields `x` converted to type `T`. It behaves like a lazy version of
 `convert(T,x)::T` doing nothing if `x` is already of type `T` and performing
 the conversion and the type assertion otherwise.
 
 The `as` method calls `convert` by default but implement conversions not
-supported by `convert` so it is a bit more versatile while relaxing the bother
-to remember which method to call to perform the intended conversion. For
-example:
+supported by `convert`, so `as` is a bit more versatile than `convert` while
+relaxing the bother to remember which function or constructor to call to
+perform the intended conversion. For example:
 
 ``` julia
-julia> as(Tuple, CartesianIndex(1,2,3)) # yields the tuple of the indices
+julia> as(Tuple, CartesianIndex(1,2,3)) # yields tuple indices
 (1, 2, 3)
 
-julia> as(Tuple, CartesianIndices(((-2:5), (1:3)))) # yields the tuple of the index ranges
+julia> as(Tuple, CartesianIndices(((-2:5), (1:3)))) # yields tuple of index ranges
 (-2:5, 1:3)
 
 julia> as(String, :hello) # converts symbol to string
