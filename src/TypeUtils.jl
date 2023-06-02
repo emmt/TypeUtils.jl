@@ -2,7 +2,9 @@ module TypeUtils
 
 export as
 
-using Requires
+if !isdefined(Base, :get_extension)
+    using Requires
+end
 
 """
     as(T, x)
@@ -44,17 +46,9 @@ struct As{T} <: Function; end
 @inline (::As{T})(x) where {T} = as(T, x)
 
 function __init__()
-    @require TwoDimensional="1907e7ba-7586-4310-a2ba-dd01462aeb50" begin
-        for (X,N,T) in ((:(TwoDimensional.Point), 2, Real),
-                        (:(TwoDimensional.WeightedPoint), 3, AbstractFloat),
-                        (:(TwoDimensional.BoundingBox), 4, Real),)
-            @eval begin
-                as(::Type{$X}, x::NTuple{$N,$T}) = $X(x...)
-                as(::Type{$X{T}}, x::NTuple{$N,$T}) where {T} = $X{T}(x...)
-                as(::Type{Tuple}, x::$X) = Tuple(x)
-                as(::Type{NTuple{$N,T}}, x::$X) where {T<:$T} = map(as(T), Tuple(x))
-            end
-        end
+    @static if !isdefined(Base, :get_extension)
+        @require TwoDimensional="1907e7ba-7586-4310-a2ba-dd01462aeb50" include(
+            "../ext/TypeUtilsTwoDimensionalExt.jl")
     end
 end
 
