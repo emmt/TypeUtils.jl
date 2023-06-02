@@ -1,10 +1,10 @@
-module TestingAsType
+module TestingTypeUtils
 
-using AsType
+using TypeUtils
 using Test
 import TwoDimensional
 
-@testset "AsType.jl" begin
+@testset "TypeUtils" begin
     @test as(Int, 3) === 3
     @test as(Int, 1.0) === 1
     @test as(Int16, 1.0) === Int16(1)

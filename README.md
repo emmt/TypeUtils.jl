@@ -1,9 +1,10 @@
 # Casting to type in Julia
 
-[![Build Status](https://github.com/emmt/AsType.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/AsType.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/AsType.jl?svg=true)](https://ci.appveyor.com/project/emmt/AsType-jl) [![Coverage](https://codecov.io/gh/emmt/AsType.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/AsType.jl)
+[![Build Status](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/TypeUtils.jl?svg=true)](https://ci.appveyor.com/project/emmt/TypeUtils-jl) [![Coverage](https://codecov.io/gh/emmt/TypeUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/TypeUtils.jl)
 
-`AsType` is a small [Julia](https://www.julialang.org) package providing a
-single method, `as`, designed to *cast* an argument to a given type. The name
+Package `TypeUtils` provides useful methods to deal with types in
+[Julia](https://www.julialang.org).
+The method, `as` is designed to *cast* an argument to a given type. The name
 was inspired by the built-in Zig function
 [`@as`](https://ziglang.org/documentation/master/#as).
 

@@ -1,4 +1,4 @@
-module AsType
+module TypeUtils
 
 export as
 
@@ -57,4 +57,4 @@ function __init__()
     end
 end
 
-end
+end # module TypeUtils
