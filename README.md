@@ -1,14 +1,14 @@
-# Casting to type in Julia
+# Dealing with Julia types
 
 [![Build Status](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/TypeUtils.jl?svg=true)](https://ci.appveyor.com/project/emmt/TypeUtils-jl) [![Coverage](https://codecov.io/gh/emmt/TypeUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/TypeUtils.jl)
 
 Package `TypeUtils` provides useful methods to deal with types in
 [Julia](https://www.julialang.org).
 
-## Cast type
+## Cast value to type
 
-The method, `as` is designed to *cast* an argument to a given type. The name
-was inspired by the built-in Zig function
+The method, `as` is designed to *cast* a value to a given type. The name was
+inspired by the built-in [Zig](https://ziglang.org/) function
 [`@as`](https://ziglang.org/documentation/master/#as).
 
 A first usage is:
@@ -21,10 +21,11 @@ which yields `x` converted to type `T`. This behaves like a lazy version of
 `convert(T,x)::T` doing nothing if `x` is already of type `T` and performing
 the conversion and the type assertion otherwise.
 
-The `as` method calls `convert` by default but implements a number of
-conversions not supported by `convert`. The `as` method is therefore a bit more
-versatile than `convert` while relaxing the bother to remember which function
-or constructor to call to perform the intended conversion. For example:
+By default, the `as` method calls `convert` only if needed but also implements
+a number of conversions not supported by `convert`. The `as` method is
+therefore a bit more versatile than `convert` while relaxing the bother to
+remember which function or constructor to call to efficiently perform the
+intended conversion. For example:
 
 ``` julia
 julia> as(Tuple, CartesianIndex(1,2,3)) # yields tuple of indices
@@ -60,6 +61,9 @@ map(as(Int), dims)
 ```
 
 to convert `dims` to a tuple (or array) of `Int`s.
+
+Additional conversions becomes possible if another package such as
+[`TwoDimensonal`](https://github.com/emmt/TwoDimensional.jl) is loaded.
 
 
 ## Parameter-less type
