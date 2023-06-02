@@ -1,6 +1,6 @@
 module TypeUtils
 
-export as
+export as, parameterless
 
 if !isdefined(Base, :get_extension)
     using Requires
@@ -44,6 +44,23 @@ specifically, a call like `f(x)` yields `as(T, x)`.
 as(::Type{T}) where {T} = As{T}()
 struct As{T} <: Function; end
 @inline (::As{T})(x) where {T} = as(T, x)
+
+"""
+    parameterless(T)
+
+yields the type `T` without parameter specifications. For example:
+
+```julia
+julia> parameterless(Vector{Float32})
+Array
+```
+
+""" parameterless
+# https://stackoverflow.com/questions/42229901/getting-the-parameter-less-type
+#
+# NOTE: In old versions of Julia, the field name was `:primary`, but since
+#       Julia 0.7, it should be `:wrapper`.
+@inline parameterless(::Type{T}) where {T} = getfield(Base.typename(T), :wrapper)
 
 function __init__()
     @static if !isdefined(Base, :get_extension)

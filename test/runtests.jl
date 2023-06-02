@@ -5,6 +5,13 @@ using Test
 import TwoDimensional
 
 @testset "TypeUtils" begin
+    @test parameterless(Array) === Array
+    @test parameterless(AbstractVector) === AbstractArray
+    @test parameterless(DenseMatrix) === DenseArray
+    @test parameterless(Array{Float32}) === Array
+    @test parameterless(DenseArray{Float32,3}) === DenseArray
+    @test parameterless(Matrix{Float64}) === Array
+
     @test as(Int, 3) === 3
     @test as(Int, 1.0) === 1
     @test as(Int16, 1.0) === Int16(1)

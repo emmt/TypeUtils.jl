@@ -4,6 +4,9 @@
 
 Package `TypeUtils` provides useful methods to deal with types in
 [Julia](https://www.julialang.org).
+
+## Cast type
+
 The method, `as` is designed to *cast* an argument to a given type. The name
 was inspired by the built-in Zig function
 [`@as`](https://ziglang.org/documentation/master/#as).
@@ -57,3 +60,19 @@ map(as(Int), dims)
 ```
 
 to convert `dims` to a tuple (or array) of `Int`s.
+
+
+## Parameter-less type
+
+The method:
+
+``` julia
+parameterless(T)
+```
+
+yields the type `T` without parameter specifications. For example:
+
+```julia
+julia> parameterless(Vector{Float32})
+Array
+```
