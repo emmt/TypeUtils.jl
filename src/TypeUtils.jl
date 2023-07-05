@@ -81,8 +81,8 @@ promote_eltype(arg) = eltype(arg)
 """
     convert_eltype(T, A) -> B
 
-yields an array identical to `A` except that its elements have type `T`. If `T`
-is the element type of `A`, then `A` is returned.
+yields an array `B` with the same entries as `A` except that their type is `T`.
+If `T` is the element type of `A`, then `A` is returned.
 
 !!! warning
     Calling this method for ranges yields a vector except if `T` is the element
