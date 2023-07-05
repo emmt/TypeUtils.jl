@@ -1,5 +1,15 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.2.2
+
+- New method `promote_eltype(args...)` to yield the promoted element type of
+  `args...`.
+
+- New method `convert_eltype(T,A)` to convert the element type of `A` to be `T`.
+
+- New method `as_eltype(T,A)` to lazily convert the element type of `A` to be `T`.
+
+
 # Version 0.2.1
 
 - Method `parameterless(T)` to get the type `T` without parameter

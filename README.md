@@ -1,4 +1,4 @@
-# Dealing with Julia types
+# Dealing with types in Julia
 
 [![Build Status](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/TypeUtils.jl?svg=true)](https://ci.appveyor.com/project/emmt/TypeUtils-jl) [![Coverage](https://codecov.io/gh/emmt/TypeUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/TypeUtils.jl)
 
@@ -80,3 +80,24 @@ yields the type `T` without parameter specifications. For example:
 julia> parameterless(Vector{Float32})
 Array
 ```
+
+
+## Deal with array element types
+
+The `TypeUtils` package provides a few methods to deal with array element
+types:
+
+* `promote_eltype(args...)` yields the promoted element type of the arguments
+  `args...` which may be anything implementing the `eltype` method.
+
+* `convert_eltype(T,A)` yields an array identical to `A` except that its
+  elements have type `T`.
+
+* `as_eltype(T,A)` yields an array which lazily converts its entries to type
+  `T`. This can be seen as a memory-less version of `convert_eltype(T,A)`. The
+  method `as_eltype` is similar to the method `of_eltype` provided by the
+  [`MappedArrays`](https://github.com/JuliaArrays/MappedArrays.jl/tree/master)
+  package.
+
+Methods `convert_eltype(T,A)` and `as_eltype(T,A)` just return `A` itself if
+its elements are of type `T`.

@@ -1,6 +1,11 @@
 module TypeUtils
 
-export as, parameterless
+export
+    as,
+    as_eltype,
+    convert_eltype,
+    parameterless,
+    promote_eltype
 
 if !isdefined(Base, :get_extension)
     using Requires
@@ -61,6 +66,82 @@ Array
 # NOTE: In old versions of Julia, the field name was `:primary`, but since
 #       Julia 0.7, it should be `:wrapper`.
 @inline parameterless(::Type{T}) where {T} = getfield(Base.typename(T), :wrapper)
+
+"""
+    promote_eltype(args...)
+
+yields the promoted element type of its arguments. Arguments `args...` may be
+anything implementing the `eltype` method.
+
+"""
+promote_eltype() = promote_type()
+promote_eltype(arg) = eltype(arg)
+@inline promote_eltype(args...) = promote_type(map(eltype, args)...)
+
+"""
+    convert_eltype(T, A) -> B
+
+yields an array identical to `A` except that its elements have type `T`. If `T`
+is the element type of `A`, then `A` is returned.
+
+!!! warning
+    Calling this method for ranges yields a vector except if `T` is the element
+    type of `A`. This is necessary to insure that `B` and `A` have the same
+    size and that `B[i] == convert(T,A[i])` holds for all indices `i` in `A`.
+
+"""
+convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
+convert_eltype(::Type{T}, A::AbstractArray) where {T} = convert(AbstractArray{T}, A)
+
+"""
+    as_eltype(T, A) -> B
+
+yields an array which lazily converts its entries to type `T`. More
+specifically, a call like `B[i]` yields `as(T,A[i])`.
+
+"""
+as_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
+as_eltype(::Type{T}, A::AbstractArray) where {T} = AsEltype{T}(A)
+
+struct AsEltype{T,N,L,A<:AbstractArray} <: AbstractArray{T,N}
+    parent::A
+end
+
+AsEltype{T}(arr::A) where {T,N,A<:AbstractArray{<:Any,N}} =
+    AsEltype{T,N,IndexStyle(A)===IndexLinear(),A}(arr)
+
+Base.parent(A::AsEltype) = A.parent
+
+# Implement abstract array API for `AsEltype` objects.
+for func in (:axes, :length, :size)
+    @eval Base.$func(A::AsEltype) = $func(parent(A))
+end
+Base.IndexStyle(::Type{<:AsEltype{<:Any,<:Any,true}}) = IndexLinear()
+Base.IndexStyle(::Type{<:AsEltype{<:Any,<:Any,false}}) = IndexCartesian()
+
+@inline function Base.getindex(A::AsEltype{T,N,true}, i::Int) where {T,N}
+    @boundscheck checkbounds(A, i)
+    @inbounds r = getindex(parent(A), i)
+    return as(T, r)
+end
+
+@inline function Base.getindex(A::AsEltype{T,N,false}, I::Vararg{Int,N}) where {T,N}
+    @boundscheck checkbounds(A, I...)
+    @inbounds r = getindex(parent(A), I...)
+    return as(T, r)
+end
+
+@inline function Base.setindex!(A::AsEltype{T,N,true}, x, i::Int) where {T,N}
+    @boundscheck checkbounds(A, i)
+    @inbounds setindex!(parent(A), x, i)
+    return A
+end
+
+@inline function Base.setindex!(A::AsEltype{T,N,false}, x, I::Vararg{Int,N}) where {T,N}
+    @boundscheck checkbounds(A, I...)
+    @inbounds setindex!(parent(A), x, I...)
+    return A
+end
 
 function __init__()
     @static if !isdefined(Base, :get_extension)
