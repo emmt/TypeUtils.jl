@@ -1,5 +1,16 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.2.3
+
+- New method `as_return(T, f)` yields a callable object that behaves like `f`
+  when called as a function except that it lazily converts the value returned
+  by `f` to type `T`.
+
+- New method `return_type(f, argtypes...)` to infer the type of the result
+  returned by the callable object `f` when called with arguments of types
+  `argtypes...`.
+
+
 # Version 0.2.2
 
 - New method `promote_eltype(args...)` to yield the promoted element type of

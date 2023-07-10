@@ -5,6 +5,7 @@
 Package `TypeUtils` provides useful methods to deal with types in
 [Julia](https://www.julialang.org).
 
+
 ## Cast value to type
 
 The method, `as` is designed to *cast* a value to a given type. The name was
@@ -68,7 +69,7 @@ Additional conversions becomes possible if another package such as
 
 ## Parameter-less type
 
-The method:
+The call:
 
 ``` julia
 parameterless(T)
@@ -90,8 +91,8 @@ types:
 * `promote_eltype(args...)` yields the promoted element type of the arguments
   `args...` which may be anything implementing the `eltype` method.
 
-* `convert_eltype(T,A)` yields an array identical to `A` except that its
-  elements have type `T`.
+* `convert_eltype(T,A)` yields an array with the same entries as `A` except
+  that their type is `T`.
 
 * `as_eltype(T,A)` yields an array which lazily converts its entries to type
   `T`. This can be seen as a memory-less version of `convert_eltype(T,A)`. The
@@ -101,3 +102,31 @@ types:
 
 Methods `convert_eltype(T,A)` and `as_eltype(T,A)` just return `A` itself if
 its elements are of type `T`.
+
+
+## Type of result returned by a function
+
+The call:
+
+``` julia
+g = as_return(T, f)
+```
+
+yields a callable object such that `g(args...; kwds...)` lazily converts the
+value returned by `f(args...; kwds...)` to the type `T`. Methods
+`return_type(g)` and `parent(g)` can be used to respectively retrieve the type
+`T` and the original function `f`. A similar kind of object be built with the
+composition operator:
+
+``` julia
+g = as(T)∘f
+```
+
+The method `return_type` may also be used as:
+
+``` julia
+T = return_type(f, argtypes...)
+```
+
+to infer the type `T` of the result returned by `f` when called with arguments
+of types `argtypes...`.

@@ -3,9 +3,11 @@ module TypeUtils
 export
     as,
     as_eltype,
+    as_return,
     convert_eltype,
     parameterless,
-    promote_eltype
+    promote_eltype,
+    return_type
 
 if !isdefined(Base, :get_extension)
     using Requires
@@ -47,8 +49,57 @@ specifically, a call like `f(x)` yields `as(T, x)`.
 
 """
 as(::Type{T}) where {T} = As{T}()
+
 struct As{T} <: Function; end
-@inline (::As{T})(x) where {T} = as(T, x)
+
+(::As{T})(x) where {T} = as(T, x)
+
+"""
+    g = as_return(T, f)
+
+yields a callable object such that `g(args...; kwds...)` returns `f(args...;
+kwds...)` converted to type `T`. Methods [`return_type(g)`](@ref) and
+`parent(g)` may be used to retrieve `T` and `f` respectively.
+
+A similar object is given by:
+
+    g = as(T)∘f
+
+""" as_return
+
+struct AsReturn{T,F}
+    func::F
+
+    # Inner contructor.
+    AsReturn{T}(func::F) where {T,F} = new{T,F}(func)
+
+    # Avoid multiple wrapping.
+    AsReturn{T}(func::AsReturn{T}) where {T} = func
+    AsReturn{T}(func::AsReturn) where {T} = AsRetrun{T}(parent(func))
+end
+
+(obj::AsReturn{T})(args...; kwds...) where {T} = as(T, parent(obj)(args...; kwds...))
+
+as_return(::Type{T}, func) where {T} = AsReturn{T}(func)
+
+Base.parent(obj::AsReturn) = getfield(obj, :func)
+Base.return_types(obj::AsReturn{T}) where {T} = (T,)
+Base.promote_op(obj::AsReturn{T}, argtypes::Type...) where {T} = T
+
+"""
+    return_type(f, argtypes...) -> T
+
+yields the type of the result returned by the callable object `f` when called
+with arguments of types `argtypes...`.
+
+See the warning in the documentation of `Base.promote_op` for the fragility of
+such inference in some cases. There are no such issues if `f` is an object
+built by [`as_return`][@ref).
+
+"""
+return_type(obj::AsReturn{T}, argtypes::Type...) where {T} = T
+return_type(::Type{<:AsReturn{T}}, argtypes::Type...) where {T} = T
+return_type(f, argtypes::Type...) = Base.promote_op(f, argtypes...)
 
 """
     parameterless(T)
