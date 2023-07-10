@@ -75,7 +75,7 @@ struct AsReturn{T,F}
 
     # Avoid multiple wrapping.
     AsReturn{T}(func::AsReturn{T}) where {T} = func
-    AsReturn{T}(func::AsReturn) where {T} = AsRetrun{T}(parent(func))
+    AsReturn{T}(func::AsReturn) where {T} = AsReturn{T}(parent(func))
 end
 
 (obj::AsReturn{T})(args...; kwds...) where {T} = as(T, parent(obj)(args...; kwds...))

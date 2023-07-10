@@ -1,5 +1,10 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.2.4
+
+- Fix a typo causing `as_return` to fail when applied to an `AsReturn` object.
+
+
 # Version 0.2.3
 
 - New method `as_return(T, f)` yields a callable object that behaves like `f`
