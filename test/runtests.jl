@@ -114,13 +114,20 @@ import TwoDimensional
     @testset "as_return()" begin
         f = @inferred as_return(Float32, atan)
         g = @inferred as_return(BigFloat, f)
+        h = @inferred as_return(return_type(f), f)
         @test g isa parameterless(typeof(f))
+        @test h === f
         @test parent(f) === atan
         @test parent(g) === parent(f)
         @test return_type(f) === Float32
         @test return_type(g) === BigFloat
         @test return_type(typeof(f)) === Float32
         @test return_type(typeof(g)) === BigFloat
+        @test Base.return_types(f) === (return_type(f),)
+        @test Base.return_types(g) === (return_type(g),)
+        @test Base.promote_op(f, Int8) === return_type(f)
+        @test Base.promote_op(f, Int8, Int16) === return_type(f)
+        @test Base.promote_op(g, Float32) === return_type(g)
         @test f(0) isa Float32
         @test f(-0.3) isa Float32
         @test g(0, 1) isa BigFloat

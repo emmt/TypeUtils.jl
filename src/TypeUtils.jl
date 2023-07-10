@@ -94,7 +94,8 @@ with arguments of types `argtypes...`.
 
 See the warning in the documentation of `Base.promote_op` for the fragility of
 such inference in some cases. There are no such issues if `f` is an object
-built by [`as_return`][@ref).
+built by [`as_return`][@ref), however `argtypes...` are not checked for
+validity for such objects.
 
 """
 return_type(obj::AsReturn{T}, argtypes::Type...) where {T} = T
