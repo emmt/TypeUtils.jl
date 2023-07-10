@@ -105,6 +105,28 @@ import TwoDimensional
         end
     end
 
+    @testset "return_type()" begin
+        @test return_type(cos, Float32) === typeof(cos(zero(Float32)))
+        @test return_type(atan, Int32) === typeof(atan(zero(Int32)))
+        @test return_type(atan, Int32, Int16) === typeof(atan(zero(Int32), one(Int16)))
+    end
+
+    @testset "as_return()" begin
+        f = @inferred as_return(Float32, atan)
+        g = @inferred as_return(BigFloat, f)
+        @test g isa parameterless(typeof(f))
+        @test parent(f) === atan
+        @test parent(g) === parent(f)
+        @test return_type(f) === Float32
+        @test return_type(g) === BigFloat
+        @test return_type(typeof(f)) === Float32
+        @test return_type(typeof(g)) === BigFloat
+        @test f(0) isa Float32
+        @test f(-0.3) isa Float32
+        @test g(0, 1) isa BigFloat
+        @test g(-0.3) isa BigFloat
+    end
+
     # Check with TwoDimensional.
     @testset "with TwoDimensional" begin
         let Point = TwoDimensional.Point,
