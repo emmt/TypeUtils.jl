@@ -133,23 +133,27 @@ promote_eltype(arg) = eltype(arg)
 """
     convert_eltype(T, A) -> B
 
-yields an array `B` with the same entries as `A` except that their type is `T`.
-If `T` is the element type of `A`, then `A` is returned.
+converts the elements of `A` to type `T`. The returned object is similar to `A`
+except maybe for the element type. For example, if `A` is a range, then `B` is
+also a range. If `T` is the element type of `A`, then `A` is returned.
 
-!!! warning
-    Calling this method for ranges yields a vector except if `T` is the element
-    type of `A`. This is necessary to insure that `B` and `A` have the same
-    size and that `B[i] == convert(T,A[i])` holds for all indices `i` in `A`.
+Consider using [`as_eltype(T, A)`](@ref) to build an object that lazily
+performs the conversion.
 
 """
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractArray) where {T} = convert(AbstractArray{T}, A)
+convert_eltype(::Type{T}, A::AbstractRange{T}) where {T} = A
+convert_eltype(::Type{T}, A::AbstractRange) where {T} = map(T, A)
 
 """
     as_eltype(T, A) -> B
 
 yields an array which lazily converts its entries to type `T`. More
 specifically, a call like `B[i]` yields `as(T,A[i])`.
+
+Consider using [`convert_eltype(T, A)`](@ref) to perform the conversion once
+and immediately.
 
 """
 as_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A

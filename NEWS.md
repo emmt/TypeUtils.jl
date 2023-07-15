@@ -1,5 +1,15 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.3.1
+
+- `convert_eltype(T,A)` yields a range if `A` is a range.
+
+
+# Version 0.3.0
+
+This is the first version as an official Julia package.
+
+
 # Version 0.2.4
 
 - Fix a typo causing `as_return` to fail when applied to an `AsReturn` object.

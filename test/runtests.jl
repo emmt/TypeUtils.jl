@@ -61,13 +61,15 @@ import TwoDimensional
             @test convert_eltype(eltype(A), A) === A
             @test convert_eltype(Float32, A) == Float32.(A)
         end
-        let A = 1:5
+        let A = 1:5, B = @inferred convert_eltype(Float32, A)
             @test convert_eltype(eltype(A), A) === A
-            @test convert_eltype(Float32, A) == Float32.(A)
+            @test B isa AbstractRange
+            @test B == Float32.(A)
         end
-        let A = 2.0:3.0:11.0
+        let A = 2.0:3.0:11.0, B = @inferred convert_eltype(Float32, A)
             @test convert_eltype(eltype(A), A) === A
-            @test convert_eltype(Float32, A) == Float32.(A)
+            @test B isa AbstractRange
+            @test B == Float32.(A)
         end
     end
 
