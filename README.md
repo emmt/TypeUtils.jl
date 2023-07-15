@@ -91,8 +91,8 @@ types:
 * `promote_eltype(args...)` yields the promoted element type of the arguments
   `args...` which may be anything implementing the `eltype` method.
 
-* `convert_eltype(T,A)` yields an array with the same entries as `A` except
-  that their type is `T`.
+* `convert_eltype(T,A)` yields an object similar to `A` except that its
+  elements have type `T`.
 
 * `as_eltype(T,A)` yields an array which lazily converts its entries to type
   `T`. This can be seen as a memory-less version of `convert_eltype(T,A)`. The
