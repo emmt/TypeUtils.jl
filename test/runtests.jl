@@ -71,6 +71,16 @@ import TwoDimensional
             @test B isa AbstractRange
             @test B == Float32.(A)
         end
+        let A = (1, 2, 3) #= NTuple =#, B = @inferred convert_eltype(Float32, A)
+            @test convert_eltype(eltype(A), A) === A
+            @test B isa NTuple{<:Any,Float32}
+            @test B == Float32.(A)
+        end
+        let A = (1, 2.0, 3) #= not NTuple but Tuple =#, B = @inferred convert_eltype(Float32, A)
+            @test convert_eltype(eltype(A), A) === A
+            @test B isa NTuple{<:Any,Float32}
+            @test B == Float32.(A)
+        end
     end
 
     @testset "as_eltype()" begin

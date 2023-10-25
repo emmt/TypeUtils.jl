@@ -145,6 +145,8 @@ convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractArray) where {T} = convert(AbstractArray{T}, A)
 convert_eltype(::Type{T}, A::AbstractRange{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractRange) where {T} = map(T, A)
+convert_eltype(::Type{T}, A::NTuple{N,T}) where {N,T} = A
+convert_eltype(::Type{T}, A::Tuple) where {T} = map(T, A)
 
 """
     as_eltype(T, A) -> B
