@@ -1,5 +1,10 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.3.3
+
+- Fix `convert_eltype(T,A)` when `A` is a range.
+
+
 # Version 0.3.2
 
 - `convert_eltype(T,A)` yields a tuple if `A` is a tuple.

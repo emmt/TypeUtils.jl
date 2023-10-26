@@ -9,6 +9,8 @@ export
     promote_eltype,
     return_type
 
+using Base: OneTo
+
 if !isdefined(Base, :get_extension)
     using Requires
 end
@@ -143,10 +145,31 @@ performs the conversion.
 """
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractArray) where {T} = convert(AbstractArray{T}, A)
-convert_eltype(::Type{T}, A::AbstractRange{T}) where {T} = A
-convert_eltype(::Type{T}, A::AbstractRange) where {T} = map(T, A)
+
+# Convert element type for tuples.
 convert_eltype(::Type{T}, A::NTuple{N,T}) where {N,T} = A
-convert_eltype(::Type{T}, A::Tuple) where {T} = map(T, A)
+convert_eltype(::Type{T}, A::Tuple) where {T} = map(as(T), A)
+
+# Convert element type for Base.OneTo{T<:Integer} <: AbstractUnitRange{T}.
+# Conversion to non-integer element types is handled by the more general method
+# for AbstractUnitRange.
+convert_eltype(::Type{T}, A::OneTo{T}) where {T<:Integer} = A
+convert_eltype(::Type{T}, A::OneTo) where {T<:Integer} = OneTo{T}(last(A))
+
+# Convert element type for AbstractUnitRange{T} <: OrdinalRange{T,T}.
+convert_eltype(::Type{T}, A::AbstractUnitRange{T}) where {T} = A
+convert_eltype(::Type{T}, A::AbstractUnitRange) where {T} =
+    as(T, first(A)):as(T, last(A))
+
+# Convert element type for other range types.
+convert_eltype(::Type{T}, A::AbstractRange{T}) where {T} = A
+convert_eltype(::Type{T}, A::AbstractRange) where {T} =
+    as(T, first(A)):as(T, step(A)):as(T, last(A))
+
+# Convert element type for LinRange{T,L<:Integer} <: AbstractRange{T}.
+convert_eltype(::Type{T}, A::LinRange{T}) where {T} = A
+convert_eltype(::Type{T}, A::LinRange) where {T} =
+    LinRange(as(T, first(A)), as(T, last(A)), length(A))
 
 """
     as_eltype(T, A) -> B
