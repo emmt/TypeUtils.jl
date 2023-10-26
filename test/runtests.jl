@@ -13,6 +13,8 @@ import TwoDimensional
         @test parameterless(Array{Float32}) === Array
         @test parameterless(DenseArray{Float32,3}) === DenseArray
         @test parameterless(Matrix{Float64}) === Array
+        @test parameterless(typeof((1, 2, 3))) === Tuple
+        @test parameterless(typeof((1, π, "e"))) === Tuple
     end
 
     @testset "as()" begin

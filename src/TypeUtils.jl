@@ -115,11 +115,22 @@ Array
 ```
 
 """ parameterless
-# https://stackoverflow.com/questions/42229901/getting-the-parameter-less-type
 #
-# NOTE: In old versions of Julia, the field name was `:primary`, but since
-#       Julia 0.7, it should be `:wrapper`.
-@inline parameterless(::Type{T}) where {T} = getfield(Base.typename(T), :wrapper)
+# This subject is discussed in different places:
+#
+# - https://discourse.julialang.org/t/typeutils-dealing-with-types-in-julia/101584/13
+#
+# - https://stackoverflow.com/questions/42229901/getting-the-parameter-less-type
+#
+# The latter leads to define the method as (in old versions of Julia, the field
+# name was `:primary`, but since Julia 0.7, it should be `:wrapper`):
+#
+#     @inline parameterless(::Type{T}) where {T} = getfield(Base.typename(T), :wrapper)
+#
+# The actual implementation is borrowed from `ConstructionBase` and should be
+# less likely to be broken by internal changes in Julia:
+#
+parameterless(::Type{T}) where {T} = getfield(parentmodule(T), nameof(T))
 
 """
     promote_eltype(args...)

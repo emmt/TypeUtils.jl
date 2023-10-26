@@ -4,6 +4,9 @@
 
 - Fix `convert_eltype(T,A)` when `A` is a range.
 
+- `parameterless` is now implemented as `constructorof` in
+  [`ConstructionBase`](https://github.com/JuliaObjects/ConstructionBase.jl).
+
 
 # Version 0.3.2
 
