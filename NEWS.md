@@ -1,5 +1,10 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.3.5
+
+- Methods `destructure`, `destructure!`, `restructure`, and `struct_length`
+  can deal with tuples.
+
 # Version 0.3.4
 
 - New methods `vals = destructure(obj)` or `destructure!(vals, obj)`, and `obj

@@ -343,11 +343,21 @@ end
 
 function encode!(::typeof(restructure), code::Expr, ::Type{T}, f, i::Int) where {T}
     if isstructtype(T) && fieldcount(T) > 0
-        expr = :($(isconcretetype(T) ? T : parameterless(T))())
+        expr = if T <: Tuple
+            Expr(:tuple)
+        elseif isconcretetype(T)
+            Expr(:call, T)
+        else
+            Expr(:call, parameterless(T))
+        end
         for k in 1:fieldcount(T)
             i = encode!(restructure, expr, fieldtype(T, k), f, i)
         end
-        push!(code.args, expr)
+        if T <: Tuple
+            push!(code.args, :(convert($T, $expr)))
+        else
+            push!(code.args, expr)
+        end
     else
         i += 1
         push!(code.args, :($(f(i))))

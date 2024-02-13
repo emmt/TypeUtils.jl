@@ -5,12 +5,6 @@ using Test
 using Base: OneTo
 import TwoDimensional
 
-struct Foo{T1,T2}
-    z::Complex{T1}
-    r::T2
-    i::Int
-end
-
 @testset "TypeUtils" begin
     @testset "parameterless()" begin
         @test parameterless(Array) === Array
@@ -178,6 +172,16 @@ end
     end
 
     @testset "Destructure and restructure" begin
+        # Test with structures.
+        struct Foo{T1,T2}
+            z::Complex{T1}
+            r::T2
+            i::Int
+        end
+        struct Bar{T}
+            x::T
+            y::Tuple{T,Int16,UInt8}
+        end
         obj = Foo(2.0f0 - 3.0f0im, π, 42) # NOTE π is special
         @test obj isa Foo{Float32,typeof(π)}
         @test isconcretetype(typeof(obj))
@@ -195,6 +199,23 @@ end
         @test x.z ≈ obj.z
         @test x.r ≈ obj.r
         @test x.i == obj.i
+        # Test with tuples.
+        a = (1, 2, (3, (4, 5)), π, ())
+        @test struct_length(a) == 7
+        let vals = @inferred destructure(a)
+            @test a === @inferred restructure(typeof(a), vals)
+        end
+        # Test with structure and tuples.
+        b = (1, 2, obj, (3, 4))
+        @test struct_length(b) == 4 + struct_length(obj)
+        let vals = @inferred destructure(b)
+            @test b === @inferred restructure(typeof(b), vals)
+        end
+        c = Bar{Float32}(1, (2, 3, 4))
+        @test struct_length(c) == 4
+        let vals = @inferred destructure(c)
+            @test c === @inferred restructure(typeof(c), vals)
+        end
     end
 
     # Check with TwoDimensional.
