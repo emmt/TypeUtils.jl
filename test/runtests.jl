@@ -5,6 +5,17 @@ using Test
 using Base: OneTo
 import TwoDimensional
 
+struct Foo{T1,T2}
+    z::Complex{T1}
+    r::T2
+    i::Int
+end
+
+struct Bar{T}
+    x::T
+    y::Tuple{T,Int16,UInt8}
+end
+
 @testset "TypeUtils" begin
     @testset "parameterless()" begin
         @test parameterless(Array) === Array
@@ -173,15 +184,6 @@ import TwoDimensional
 
     @testset "Destructure and restructure" begin
         # Test with structures.
-        struct Foo{T1,T2}
-            z::Complex{T1}
-            r::T2
-            i::Int
-        end
-        struct Bar{T}
-            x::T
-            y::Tuple{T,Int16,UInt8}
-        end
         obj = Foo(2.0f0 - 3.0f0im, π, 42) # NOTE π is special
         @test obj isa Foo{Float32,typeof(π)}
         @test isconcretetype(typeof(obj))
