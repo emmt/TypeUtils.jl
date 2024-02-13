@@ -335,12 +335,6 @@ function restructure end
     return encode(restructure, T, :vals, :offset)
 end
 
-function encode(::typeof(restructure), ::Type{T}, vals::Symbol) where {T}
-    code = Expr(:block)
-    encode!(restructure, code, T, i -> :($vals[$i]), 0)
-    return code
-end
-
 function encode(::typeof(restructure), ::Type{T}, vals::Symbol, off::Symbol) where {T}
     code = Expr(:block)
     encode!(restructure, code, T, i -> :($vals[$off + $i]), 0)
