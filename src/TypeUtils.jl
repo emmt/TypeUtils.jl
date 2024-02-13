@@ -245,6 +245,9 @@ end
 destructures object `obj` as a tuple of field values. Any structures in `obj`
 are recursively destructured.
 
+See also [`destructure!`](@ref), [`restructure`](@ref), and
+[`struct_length`](@ref).
+
 """
 @generated destructure(obj::T) where {T} = encode_destructure(:obj, T)
 
@@ -270,8 +273,11 @@ end
 """
     destructure!(vals, obj; offset = firstindex(vals) - 1) -> vals
 
-destructures object `obj` into `vals[offset+1:offset+n]` and returns `vals`.
-Here `n` is the total number of values stored by `obj`.
+destructures object `obj` into `vals[offset+1:offset+n]` and returns `vals`. Here
+`n = struct_length(obj)` is the total number of values stored by `obj`.
+
+See also [`destructure`](@ref), [`restructure`](@ref), and
+[`struct_length`](@ref).
 
 """
 function destructure!(vals::AbstractVector, obj;
@@ -286,12 +292,14 @@ end
     restructure(T, vals; offset = firstindex(vals) - 1) -> obj::T
 
 restructures values `vals[offset+1:offset+n]` into an object `obj` of type `T`.
-Here `n` is the total number of values stored by an object of type `T`.
+Here `n = struct_length(T)` is the total number of values stored by an object
+of type `T`.
 
 The default constructors must exist for `T` and, recursively, for any
 structured fields of `T`.
 
-Also see: [`destructure`](@ref).
+See also [`destructure`](@ref), [`destructure!`](@ref), and
+[`struct_length`](@ref).
 
 For an immutable concrete object `obj`, the following identity holds:
 

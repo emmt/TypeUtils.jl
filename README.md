@@ -166,3 +166,6 @@ destructure!(vals, obj)
 
 Optionally, in `restructure` and `destructure!` methods, keyword `offset` may
 be specified to not start with the first value in `vals`.
+
+Method `struct_length` yields the minimal number of values needed to
+destructure an object.
