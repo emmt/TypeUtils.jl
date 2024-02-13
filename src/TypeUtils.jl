@@ -249,23 +249,24 @@ See also [`destructure!`](@ref), [`restructure`](@ref), and
 [`struct_length`](@ref).
 
 """
-@generated destructure(obj::T) where {T} = encode_destructure(:obj, T)
+function destructure end
 
-function encode_destructure(base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
+@generated destructure(obj::T) where {T} = encode(destructure, :obj, T)
+
+function encode(::typeof(destructure), base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
     code = Expr(:tuple) # start with empty tuple
-    encode_destructure!(code.args, base, T)
+    encode!(destructure, resize!(code.args, 0), base, T)
     return Expr(:block, code) # result must be a quoted expression to work as expected
 end
 
-function encode_destructure!(args::AbstractVector,
-                             base::Union{Symbol,Expr,QuoteNode},
-                             ::Type{T}) where {T}
+function encode!(::typeof(destructure), code::AbstractVector,
+                 base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
     if isstructtype(T) && fieldcount(T) > 0
         for k in 1:fieldcount(T)
-            encode_destructure!(args, :(getfield($base, $k)), fieldtype(T, k))
+            encode!(destructure, code, :(getfield($base, $k)), fieldtype(T, k))
         end
     else
-        push!(args, base)
+        push!(code, base)
     end
     nothing
 end
@@ -327,28 +328,30 @@ For an immutable concrete object `obj`, the following identity holds:
     restructure(typeof(obj), destructure(obj)) === obj
 
 """
+function restructure end
+
 @generated function restructure(::Type{T}, vals::Union{Tuple,AbstractVector};
                                 offset::Integer = firstindex(vals) - 1) where {T}
-    return encode_restructure(T, :vals, :offset)
+    return encode(restructure, T, :vals, :offset)
 end
 
-function encode_restructure(::Type{T}, vals::Symbol) where {T}
+function encode(::typeof(restructure), ::Type{T}, vals::Symbol) where {T}
     code = Expr(:block)
-    encode_restructure!(code, T, i -> :($vals[$i]), 0)
+    encode!(restructure, code, T, i -> :($vals[$i]), 0)
     return code
 end
 
-function encode_restructure(::Type{T}, vals::Symbol, off::Symbol) where {T}
+function encode(::typeof(restructure), ::Type{T}, vals::Symbol, off::Symbol) where {T}
     code = Expr(:block)
-    encode_restructure!(code, T, i -> :($vals[$off + $i]), 0)
+    encode!(restructure, code, T, i -> :($vals[$off + $i]), 0)
     return code
 end
 
-function encode_restructure!(code::Expr, ::Type{T}, f, i::Int) where {T}
+function encode!(::typeof(restructure), code::Expr, ::Type{T}, f, i::Int) where {T}
     if isstructtype(T) && fieldcount(T) > 0
         expr = :($(isconcretetype(T) ? T : parameterless(T))())
         for k in 1:fieldcount(T)
-            i = encode_restructure!(expr, fieldtype(T, k), f, i)
+            i = encode!(restructure, expr, fieldtype(T, k), f, i)
         end
         push!(code.args, expr)
     else
