@@ -5,8 +5,11 @@ export
     as_eltype,
     as_return,
     convert_eltype,
+    destructure,
+    destructure!,
     parameterless,
     promote_eltype,
+    restructure,
     return_type
 
 using Base: OneTo
@@ -233,6 +236,112 @@ end
     @boundscheck checkbounds(A, I...)
     @inbounds setindex!(parent(A), x, I...)
     return A
+end
+
+"""
+    destructure(obj) -> vals::Tuple
+
+destructures object `obj` as a tuple of field values. Any structures in `obj`
+are recursively destructured.
+
+"""
+@generated destructure(obj::T) where {T} = encode_destructure(:obj, T)
+
+function encode_destructure(base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
+    code = Expr(:tuple) # start with empty tuple
+    encode_destructure!(code.args, base, T)
+    return Expr(:block, code) # result must be a quoted expression to work as expected
+end
+
+function encode_destructure!(args::AbstractVector,
+                             base::Union{Symbol,Expr,QuoteNode},
+                             ::Type{T}) where {T}
+    if isstructtype(T) && fieldcount(T) > 0
+        for k in 1:fieldcount(T)
+            encode_destructure!(args, :(getfield($base, $k)), fieldtype(T, k))
+        end
+    else
+        push!(args, base)
+    end
+    nothing
+end
+
+"""
+    destructure!(vals, obj; offset = firstindex(vals) - 1) -> vals
+
+destructures object `obj` into `vals[offset+1:offset+n]` and returns `vals`.
+Here `n` is the total number of values stored by `obj`.
+
+"""
+function destructure!(vals::AbstractVector, obj;
+                      offset::Integer = firstindex(vals) - 1)
+    for (i, val) in enumerate(destructure(obj))
+        vals[offset + i] = val
+    end
+    return vals
+end
+
+"""
+    restructure(T, vals; offset = firstindex(vals) - 1) -> obj::T
+
+restructures values `vals[offset+1:offset+n]` into an object `obj` of type `T`.
+Here `n` is the total number of values stored by an object of type `T`.
+
+The default constructors must exist for `T` and, recursively, for any
+structured fields of `T`.
+
+Also see: [`destructure`](@ref).
+
+For an immutable concrete object `obj`, the following identity holds:
+
+    restructure(typeof(obj), destructure(obj)) === obj
+
+"""
+@generated function restructure(::Type{T}, vals::Union{Tuple,AbstractVector};
+                                offset::Integer = firstindex(vals) - 1) where {T}
+    return encode_restructure(T, :vals, :offset)
+end
+
+function encode_restructure(::Type{T}, vals::Symbol) where {T}
+    code = Expr(:block)
+    encode_restructure!(code, T, i -> :($vals[$i]), 0)
+    return code
+end
+
+function encode_restructure(::Type{T}, vals::Symbol, off::Symbol) where {T}
+    code = Expr(:block)
+    encode_restructure!(code, T, i -> :($vals[$off + $i]), 0)
+    return code
+end
+
+function encode_restructure!(code::Expr, ::Type{T}, f, i::Int) where {T}
+    if isstructtype(T) && fieldcount(T) > 0
+        expr = :($(isconcretetype(T) ? T : parameterless(T))())
+        for k in 1:fieldcount(T)
+            i = encode_restructure!(expr, fieldtype(T, k), f, i)
+        end
+        push!(code.args, expr)
+    else
+        i += 1
+        push!(code.args, :($(f(i))))
+    end
+    return i
+end
+
+"""
+    struct_length(T) -> n
+
+yields the total number of values stored by the fields of a structured object
+of type `T`.
+
+"""
+@generated function struct_length(::Type{T}) where {T}
+    isstructtype(T) || return 1
+    n = 0
+    for k in 1:fieldcount(T)
+        n += struct_length(fieldtype(T, k))
+    end
+    return n
 end
 
 function __init__()

@@ -5,6 +5,12 @@ using Test
 using Base: OneTo
 import TwoDimensional
 
+struct Foo{T1,T2}
+    z::Complex{T1}
+    r::T2
+    i::Int
+end
+
 @testset "TypeUtils" begin
     @testset "parameterless()" begin
         @test parameterless(Array) === Array
@@ -169,6 +175,25 @@ import TwoDimensional
         @test f(-0.3) isa Float32
         @test g(0, 1) isa BigFloat
         @test g(-0.3) isa BigFloat
+    end
+
+    @testset "Destructure and restructure" begin
+        obj = Foo(2.0f0 - 3.0f0im, π, 42) # NOTE π is special
+        @test obj isa Foo{Float32,typeof(π)}
+        @test isconcretetype(typeof(obj))
+        vals = @inferred destructure(obj)
+        @test vals === (2.0f0, -3.0f0, π, 42)
+        @test obj === @inferred restructure(typeof(obj), vals)
+        @test obj === restructure(parameterless(typeof(obj)), vals)
+        @test obj === @inferred restructure(typeof(obj), (0, 1, vals...); offset=2)
+        vec = Vector{Float64}(undef, 6)
+        @test destructure!(vec, obj)[1:4] ≈ collect(vals)
+        @test destructure!(vec, obj; offset=1)[2:5] ≈ collect(vals)
+        x = restructure(Foo{Float64,Float64}, vec; offset=1)
+        @test x isa Foo{Float64,Float64}
+        @test x.z ≈ obj.z
+        @test x.r ≈ obj.r
+        @test x.i == obj.i
     end
 
     # Check with TwoDimensional.

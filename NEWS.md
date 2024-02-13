@@ -1,5 +1,12 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.3.4
+
+- New methods `vals = destructure(obj)` or `destructure!(vals, obj)`, and `obj
+  = restructure(T, vals)` to destructure and object `obj` as a tuple or vector
+  of its values and, conversely, to rebuild an object of type `T` from its
+  values.
+
 # Version 0.3.3
 
 - Fix `convert_eltype(T,A)` when `A` is a range.

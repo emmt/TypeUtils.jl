@@ -130,3 +130,39 @@ T = return_type(f, argtypes...)
 
 to infer the type `T` of the result returned by `f` when called with arguments
 of types `argtypes...`.
+
+
+## Destructure an object as values and restructure values as an object
+
+It is sometime useful to collect the values stored by a structured object into
+simple collection of values (a tuple or a vector). The reverse operation is
+also needed. The call:
+
+``` julia
+vals = destructure(obj)
+```
+
+yields a tuple, `vals`, of the values of the structured object `obj` and,
+conversely, the call:
+
+``` julia
+obj = restructure(T, vals)
+```
+
+builds a structured object of type `T` given `vals`, a tuple or a vector of its
+values.
+
+For an immutable concrete object `obj`, the following identity holds:
+
+``` julia
+restructure(typeof(obj), destructure(obj)) === obj
+```
+
+It is also possible to destructure an object into a given vector of values:
+
+``` julia
+destructure!(vals, obj)
+```
+
+Optionally, in `restructure` and `destructure!` methods, keyword `offset` may
+be specified to not start with the first value in `vals`.
