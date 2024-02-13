@@ -181,6 +181,7 @@ end
         obj = Foo(2.0f0 - 3.0f0im, π, 42) # NOTE π is special
         @test obj isa Foo{Float32,typeof(π)}
         @test isconcretetype(typeof(obj))
+        @test struct_length(obj) == 4
         vals = @inferred destructure(obj)
         @test vals === (2.0f0, -3.0f0, π, 42)
         @test obj === @inferred restructure(typeof(obj), vals)

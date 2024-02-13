@@ -10,7 +10,8 @@ export
     parameterless,
     promote_eltype,
     restructure,
-    return_type
+    return_type,
+    struct_length
 
 using Base: OneTo
 
@@ -332,16 +333,21 @@ end
     struct_length(T) -> n
 
 yields the total number of values stored by the fields of a structured object
-of type `T`.
+of type `T`. Argument may also be an object of type `T`.
 
 """
+struct_length(x) = struct_length(typeof(x))
+
 @generated function struct_length(::Type{T}) where {T}
-    isstructtype(T) || return 1
-    n = 0
-    for k in 1:fieldcount(T)
-        n += struct_length(fieldtype(T, k))
+    if isstructtype(T) && fieldcount(T) > 0
+        n = 0
+        for k in 1:fieldcount(T)
+            n += struct_length(fieldtype(T, k))
+        end
+        return n
+    else
+        return 1
     end
-    return n
 end
 
 function __init__()

@@ -7,6 +7,9 @@
   of its values and, conversely, to rebuild an object of type `T` from its
   values.
 
+- New methods `struct_length` yields the number of values needed to destructure
+  an object.
+
 # Version 0.3.3
 
 - Fix `convert_eltype(T,A)` when `A` is a range.
