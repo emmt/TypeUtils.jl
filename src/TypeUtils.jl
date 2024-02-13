@@ -280,12 +280,33 @@ See also [`destructure`](@ref), [`restructure`](@ref), and
 [`struct_length`](@ref).
 
 """
-function destructure!(vals::AbstractVector, obj;
-                      offset::Integer = firstindex(vals) - 1)
-    for (i, val) in enumerate(destructure(obj))
-        vals[offset + i] = val
+function destructure! end
+
+@generated function destructure!(vals::AbstractVector, obj::T;
+                                 offset::Integer = firstindex(vals) - 1) where {T}
+    return encode(destructure!, :vals, :offset, :obj, T)
+end
+
+function encode(::typeof(destructure!), arr::Symbol, off::Symbol,
+                base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
+    code = Expr(:block) # start with empty quoted expression
+    encode!(destructure!, resize!(code.args, 0),
+            (i, x) -> :($arr[$off + $i] = $x), # function to store each field
+            base, T)
+    push!(code.args, :(return $arr))
+    return code
+end
+
+function encode!(::typeof(destructure!), code::AbstractVector, f,
+                 base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
+    if isstructtype(T) && fieldcount(T) > 0
+        for k in 1:fieldcount(T)
+            encode!(destructure!, code, f, :(getfield($base, $k)), fieldtype(T, k))
+        end
+    else
+        push!(code, f(length(code) + 1, base))
     end
-    return vals
+    nothing
 end
 
 """
