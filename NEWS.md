@@ -1,5 +1,9 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.3.6
+
+- Methods `destructure`, `destructure!`, and `restructure` are inline.
+
 # Version 0.3.5
 
 - Methods `destructure`, `destructure!`, `restructure`, and `struct_length`

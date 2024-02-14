@@ -254,9 +254,12 @@ function destructure end
 @generated destructure(obj::T) where {T} = encode(destructure, :obj, T)
 
 function encode(::typeof(destructure), base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
-    code = Expr(:tuple) # start with empty tuple
-    encode!(destructure, resize!(code.args, 0), base, T)
-    return Expr(:block, code) # result must be a quoted expression to work as expected
+    expr = Expr(:tuple) # start with empty tuple
+    encode!(destructure, expr.args, base, T)
+    return quote
+        $(Expr(:meta, :inline))
+        return $expr
+    end
 end
 
 function encode!(::typeof(destructure), code::AbstractVector,
@@ -290,24 +293,25 @@ end
 
 function encode(::typeof(destructure!), arr::Symbol, off::Symbol,
                 base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
-    code = Expr(:block) # start with empty quoted expression
-    encode!(destructure!, resize!(code.args, 0),
+    code = Expr(:block, Expr(:meta, :inline))
+    encode!(destructure!, code.args,
             (i, x) -> :($arr[$off + $i] = $x), # function to store each field
-            base, T)
+            base, T, 0)
     push!(code.args, :(return $arr))
     return code
 end
 
 function encode!(::typeof(destructure!), code::AbstractVector, f,
-                 base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
+                 base::Union{Symbol,Expr,QuoteNode}, ::Type{T}, i::Int) where {T}
     if isstructtype(T) && fieldcount(T) > 0
         for k in 1:fieldcount(T)
-            encode!(destructure!, code, f, :(getfield($base, $k)), fieldtype(T, k))
+            i = encode!(destructure!, code, f, :(getfield($base, $k)), fieldtype(T, k), i)
         end
     else
-        push!(code, f(length(code) + 1, base))
+        i += 1
+        push!(code, f(i, base))
     end
-    nothing
+    return i
 end
 
 """
@@ -336,7 +340,7 @@ function restructure end
 end
 
 function encode(::typeof(restructure), ::Type{T}, vals::Symbol, off::Symbol) where {T}
-    code = Expr(:block)
+    code = Expr(:block, Expr(:meta, :inline))
     encode!(restructure, code, T, i -> :($vals[$off + $i]), 0)
     return code
 end
