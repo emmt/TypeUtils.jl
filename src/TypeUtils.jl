@@ -1,6 +1,8 @@
 module TypeUtils
 
 export
+    AbstractTypeStableFunction,
+    TypeStableFunction,
     as,
     as_eltype,
     as_return,
@@ -61,36 +63,77 @@ struct As{T} <: Function; end
 (::As{T})(x) where {T} = as(T, x)
 
 """
-    g = as_return(T, f)
+    AbstractTypeStableFunction{T}
 
-yields a callable object such that `g(args...; kwds...)` returns `f(args...;
-kwds...)` converted to type `T`. Methods [`return_type(g)`](@ref) and
-`parent(g)` may be used to retrieve `T` and `f` respectively.
+is the super-type of callable object with guaranteed returned type `T`.
+
+"""
+abstract type AbstractTypeStableFunction{T} <:Function end
+
+struct TypeStableFunction{T,F} <: AbstractTypeStableFunction{T}
+    callable::F
+    TypeStableFunction{T}(f::F) where {T,F} = new{T,F}(f)
+end
+
+# Outer constructor.
+function TypeStableFunction(f, argtypes::DataType...)
+    T = Base.promote_op(f, argtypes...)
+    return TypeStableFunction{T}(f)
+end
+
+# Conversion constructors.
+TypeStableFunction{T}(f::TypeStableFunction{T}) where {T} = f
+TypeStableFunction{T}(f::TypeStableFunction) where {T} = TypeStableFunction{T}(parent(f))
+
+# Abstract constructor.
+AbstractTypeStableFunction(f, argtypes::DataType...) = TypeStableFunction(f, argtypes...)
+AbstractTypeStableFunction{T}(f) where {T} = TypeStableFunction{T}(f)
+
+# Make instances of TypeStableFunction callable.
+@inline (obj::TypeStableFunction{T})(args...; kwds...) where {T} =
+    as(T, parent(obj)(args...; kwds...))
+
+# Extend base methods.
+Base.parent(obj::TypeStableFunction) = getfield(obj, :callable)
+
+Base.return_types(::AbstractTypeStableFunction{T}; kwds...) where {T} = (T,)
+Base.return_types(::AbstractTypeStableFunction{T}, ::DataType; kwds...) where {T} = (T,)
+
+Base.promote_op(::AbstractTypeStableFunction{T}, ::DataType...) where {T} = T
+
+for cls in (:AbstractTypeStableFunction, :TypeStableFunction,)
+    @eval begin
+        Base.convert(::Type{T}, f::T) where {T<:$(cls)} = f
+        Base.convert(::Type{$(cls){T}}, f) where {T} = $(cls){T}(f)
+    end
+end
+
+"""
+    as_return(T, f) -> g
+    TypeStableFunction{T}(f) -> g
+    TypeStableFunction(f, argtypes...) -> g
+
+yield a callable object `g` that wraps callable `f` for guaranteed returned
+type `T`. Alternatively, the type(s) `argtypes...` of the function argument(s)
+can be specified to infer the returned type `T`. Then the following holds:
+
+    g(args...; kwds...) === as(T, f(args...; kwds...))
+
+for any arguments `args...` and keywords `kwds...`. Note that due to limitation
+of the `Base.promote_op` method, it is currently not possible to infer `T`
+based on the types of the keywords.
+
+ Methods [`return_type(g)`](@ref) and `parent(g)` may be used to retrieve `T`
+and `f` respectively.
 
 A similar object is given by:
 
     g = as(T)∘f
 
-""" as_return
+"""
+as_return(::Type{T}, f) where {T} = TypeStableFunction{T}(f)
 
-struct AsReturn{T,F}
-    func::F
-
-    # Inner contructor.
-    AsReturn{T}(func::F) where {T,F} = new{T,F}(func)
-
-    # Avoid multiple wrapping.
-    AsReturn{T}(func::AsReturn{T}) where {T} = func
-    AsReturn{T}(func::AsReturn) where {T} = AsReturn{T}(parent(func))
-end
-
-(obj::AsReturn{T})(args...; kwds...) where {T} = as(T, parent(obj)(args...; kwds...))
-
-as_return(::Type{T}, func) where {T} = AsReturn{T}(func)
-
-Base.parent(obj::AsReturn) = getfield(obj, :func)
-Base.return_types(obj::AsReturn{T}) where {T} = (T,)
-Base.promote_op(obj::AsReturn{T}, argtypes::Type...) where {T} = T
+@doc @doc(as_return) TypeStableFunction
 
 """
     return_type(f, argtypes...) -> T
@@ -99,14 +142,14 @@ yields the type of the result returned by the callable object `f` when called
 with arguments of types `argtypes...`.
 
 See the warning in the documentation of `Base.promote_op` for the fragility of
-such inference in some cases. There are no such issues if `f` is an object
-built by [`as_return`][@ref), however `argtypes...` are not checked for
-validity for such objects.
+such inference in some cases. There are no such issues if `f` is an instance of
+[`TypeStableFunction`](@ref), e.g. built by [`as_return`][@ref), however
+`argtypes...` are not checked for validity for such objects.
 
 """
-return_type(obj::AsReturn{T}, argtypes::Type...) where {T} = T
-return_type(::Type{<:AsReturn{T}}, argtypes::Type...) where {T} = T
-return_type(f, argtypes::Type...) = Base.promote_op(f, argtypes...)
+return_type(::TypeStableFunction{T}, ::DataType...) where {T} = T
+return_type(::Type{<:TypeStableFunction{T}}, ::DataType...) where {T} = T
+return_type(f, argtypes::DataType...) = Base.promote_op(f, argtypes...)
 
 """
     parameterless(T)

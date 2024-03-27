@@ -1,5 +1,11 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.3.7
+
+- Method `as_return(T, f)` builds an instance of `TypeStableFunction{T}` which
+  is a sub-type of `AbstractTypeStableFunction{T}`. These two types are both
+  exported.
+
 # Version 0.3.6
 
 - Methods `destructure`, `destructure!`, and `restructure` are inline.
