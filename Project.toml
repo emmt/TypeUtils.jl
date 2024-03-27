@@ -8,7 +8,7 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 Requires = "1.3"
-TwoDimensional = "0.3"
+TwoDimensional = "0.3, 0.4"
 julia = "0.7, 1"
 
 [extensions]
