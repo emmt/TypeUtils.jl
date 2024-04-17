@@ -3,7 +3,6 @@ module TestingTypeUtils
 using TypeUtils
 using Test
 using Base: OneTo
-import TwoDimensional
 
 struct Foo{T1,T2}
     z::Complex{T1}
@@ -227,29 +226,6 @@ end
         @test struct_length(c) == 4
         let vals = @inferred destructure(c)
             @test c === @inferred restructure(typeof(c), vals)
-        end
-    end
-
-    # Check with TwoDimensional.
-    @testset "with TwoDimensional" begin
-        let Point = TwoDimensional.Point,
-            WeightedPoint = TwoDimensional.WeightedPoint,
-            BoundingBox = TwoDimensional.BoundingBox
-
-            @test as(Tuple, Point(11, -9)) === (11, -9)
-            @test as(NTuple{2,Int16}, Point(11, -9)) === (Int16(11), Int16(-9))
-            @test as(Point, (11, -9)) === Point(11, -9)
-            @test as(Point{Float32}, (11, -9)) === Point{Float32}(11, -9)
-
-            @test as(Tuple, WeightedPoint(2.0, 11.0, -9.0)) === (2.0, 11.0, -9.0)
-            @test as(NTuple{3,Float32}, WeightedPoint(2.0, 11.0, -9.0)) === (Float32(2), Float32(11), Float32(-9))
-            @test as(WeightedPoint, (2.0, 11.0, -9.0)) === WeightedPoint(2.0, 11.0, -9.0)
-            @test as(WeightedPoint{Float32}, (2.0, 11.0, -9.0)) === WeightedPoint{Float32}(2.0, 11.0, -9.0)
-
-            @test as(Tuple, BoundingBox(2, 11, -9, 7)) === (2, 11, -9, 7)
-            @test as(NTuple{4,Int16}, BoundingBox(2, 11, -9, 7)) === map(Int16, (2, 11, -9, 7))
-            @test as(BoundingBox, (2, 11, -9, 7)) === BoundingBox(2, 11, -9, 7)
-            @test as(BoundingBox{Float32}, (2, 11, -9, 7)) === BoundingBox{Float32}(2, 11, -9, 7)
         end
     end
 end

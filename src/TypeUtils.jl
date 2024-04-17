@@ -17,10 +17,6 @@ export
 
 using Base: OneTo
 
-if !isdefined(Base, :get_extension)
-    using Requires
-end
-
 """
     as(T, x)
 
@@ -430,13 +426,6 @@ struct_length(x) = struct_length(typeof(x))
         return n
     else
         return 1
-    end
-end
-
-function __init__()
-    @static if !isdefined(Base, :get_extension)
-        @require TwoDimensional="1907e7ba-7586-4310-a2ba-dd01462aeb50" include(
-            "../ext/TypeUtilsTwoDimensionalExt.jl")
     end
 end
 

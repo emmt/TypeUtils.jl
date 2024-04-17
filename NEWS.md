@@ -1,5 +1,10 @@
 # User visible changes in `TypeUtils`
 
+# Version 0.4.0
+
+- `TwoDimensional` is no longer an extension because `TwoDimensional` version
+  0.5 directly extends methods in `TypeUtils`.
+
 # Version 0.3.7
 
 - Method `as_return(T, f)` builds an instance of `TypeStableFunction{T}` which
