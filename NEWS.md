@@ -1,9 +1,9 @@
 # User visible changes in `TypeUtils`
 
-# Version 0.4.0
+# Version 0.3.8
 
 - `TwoDimensional` is no longer an extension because `TwoDimensional` version
-  0.5 directly extends methods in `TypeUtils`.
+  0.5 directly extends `convert` as expected by `TypeUtils`.
 
 # Version 0.3.7
 
