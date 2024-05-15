@@ -3,11 +3,23 @@ uuid = "c3b1956e-8857-4d84-9b79-890df85b1e67"
 authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
 version = "0.3.8"
 
+[deps]
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
 [compat]
+Requires = "1"
+Unitful = "≥ 1"
 julia = "0.7, 1"
+
+[extensions]
+TypeUtilsUnitfulExt = "Unitful"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Unitful"]
+
+[weakdeps]
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
