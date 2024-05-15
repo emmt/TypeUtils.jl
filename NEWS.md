@@ -1,5 +1,11 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.0.0
+
+- All methods and types formerly provided by
+  [`Unitless`](https://github.com/emmt/Unitless.jl) are now provided by
+  `TypeUtils` which supersedes `Unitless`.
+
 # Version 0.3.8
 
 - `TwoDimensional` is no longer an extension because `TwoDimensional` version
