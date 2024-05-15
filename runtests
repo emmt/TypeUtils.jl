@@ -1,0 +1,16 @@
+#! /bin/bash
+
+self=$(realpath "$0")
+dir=$(dirname "$self")
+pkg=$(basename "$dir" .jl)
+cd "$dir"
+for ver in 0.7 1.{0..11}; do
+    echo "########################################### Julia version $ver"
+    rm -f Manifest.toml
+    test -r ".Manifest-$ver.toml" && cp -pf ".Manifest-$ver.toml" Manifest.toml
+    julia +$ver --color=yes --check-bounds=yes --depwarn=yes --project -e "
+        using Pkg;
+        Pkg.resolve();
+        include(\"test/runtests.jl\");"
+    test -r Manifest.toml && mv -f Manifest.toml ".Manifest-$ver.toml"
+done
