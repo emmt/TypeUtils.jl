@@ -3,7 +3,15 @@
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](./LICENSE.md)  [![Build Status](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/TypeUtils.jl?svg=true)](https://ci.appveyor.com/project/emmt/TypeUtils-jl) [![Coverage](https://codecov.io/gh/emmt/TypeUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/TypeUtils.jl)
 
 Package `TypeUtils` provides useful methods to deal with types in
-[Julia](https://www.julialang.org).
+[Julia](https://www.julialang.org) and facilitate coding with numbers whether
+they have units or not. The package provides methods to strip units from
+numbers or numeric types, convert the numeric type of quantities (not their
+units), determine appropriate numeric type to carry computations mixing numbers
+with different types and/or units. These methods make it easy to write code
+that works consistently for numbers with any units (including none). The
+intention is that the `TypeUtils` package automatically extends its exported
+methods when packages such as
+[`Unitful`](https://github.com/PainterQubits/Unitful.jl) are loaded.
 
 
 ## Cast value to type
