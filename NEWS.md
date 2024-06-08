@@ -1,5 +1,9 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.1.0
+
+- `convert_eltype` can be applied to a number.
+
 # Version 1.0.0
 
 - All methods and types formerly provided by

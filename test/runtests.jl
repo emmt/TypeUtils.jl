@@ -118,6 +118,12 @@ end
     end
 
     @testset "convert_eltype()" begin
+        # Numbers.
+        let A = rand(Float64), B = @inferred convert_eltype(Float32, A)
+            @test convert_eltype(eltype(A), A) === A
+            @test B isa Float32
+            @test B == Float32.(A)
+        end
         # Abstract arrays.
         let A = rand(Float64, 2, 3), B = @inferred convert_eltype(Float32, A)
             @test convert_eltype(eltype(A), A) === A

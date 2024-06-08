@@ -428,6 +428,9 @@ performs the conversion.
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractArray) where {T} = convert(AbstractArray{T}, A)
 
+# Convert element type for numbers.
+convert_eltype(::Type{T}, x::Number) where {T} = as(T, x)
+
 # Convert element type for tuples.
 convert_eltype(::Type{T}, A::NTuple{N,T}) where {N,T} = A
 convert_eltype(::Type{T}, A::Tuple) where {T} = map(as(T), A)
