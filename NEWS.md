@@ -7,7 +7,7 @@
   conversion is needed.
 
 - `to_same_concrete_type(T...)` is a substitute to `promote_type(T...)` that throws an
-  exception if types `T...` cannot be promoted to a comon concrete type.
+  exception if types `T...` cannot be promoted to a common concrete type.
 
 # Version 1.1.0
 
