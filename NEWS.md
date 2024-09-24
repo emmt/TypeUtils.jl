@@ -1,5 +1,27 @@
 # User visible changes in `TypeUtils`
 
+Add a few types and methods related to array size and axes:
+
+- `ArrayAxis = AbstractUnitRange{eltype(Dims)}` is an alias to the possible canonical
+  types representing a single array index range.
+
+- `ArrayAxes{N} = NTuple{N,ArrayAxis}` is an alias to the possible canonical types
+  representing `N`-dimensional array axes.
+
+- `ArrayShape{N}` is an alias to the `N`-tuple of array dimensions and/or index ranges
+  to which `as_array_shape`, `as_array_size`, or `as_array_axes` are applicable.
+
+- `as_array_shape` converts its argument(s) to canonical array axes or to canonical array
+  size.
+
+- `as_array_axes` converts its argument(s) to canonical array axes, that is a `N`-tuple of
+  type `ArrayAxes{N}`. `as_array_axis` converts its argument to a single array axis
+  of type `ArrayAxis`.
+
+- `as_array_size` converts its argument(s) to a canonical array size, that is a `N`-tuple
+  of type `Dims{N}`. `as_array_dim` converts its argument to a single array dimension
+  length of type `eltype(Dims)`.
+
 # Version 1.2.0
 
 - `to_same_type(x...)` is a substitute to `promote(x...)` that warrants that returned

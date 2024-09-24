@@ -1,9 +1,17 @@
 module TypeUtils
 
 export
+    ArrayAxes,
+    ArrayAxis,
+    ArrayShape,
     AbstractTypeStableFunction,
     TypeStableFunction,
     as,
+    as_array_axes,
+    as_array_axis,
+    as_array_dim,
+    as_array_shape,
+    as_array_size,
     as_eltype,
     as_return,
     bare_type,
@@ -29,6 +37,55 @@ using Base: OneTo
 if !isdefined(Base, :get_extension)
     using Requires
 end
+
+"""
+    TypeUtils.Dim
+
+is an alias to `eltype(Dims)`, the canonical integer type for an array dimension length.
+In principle, `eltype(Dims) === Int` hold.
+
+"""
+const Dim = eltype(Dims)
+
+"""
+    ArrayAxis
+
+is the canonical type of an array axis, an abstract unit range of `Int`s. Method
+[`as_array_axis`](@ref) may be called to convert an argument to an array axis.
+
+See also [`ArrayAxes`](@ref).
+
+"""
+const ArrayAxis = AbstractUnitRange{Dim}
+
+"""
+    ArrayAxes{N}
+
+is the canonical type of array axes as returned by the base method
+`axes(A::AbstractArray)`. It is an `N`-tuple of [`ArrayAxis`](@ref) instances. Method
+[`as_array_axes`](@ref) may be called to convert arguments to array axes.
+
+See also [`ArrayShape`](@ref), `Dims`.
+
+"""
+const ArrayAxes{N} = NTuple{N,ArrayAxis}
+
+"""
+    ArrayShape{N}
+
+is the union of allowed types to represent an array shape. It is an `N`-tuple of integers
+and/or integer-valued unit ranges. Methods [`as_array_shape`](@ref),
+[`as_array_axes`](@ref), and [`as_array_size`](@ref) may be called on any `ArrayShape{N}`
+instance to convert it to a canonical form of array axes or size.
+
+Expression `eltype(ArrayShape)` yields the union of possible types for each entry of an
+array shape. This may be used to specify a variable number of arguments possibly
+representing an array shape.
+
+See also [`ArrayAxes`](@ref), `Dims`.
+
+"""
+const ArrayShape{N} = NTuple{N,Union{Integer,AbstractUnitRange{<:Integer}}}
 
 """
     as(T, x)
@@ -143,6 +200,93 @@ A similar object is given by:
 as_return(::Type{T}, f) where {T} = TypeStableFunction{T}(f)
 
 @doc @doc(as_return) TypeStableFunction
+
+"""
+    as_array_shape(args...) -> r::Union{Dims,ArraysAxes}
+
+converts array dimensions or ranges `args...` to a canonical form of array shape, one of:
+
+* array size, that is a tuple of `Int`s. This is the result if all of `args...` are integers
+  or instances of `Base.OneTo`, the ranges, if any, being replaced by their lengths.
+
+* array axes, that is a tuple of `AbstractUnitRange{Int}`s. This is the result if any
+  of `args...` are non-`Base.OneTo` ranges, the integers being converted to `Base.OneTo{Int}`
+  instances.
+
+The array dimensions or ranges may also be provided as a tuple. [`ArrayShape{N}`](@ref) is
+the union of types of `N`-tuples to which `as_array_shape` is applicable.
+
+Also see [`as_array_size`](@ref), [`as_array_axes`](@ref), [`ArrayAxes`](@ref), and
+`Dims`.
+
+"""
+as_array_shape(::Tuple{}) = ()
+as_array_shape(args::eltype(ArrayShape)...) = as_array_shape(args)
+as_array_shape(args::Tuple{Vararg{Union{Integer,Base.OneTo{<:Integer}}}}) = as_array_size(args)
+as_array_shape(args::Tuple{Vararg{Union{Integer,AbstractUnitRange{<:Integer}}}}) = as_array_axes(args)
+
+"""
+    as_array_size(args...) -> dims::Dims
+
+converts array dimensions or ranges `args...` to a canonical form of array size, that is a
+tuple of `eltype(Dims)`s. Any range in `args...` is replaced by its length.
+
+The array dimensions or ranges may also be provided as a tuple. [`ArrayShape{N}`](@ref) is
+the union of types of `N`-tuples to which `as_array_size` is applicable.
+
+Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), [`as_array_dim`](@ref), and `Dims`.
+
+"""
+as_array_size(::Tuple{}) = ()
+as_array_size(args::eltype(ArrayShape)...) = as_array_size(args)
+as_array_size(dims::Dims) = dims
+as_array_size(args::Tuple{Vararg{Union{Integer,AbstractUnitRange{<:Integer}}}}) = map(as_array_dim, args)
+
+"""
+    as_array_axes(args...) -> rngs::ArrayAxes
+
+converts array dimensions or ranges `args...` to a canonical form of array axes, that is a
+tuple of `AbstractUnitRange{eltype(Dims)}`s. Any integer in `args...` is replaced by an
+instance of `Base.OneTo{eltype(Dims)}`.
+
+The array dimensions or ranges may also be provided as a tuple. [`ArrayShape{N}`](@ref) is
+the union of types of `N`-tuples to which `as_array_axes` is applicable.
+
+Also see [`as_array_shape`](@ref), [`as_array_size`](@ref), [`as_array_axis`](@ref),
+[`ArrayAxes`](@ref), and `Dims`.
+
+"""
+as_array_axes(::Tuple{}) = ()
+as_array_axes(args::eltype(ArrayShape)...) = as_array_axes(args)
+as_array_axes(rngs::ArrayAxes) = rngs
+as_array_axes(args::Tuple{Vararg{Union{Integer,AbstractUnitRange{<:Integer}}}}) = map(as_array_axis, args)
+
+"""
+    as_array_dim(arg) -> dim::eltype(Dims)
+
+converts array dimension or range `arg` to a canonical array dimension, that is an
+`eltype(Dims)`. If `arg` is a range, its length is returned.
+
+Also see [`as_array_size`](@ref), [`as_array_axis`](@ref), and `Dims`.
+
+"""
+as_array_dim(dim::Dim) = dim
+as_array_dim(dim::Integer) = as(Dim, dim)
+as_array_dim(rng::AbstractUnitRange{<:Integer}) = as_array_dim(length(rng))
+
+"""
+    as_array_axis(arg) -> rng::ArrayAxis
+
+converts array dimension or range `arg` to a canonical array axis, that is an instance of
+`AbstractUnitRange{eltype(Dims)}`. If `arg` is an integer, `Base.OneTo{eltype(Dims)}(arg)`
+is returned.
+
+Also see [`as_array_axes`](@ref), [`as_array_dim`](@ref), and `Dims`.
+
+"""
+as_array_axis(dim::Integer) = Base.OneTo{Dim}(dim)
+as_array_axis(rng::ArrayAxis) = rng
+as_array_axis(rng::AbstractUnitRange{<:Integer}) = as(ArrayAxis, rng)
 
 """
     return_type(f, argtypes...) -> T
