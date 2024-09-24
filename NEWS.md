@@ -1,5 +1,7 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.3.0
+
 Add a few types and methods related to array size and axes:
 
 - `ArrayAxis = AbstractUnitRange{eltype(Dims)}` is an alias to the possible canonical
