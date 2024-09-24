@@ -108,12 +108,14 @@ end
     @testset "Array axes and size" begin
         @test TypeUtils.Dim === Int
 
+        @test_throws MethodError as_array_dim(π)
         @test as_array_dim(7) === 7
         @test as_array_dim(Int16(9)) === 9
         @test as_array_dim(Base.OneTo(5)) === 5
         @test as_array_dim(-1:4) === 6
         @test as_array_dim(Int8(0):Int8(3)) === 4
 
+        @test_throws MethodError as_array_axis(π)
         @test as_array_axis(7) === Base.OneTo(7)
         @test as_array_axis(Int16(9)) === Base.OneTo(9)
         @test as_array_axis(Base.OneTo(5)) === Base.OneTo(5)
@@ -121,7 +123,12 @@ end
         @test as_array_axis(1:4) === 1:4
         @test as_array_axis(Int8(0):Int8(3)) === 0:3
 
+        @test_throws MethodError as_array_shape(π)
+        @test_throws MethodError as_array_shape((π,))
         @test as_array_shape() === ()
+        @test as_array_shape(()) === ()
+        @test as_array_shape(5) === (5,)
+        @test as_array_shape(2:5) === (2:5,)
         @test as_array_shape(2,Int16(9),Int8(3)) === (2,9,3)
         @test as_array_shape((2,Int16(9),Int8(3))) === (2,9,3)
         @test as_array_shape(2,3,4) === (2,3,4)
@@ -129,7 +136,12 @@ end
         @test as_array_shape(2,Int8(1):Int8(3),4) === (Base.OneTo(2),1:3,Base.OneTo(4))
         @test as_array_shape((0:2,-4:4,-2:1)) === (0:2,-4:4,-2:1)
 
+        @test_throws MethodError as_array_axes(π)
+        @test_throws MethodError as_array_axes((π,))
         @test as_array_axes() === ()
+        @test as_array_axes(()) === ()
+        @test as_array_axes(5) === (Base.OneTo(5),)
+        @test as_array_axes(2:5) === (2:5,)
         @test as_array_axes(2,Int16(9),Int8(3)) === (Base.OneTo(2),Base.OneTo(9),Base.OneTo(3))
         @test as_array_axes((2,Int16(9),Int8(3))) === (Base.OneTo(2),Base.OneTo(9),Base.OneTo(3))
         @test as_array_axes(2,3,4) === (Base.OneTo(2),Base.OneTo(3),Base.OneTo(4))
@@ -137,7 +149,12 @@ end
         @test as_array_axes(2,Int8(1):Int8(3),4) === (Base.OneTo(2),1:3,Base.OneTo(4))
         @test as_array_axes((0:2,-4:4,-2:1)) === (0:2,-4:4,-2:1)
 
+        @test_throws MethodError as_array_size(π)
+        @test_throws MethodError as_array_size((π,))
         @test as_array_size() === ()
+        @test as_array_size(()) === ()
+        @test as_array_size(5) === (5,)
+        @test as_array_size(2:5) === (4,)
         @test as_array_size(2,Int16(9),Int8(3)) === (2,9,3)
         @test as_array_size((2,Int16(9),Int8(3))) === (2,9,3)
         @test as_array_size(2,3,4) === (2,3,4)
