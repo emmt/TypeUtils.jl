@@ -20,6 +20,8 @@ export
     restructure,
     return_type,
     struct_length,
+    to_same_type,
+    to_same_concrete_type,
     unitless
 
 using Base: OneTo
@@ -185,6 +187,112 @@ Array
 # less likely to be broken by internal changes in Julia:
 #
 parameterless(::Type{T}) where {T} = getfield(parentmodule(T), nameof(T))
+
+"""
+    to_same_type(x1, x2, ...) -> xp1, xp2, ...
+
+converts instances `x1`, `x2`, ... to the same type. This method may be used instead of
+`promote(x1,x2,...)` which does not warrant that the converted values have the same type.
+
+Example:
+
+```julia
+julia> using Unitful, TypeUtils
+
+julia> promote(2, 3.0)
+(2.0, 3.0)
+
+julia> to_same_type(2, 3.0)
+(2.0, 3.0)
+
+julia> promote(2u"mm", 3.0)
+(2.0 mm, 3.0)
+
+julia> to_same_type(2u"mm", 3.0)
+ERROR: ArgumentError: types `Quantity{Int64, 𝐋, Unitful.FreeUnits{(mm,), 𝐋, nothing}}` and `Float64` cannot be converted to a common concrete type
+Stacktrace:
+ ...
+
+julia> promote(2u"mm", 4.0u"nm")
+(0.002 m, 4.0e-9 m)
+
+julia> to_same_type(2u"mm", 4.0u"nm")
+(0.002 m, 4.0e-9 m)
+```
+
+Also see [`to_same_concrete_type`](@ref).
+
+""" function to_same_type end
+
+# No conversion needed for arguments of the same type.
+to_same_type() = ()
+to_same_type(x) = (x,)
+to_same_type(x1::T, x2::T) where {T} = (x1, x2)
+to_same_type(xs::T...) where {T} = xs
+
+# For arguments of different types, the promoted type must be concrete otherwise it cannot
+# have direct instances.
+function to_same_type(x1::T1, x2::T2) where {T1,T2}
+    T = to_same_concrete_type(T1, T2)
+    return as(T, x1), as(T, x2)
+end
+@inline function to_same_type(xs...)
+    T = to_same_concrete_type(map(typeof, xs)...)
+    return map(as(T), xs)
+end
+
+## Error catcher, arguments must be instances not types.
+to_same_type(xs::DataType...) =
+    throw(ArgumentError("argument(s) must be instance(s) not type(s)"))
+
+"""
+    to_same_concrete_type(T1::Type, T2::Type, ...) -> T::Type
+
+yields `T = promote_type(T1, T2, ...)` throwing an exception if `T` is not a concrete
+type.
+
+Also see [`to_same_type`](@ref).
+
+""" function to_same_concrete_type end
+
+to_same_concrete_type() = throw(ArgumentError("no type(s) specified"))
+
+function to_same_concrete_type(::Type{T}) where {T}
+    isconcretetype(T) || throw_not_concrete_type(T)
+    return T
+end
+
+function to_same_concrete_type(::Type{T}, ::Type{T}) where {T}
+    isconcretetype(T) || throw_not_concrete_type(T)
+    return T
+end
+
+function to_same_concrete_type(::Type{T1}, ::Type{T2}) where {T1,T2}
+    T = promote_type(T1, T2)
+    isconcretetype(T) || throw_no_common_concrete_type(T1, T2)
+    return T
+end
+
+@inline function to_same_concrete_type(::Type{T}...) where {T}
+    isconcretetype(T) || throw_not_concrete_type(T)
+    return T
+end
+
+@inline function to_same_concrete_type(Ts::Type...)
+    T = promote_type(Ts...)
+    isconcretetype(T) || throw_no_common_concrete_type(Ts...)
+    return T
+end
+
+@noinline throw_not_concrete_type(T::Type) =
+    throw(ArgumentError("type `$T` is not a concrete type"))
+
+@noinline throw_no_common_concrete_type(T1::Type, T2::Type) =
+    throw(ArgumentError("types `$T1` and `$T2` cannot be converted to a common concrete type"))
+
+@noinline throw_no_common_concrete_type(Ts::Type...) =
+    throw(ArgumentError(*("types `", join(Ts, "`, `", "`, and `"),
+                          "` cannot be converted to a common concrete type")))
 
 """
     TypeUtils.BareNumber

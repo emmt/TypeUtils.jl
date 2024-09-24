@@ -105,6 +105,36 @@ end
         @test as(Symbol, "hello") === :hello
     end
 
+    @testset "to_same_conceret_type()" begin
+        @test to_same_concrete_type(Int) === Int
+        @test to_same_concrete_type(UInt8, UInt8) === UInt8
+        @test to_same_concrete_type(Int8, Int8, Int8) === Int8
+        @test to_same_concrete_type(UInt8, UInt16) === UInt16
+        @test to_same_concrete_type(Int8, Int16, Int32) === Int32
+        @test_throws ArgumentError to_same_concrete_type(AbstractUnitRange)
+        @test_throws ArgumentError to_same_concrete_type(AbstractFloat, Float32)
+        @test_throws ArgumentError to_same_concrete_type(String, Float32, Int16)
+    end
+
+    @testset "to_same_type()" begin
+        @test to_same_type() === ()
+        @test to_same_type(pi) === (pi,)
+        @test to_same_type('x') === ('x',)
+        @test to_same_type(1, 2) === (1, 2)
+        @test to_same_type(0x1, 0x2, 0x3) === (0x1, 0x2, 0x3)
+        @test to_same_type(0x1, 2) === (1, 2)
+        @test to_same_type(UInt8(1), Int8(2), Int16(3)) === (Int16(1), Int16(2), Int16(3))
+        @test_throws ArgumentError to_same_type(2u"mm", 3.0)
+        @test_throws ArgumentError to_same_type(2u"mm", 3.0u"kg")
+        x1, x2 = @inferred to_same_type(2u"mm", 3.0u"cm")
+        @test typeof(x1) === typeof(x2)
+        @test_throws ArgumentError to_same_type(Int)
+        @test_throws ArgumentError to_same_type(Int8,Int8)
+        @test_throws ArgumentError to_same_type(Int8,Int16)
+        @test_throws ArgumentError to_same_type(Int16,Int16,Int16)
+        @test_throws ArgumentError to_same_type(Int16,Int32,Int64)
+    end
+
     @testset "promote_eltype()" begin
         A = rand(Float32, 2, 3)
         B = ones(Int16, 2)

@@ -1,5 +1,12 @@
 # User visible changes in `TypeUtils`
 
+- `to_same_type(x...)` is a substitute to `promote(x...)` that warrants that returned
+  instances have the same type and that calls `as(T,x)`, not `convert(T,x)`, if any
+  conversion is needed.
+
+- `to_same_concrete_type(T...)` is a substitute to `promote_type(T...)` that throws an
+  exception if types `T...` cannot be promoted to a comon concrete type.
+
 # Version 1.1.0
 
 - `convert_eltype` can be applied to a number.
