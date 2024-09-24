@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/bash
 
 self=$(realpath "$0")
 dir=$(dirname "$self")
