@@ -1,5 +1,7 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.2.0
+
 - `to_same_type(x...)` is a substitute to `promote(x...)` that warrants that returned
   instances have the same type and that calls `as(T,x)`, not `convert(T,x)`, if any
   conversion is needed.
