@@ -1,5 +1,14 @@
 # User visible changes in `TypeUtils`
 
+- Non-exported type `TypeUtils.Unsupported` may be used to provide a fallback
+  implementation of a method for given types of arguments that is only supported when some
+  extension is loaded.
+
+- `new_array(T, inds...)` creates an array with elements of type `T` and shape defined by
+  `inds...`. The returned array is an `OffsetArray{T}` if `inds...` contains any index
+  range other than `Base.OneTo` and an `Array{T}` otherwise. In the former case, an
+  exception is thrown if the package `OffsetArrays` has not been loaded.
+
 # Version 1.3.0
 
 Add a few types and methods related to array size and axes:

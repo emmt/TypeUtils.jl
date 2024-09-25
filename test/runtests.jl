@@ -3,6 +3,7 @@ module TestingTypeUtils
 using TypeUtils
 using TypeUtils: BareNumber
 using Unitful
+using OffsetArrays
 using Test
 using Base: OneTo
 
@@ -161,6 +162,22 @@ end
         @test as_array_size(2,Base.OneTo{Int8}(3),4) === (2,3,4)
         @test as_array_size(2,Int8(1):Int8(3),4) === (2,3,4)
         @test as_array_size((0:2,-4:4,-2:1)) === (3,9,4)
+    end
+
+    @testset "new_array()" begin
+        A = @inferred new_array(Float32, 2,3,4)
+        @test A isa Array{Float32,3}
+        @test size(A) === (2,3,4)
+        B = @inferred new_array(Float64, axes(A))
+        @test B isa Array{Float64,3}
+        @test size(B) === size(A)
+        C = @inferred new_array(Int16, 2,-1:1,4)
+        @test C isa OffsetArray{Int16,3}
+        @test size(C) === (2,3,4)
+        @test axes(C) == (1:2, -1:1, 1:4)
+        D = @inferred new_array(Int8, axes(C))
+        @test D isa OffsetArray{Int8,3}
+        @test axes(D) == axes(C)
     end
 
     @testset "to_same_concrete_type()" begin
