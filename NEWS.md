@@ -1,5 +1,7 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.4.1
+
 - `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the
   elligible type for specifying an array axis. This is a trait for
   `AbstractUnitRange{<:Integer}`. Methods `as_array_axis`, `as_array_axes` and
