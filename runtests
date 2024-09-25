@@ -27,6 +27,6 @@ for ver in $args; do
     julia +$ver --color=yes --check-bounds=yes --depwarn=yes --project -e "
         using Pkg;
         Pkg.instantiate();
-        include(\"test/runtests.jl\");"
+        Pkg.test();"
     test -r Manifest.toml && mv -f Manifest.toml ".Manifest-$ver.toml"
 done
