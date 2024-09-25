@@ -1,5 +1,13 @@
 # User visible changes in `TypeUtils`
 
+- `ArrayShape{N}` is restricted to integers and integer valued unit-ranges which better
+  corresponds to Julia's way of representing an `N`-dimensional array shape. Methods
+  `as_array_axis`, `as_array_axes`, `as_Array_dim`, `as_array_shape`, and `as_array_size`
+  still accept `AbstractRange{<:Integer}` ranges and assert that they have unit step.
+
+- `TypeUtils.RelaxedArrayShape{N}` is provided as an alias for `N`-tuples of integers and
+  integer-valued ranges.
+
 # Version 1.4.1
 
 - `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the

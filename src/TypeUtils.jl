@@ -74,10 +74,12 @@ const ArrayAxes{N} = NTuple{N,ArrayAxis}
 """
     ArrayShape{N}
 
-is the union of allowed types to represent an array shape. It is an `N`-tuple of integers
-and/or integer-valued unit ranges. Methods [`as_array_shape`](@ref),
-[`as_array_axes`](@ref), and [`as_array_size`](@ref) may be called on any `ArrayShape{N}`
-instance to convert it to a canonical form of array axes or size.
+is the type of eligible argument to represent an `N`-dimensional array shape as usually
+accepted in Julia: it is an `N`-tuple of integers and/or integer-valued unit ranges.
+
+Methods [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref) may
+be called on any `ArrayShape{N}` instance to convert it to a canonical form of array axes
+or size.
 
 Expression `eltype(ArrayShape)` yields the union of possible types for each entry of an
 array shape. This may be used to specify a variable number of arguments possibly
@@ -86,7 +88,26 @@ representing an array shape.
 See also [`ArrayAxes`](@ref), `Dims`.
 
 """
-const ArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
+const ArrayShape{N} = NTuple{N,Union{Integer,AbstractUnitRange{<:Integer}}}
+
+"""
+    TypeUtils.RelaxedArrayShape{N}
+
+is like [`ArrayShape{N}`](@ref) but also includes `AbstractRange{<:Integer}}}`s (not just
+`AbstractUnitRange{<:Integer}`s).
+
+Methods [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref) may
+be called on any argument of type `RelaxedArrayShape{N}` to convert it to a canonical form
+of array axes or size. Likewise, methods [`as_array_dim`](@ref) and
+[`as_array_axis`](@ref) may be called on any argument of type
+`eltype(RelaxedArrayShape{N})` to convert it to a canonical array dimension length or
+axis. All these methods assert that all ranges have a unit step.
+
+!!! warning
+    It is preferable to use [`ArrayShape{N}`](@ref) which better reflects Julia style.
+
+"""
+const RelaxedArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
 
 """
     TypeUtils.Unsupported(T::DataType...)
