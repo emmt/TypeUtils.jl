@@ -1,3 +1,14 @@
+module TestingTypeUtilsWithoutExtensions
+using TypeUtils
+using Test
+@testset "TypeUtils (without extensions)" begin
+    @testset "new_array()" begin
+        @test_throws Exception new_array(Int16, -1:2)
+    end
+end
+
+end # module TestingTypeUtilsWithoutExtensions
+
 module TestingTypeUtils
 
 using TypeUtils
@@ -186,6 +197,7 @@ end
         @test to_same_concrete_type(Int8, Int8, Int8) === Int8
         @test to_same_concrete_type(UInt8, UInt16) === UInt16
         @test to_same_concrete_type(Int8, Int16, Int32) === Int32
+        @test_throws ArgumentError to_same_concrete_type()
         @test_throws ArgumentError to_same_concrete_type(AbstractUnitRange)
         @test_throws ArgumentError to_same_concrete_type(AbstractFloat, Float32)
         @test_throws ArgumentError to_same_concrete_type(String, Float32, Int16)
@@ -668,4 +680,4 @@ end
     end
 end
 
-end # module
+end # module TestingTypeUtils
