@@ -316,7 +316,7 @@ Also see [`as_array_axes`](@ref), [`as_array_dim`](@ref), and `Dims`.
 """
 as_array_axis(dim::Integer) = Base.OneTo{Dim}(dim)
 as_array_axis(rng::ArrayAxis) = rng
-as_array_axis(rng::AbstractUnitRange{<:Integer}) = as(ArrayAxis, rng)
+as_array_axis(rng::AbstractUnitRange{<:Integer}) = ArrayAxis(rng)
 
 """
     new_array(T, inds...) -> A
