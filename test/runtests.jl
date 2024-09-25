@@ -1,9 +1,12 @@
 module TestingTypeUtilsWithoutExtensions
 using TypeUtils
 using Test
-@testset "TypeUtils (without extensions)" begin
-    @testset "new_array()" begin
-        @test_throws Exception new_array(Int16, -1:2)
+
+if isempty(filter(x -> x.name == "OffsetArrays", keys(Base.loaded_modules)))
+    @testset "TypeUtils (without extensions)" begin
+        @testset "new_array()" begin
+            @test_throws Exception new_array(Int16, -1:2)
+        end
     end
 end
 
