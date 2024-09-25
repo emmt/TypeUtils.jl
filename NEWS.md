@@ -1,5 +1,7 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.4.0
+
 - Non-exported type `TypeUtils.Unsupported` may be used to provide a fallback
   implementation of a method for given types of arguments that is only supported when some
   extension is loaded.
