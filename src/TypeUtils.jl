@@ -329,6 +329,8 @@ If `inds...` contains any index range other than `Base.OneTo`, an `OffsetArray{T
 returned; otherwise an `Array{T}` is returned. In the former case, an exception is thrown
 if the package `OffsetArrays` has not been loaded.
 
+Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref).
+
 """
 new_array(::Type{T}, inds::eltype(ArrayShape)...) where {T} = new_array(T, inds)
 new_array(::Type{T}, inds::ArrayShape{N}) where {T,N} = new_array(T, as_array_shape(inds))

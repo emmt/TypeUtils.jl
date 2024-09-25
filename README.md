@@ -141,6 +141,53 @@ julia> parameterless(Vector{Float32})
 Array
 ```
 
+## Deal with array shape, size, and axes
+
+The `TypeUtils` package provides the following types for array shape, size, and axes:
+
+- `ArrayAxis` is an alias to the possible canonical types representing a single array
+  index range, that is `AbstractUnitRange{eltype(Dims)}`.
+
+- `ArrayAxes{N}` is an alias to the possible canonical types representing `N`-dimensional
+  array axes, that is `NTuple{N,ArrayAxis}`. For any `N`-dimensional array `A`, `axes(A)
+  <: ArrayAxes{N}` should hold.
+
+- `ArrayShape{N}` is an alias to the `N`-tuple of array dimensions and/or index ranges to
+  which `as_array_shape`, `as_array_size`, or `as_array_axes` are applicable (see below).
+
+Note that `Dims{N}` is the same as `NTuple{N,Int}` in Julia and represents the result of
+`size(A)` for the `N`-dimensional array `A`, so `eltype(Dims) = Int`.
+
+Given a list `inds...` of array dimension lenghts (integers) and/or index ranges
+(integer-valued unit ranges), the following methods from `TypeUtils` are applicable:
+
+- `as_array_shape(inds...)` yields canonical array axes (if `inds...` contains any index
+  range other than `Base.OneTo`) or canonical array size (otherwise). The former is an
+  instance of `ArrayAxes{N}`, the latter is an instance of `Dims{N}`.
+
+- `as_array_axes(inds...)` yields canonical array axes, that is a `N`-tuple of type
+  `ArrayAxes{N}`.
+
+- `as_array_size(inds...)` yields canonical array size, that is a `N`-tuple of type
+  `Dims{N}`.
+
+Of course, these methods also accept that their arguments be sopecified by a tuple of
+array dimension lenghts and/or index ranges, that is `(inds...,)` instead of `inds...` in
+the above example.
+
+To deal with individual array dimension length and/or index range:
+
+- `as_array_axis` converts its argument to a single array axis of type `ArrayAxis`.
+
+- `as_array_dim` converts its argument to a single array dimension length of type
+  `eltype(Dims)`, that is an `Int`.
+
+The method `new_array(T, inds...)` yields a new array with elements of type `T` and shape
+defined by `inds...`. Following the semantic of `as_array_shape`, the returned array is an
+`OffsetArray{T}` if `inds...` contains any index range other than `Base.OneTo` and an
+`Array{T}` otherwise. In the former case, an exception is thrown if the package
+`OffsetArrays` has not been loaded.
+
 
 ## Deal with array element types
 
