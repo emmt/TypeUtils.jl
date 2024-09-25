@@ -86,7 +86,7 @@ representing an array shape.
 See also [`ArrayAxes`](@ref), `Dims`.
 
 """
-const ArrayShape{N} = NTuple{N,Union{Integer,AbstractUnitRange{<:Integer}}}
+const ArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
 
 """
     TypeUtils.Unsupported(T::DataType...)
@@ -252,7 +252,8 @@ and [`new_array`](@ref).
 as_array_shape(::Tuple{}) = ()
 as_array_shape(args::eltype(ArrayShape)...) = as_array_shape(args)
 as_array_shape(args::Tuple{Vararg{Union{Integer,Base.OneTo{<:Integer}}}}) = as_array_size(args)
-as_array_shape(args::Tuple{Vararg{Union{Integer,AbstractUnitRange{<:Integer}}}}) = as_array_axes(args)
+as_array_shape(args::Tuple{Vararg{Union{Integer,AbstractRange{<:Integer}}}}) =
+    as_array_axes(args)
 
 """
     as_array_size(args...) -> dims::Dims
@@ -270,7 +271,8 @@ Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), [`as_array_dim`](@re
 as_array_size(::Tuple{}) = ()
 as_array_size(args::eltype(ArrayShape)...) = as_array_size(args)
 as_array_size(dims::Dims) = dims
-as_array_size(args::Tuple{Vararg{Union{Integer,AbstractUnitRange{<:Integer}}}}) = map(as_array_dim, args)
+as_array_size(args::Tuple{Vararg{Union{Integer,AbstractRange{<:Integer}}}}) =
+    map(as_array_dim, args)
 
 """
     as_array_axes(args...) -> rngs::ArrayAxes
@@ -289,13 +291,14 @@ Also see [`as_array_shape`](@ref), [`as_array_size`](@ref), [`as_array_axis`](@r
 as_array_axes(::Tuple{}) = ()
 as_array_axes(args::eltype(ArrayShape)...) = as_array_axes(args)
 as_array_axes(rngs::ArrayAxes) = rngs
-as_array_axes(args::Tuple{Vararg{Union{Integer,AbstractUnitRange{<:Integer}}}}) = map(as_array_axis, args)
+as_array_axes(args::Tuple{Vararg{Union{Integer,AbstractRange{<:Integer}}}}) =
+    map(as_array_axis, args)
 
 """
     as_array_dim(arg) -> dim::eltype(Dims)
 
 converts array dimension or range `arg` to a canonical array dimension, that is an
-`eltype(Dims)`. If `arg` is a range, its length is returned.
+`eltype(Dims)`. If `arg` is a unit-step range, its length is returned.
 
 Also see [`as_array_size`](@ref), [`as_array_axis`](@ref), and `Dims`.
 
@@ -303,6 +306,8 @@ Also see [`as_array_size`](@ref), [`as_array_axis`](@ref), and `Dims`.
 as_array_dim(dim::Dim) = dim
 as_array_dim(dim::Integer) = as(Dim, dim)
 as_array_dim(rng::AbstractUnitRange{<:Integer}) = as_array_dim(length(rng))
+as_array_dim(rng::AbstractRange{<:Integer}) =
+     isone(step(rng)) ? as_array_dim(length(rng)) : throw_non_unit_step(rng)
 
 """
     as_array_axis(arg) -> rng::ArrayAxis
@@ -317,6 +322,11 @@ Also see [`as_array_axes`](@ref), [`as_array_dim`](@ref), and `Dims`.
 as_array_axis(dim::Integer) = Base.OneTo{Dim}(dim)
 as_array_axis(rng::ArrayAxis) = rng
 as_array_axis(rng::AbstractUnitRange{<:Integer}) = ArrayAxis(rng)
+as_array_axis(rng::AbstractRange{<:Integer}) =
+     isone(step(rng)) ? UnitRange{Dim}(first(rng), last(rng)) : throw_non_unit_step(rng)
+
+@noinline throw_non_unit_step(rng::AbstractRange) = throw(ArgumentError(
+    "invalid non-unit step ($(step(rng))) for array axis"))
 
 """
     new_array(T, inds...) -> A
