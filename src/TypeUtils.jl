@@ -40,6 +40,22 @@ if !isdefined(Base, :get_extension)
 end
 
 """
+    @public args...
+
+declares `args...` as being `public` even though they are not exported. For Julia version
+< 1.11, this macro does nothing. Using this macro also avoid errors with CI and coverage
+tools.
+
+"""
+macro public(args::Union{Symbol,Expr}...)
+    if VERSION ≥ v"1.11.0-DEV.469"
+        esc(Expr(:public, args...))
+    else
+        nothing
+    end
+end
+
+"""
     TypeUtils.Dim
 
 is an alias to `eltype(Dims)`, the canonical integer type for an array dimension length.
@@ -47,6 +63,7 @@ In principle, `eltype(Dims) === Int` hold.
 
 """
 const Dim = eltype(Dims)
+@public Dim
 
 """
     ArrayAxis
@@ -108,6 +125,7 @@ axis. All these methods assert that all ranges have a unit step.
 
 """
 const RelaxedArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
+@public RelaxedArrayShape
 
 """
     TypeUtils.Unsupported(T::DataType...)
@@ -136,6 +154,7 @@ struct Unsupported
     Unsupported() = error("it is not possible to instanciate this type")
 end
 Unsupported(T::DataType...) = Union{T...,Unsupported}
+@public Unsupported
 
 """
     as(T, x)
@@ -527,6 +546,7 @@ is the union of bare numeric types, that is `Real` or `Complex`.
 
 """
 const BareNumber = Union{Real,Complex}
+@public BareNumber
 
 """
     unitless(x)

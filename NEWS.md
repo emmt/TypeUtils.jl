@@ -1,21 +1,24 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.4.1
+
+- New macro `@public` to declare non-exported public symbols. Does nothing for Julia
+  versions older than 1.11.
+
 - `ArrayShape{N}` is restricted to integers and integer valued unit-ranges which better
   corresponds to Julia's way of representing an `N`-dimensional array shape. Methods
-  `as_array_axis`, `as_array_axes`, `as_Array_dim`, `as_array_shape`, and `as_array_size`
+  `as_array_axis`, `as_array_axes`, `as_array_dim`, `as_array_shape`, and `as_array_size`
   still accept `AbstractRange{<:Integer}` ranges and assert that they have unit step.
 
 - `TypeUtils.RelaxedArrayShape{N}` is provided as an alias for `N`-tuples of integers and
   integer-valued ranges.
 
-# Version 1.4.1
-
 - `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the
-  elligible type for specifying an array axis. This is a trait for
-  `AbstractUnitRange{<:Integer}`. Methods `as_array_axis`, `as_array_axes` and
-  `as_array_shape` convert index ranges to `AbstractUnitRange{Int}` throwing an exception
-  if any range does not have unit step. The downside is that this must be explictely
-  checked for non-`AbstractUnitRange{<:Integer}` ranges.
+  elligible type for specifying an array axis. Methods `as_array_axis`, `as_array_axes`
+  and `as_array_shape` convert index ranges to `AbstractUnitRange{Int}` throwing an
+  exception if any range does not have unit step. The downside is that this must be
+  explictely checked for non-`AbstractUnitRange{<:Integer}` ranges while it can be
+  inferred by type (it is a trait) for `AbstractUnitRange{<:Integer}` ranges.
 
 # Version 1.4.0
 
