@@ -154,7 +154,7 @@ end
         @test as_array_shape(2,Base.OneTo{Int8}(3),4) === (2,3,4)
         @test as_array_shape(2,Int8(1):Int8(3),4) === (Base.OneTo(2),1:3,Base.OneTo(4))
         @test as_array_shape((0:2,-4:4,-2:1)) === (0:2,-4:4,-2:1)
-        @test_throws ArgumentError as_array_shape(1:2:6) # non-unit step
+        @test_throws ArgumentError as_array_shape((1:4, 1:2:6,)) # non-unit step
 
         @test_throws MethodError as_array_axes(π)
         @test_throws MethodError as_array_axes((π,))
@@ -168,7 +168,7 @@ end
         @test as_array_axes(2,Base.OneTo{Int8}(3),4) === (Base.OneTo(2),Base.OneTo(3),Base.OneTo(4))
         @test as_array_axes(2,Int8(1):Int8(3),4) === (Base.OneTo(2),1:3,Base.OneTo(4))
         @test as_array_axes((0:2,-4:4,-2:1)) === (0:2,-4:4,-2:1)
-        @test_throws ArgumentError as_array_axes(1:2:6) # non-unit step
+        @test_throws ArgumentError as_array_axes((1:4, 1:2:6,)) # non-unit step
 
         @test_throws MethodError as_array_size(π)
         @test_throws MethodError as_array_size((π,))
@@ -182,7 +182,7 @@ end
         @test as_array_size(2,Base.OneTo{Int8}(3),4) === (2,3,4)
         @test as_array_size(2,Int8(1):Int8(3),4) === (2,3,4)
         @test as_array_size((0:2,-4:4,-2:1)) === (3,9,4)
-        @test_throws ArgumentError as_array_size(1:2:6) # non-unit step
+        @test_throws ArgumentError as_array_size((1:4, 1:2:6,)) # non-unit step
     end
 
     @testset "new_array()" begin
