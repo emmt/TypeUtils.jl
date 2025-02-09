@@ -771,29 +771,44 @@ promote_eltype(arg) = eltype(arg)
 """
     convert_eltype(T, A) -> B
 
-converts the elements of `A` to type `T`. The returned object is similar to `A`
-except maybe for the element type. For example, if `A` is a range, then `B` is
-also a range. If `T` is the element type of `A`, then `A` is returned.
+converts the element type of object/type `A` to type `T`. The returned object/type is
+similar to `A` except maybe for the element type. For example, if `A` is a range, then `B`
+is also a range. If `T` is the element type of `A`, then `A` may be returned.
 
-Consider using [`as_eltype(T, A)`](@ref) to build an object that lazily
-performs the conversion.
+Consider using [`as_eltype(T, A)`](@ref) to build an object that lazily performs the
+conversion.
+
+To simplify extending `convert_eltype` for objects `A` of given type, the default behavior
+is:
+
+    convert_eltype(T, A) = as(convert_eltype(T, typeof(A)), A)
+
+so that it may be sufficient to extend `convert_eltype` for the type of the objects.
 
 """
+convert_eltype(::Type{T}, x::X) where {T,X} = as(convert_eltype(T, X), x)
+convert_eltype(::Type{T}, ::Type{X}) where {T,X} =
+    error("don't know how to convert the element type of type `$X` to `$T`")
+
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
-convert_eltype(::Type{T}, A::AbstractArray) where {T} = convert(AbstractArray{T}, A)
+convert_eltype(::Type{T}, A::AbstractArray) where {T} = as(AbstractArray{T}, A)
 
 # Convert element type for numbers.
-convert_eltype(::Type{T}, x::Number) where {T} = as(T, x)
+convert_eltype(::Type{T}, ::Type{<:Number}) where {T} = T
 
-# Convert element type for tuples.
+# Convert element type for tuples. See `_countuple` in `base/tuple.jl` for the best
+# way to extract the number of elements in a tuple given its type.
+convert_eltype(::Type{T}, ::Type{<:NTuple{N,Any}}) where {N,T} = NTuple{N,T}
 convert_eltype(::Type{T}, A::NTuple{N,T}) where {N,T} = A
 convert_eltype(::Type{T}, A::Tuple) where {T} = map(as(T), A)
 
-# Convert element type for Base.OneTo{T<:Integer} <: AbstractUnitRange{T}.
-# Conversion to non-integer element types is handled by the more general method
-# for AbstractUnitRange.
-convert_eltype(::Type{T}, A::OneTo{T}) where {T<:Integer} = A
-convert_eltype(::Type{T}, A::OneTo) where {T<:Integer} = OneTo{T}(last(A))
+# Convert element type for `Base.OneTo` and `UnitRange`. For `T` non-integer,
+# a `Base.OneTo` instance becomes a `UnitRange` one (in a predictible way).
+convert_eltype(::Type{T}, ::Type{<:OneTo}) where {T<:Integer} = OneTo{T}
+convert_eltype(::Type{T}, ::Type{<:OneTo}) where {T} = UnitRange{T}
+convert_eltype(::Type{T}, ::Type{<:UnitRange}) where {T} = UnitRange{T}
+convert_eltype(::Type{T}, A::Union{OneTo,UnitRange}) where {T} =
+    as(convert_eltype(T, typeof(A)), A)
 
 # Convert element type for AbstractUnitRange{T} <: OrdinalRange{T,T}.
 convert_eltype(::Type{T}, A::AbstractUnitRange{T}) where {T} = A

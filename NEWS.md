@@ -5,6 +5,9 @@
 - New macro `@public` to declare non-exported public symbols. Does nothing for Julia
   versions older than 1.11.
 
+- For other packages, it may be sufficient to extend `convert_eltype(T, X)` to a given
+  type `X` to have `convert_eltype(T, x::X)` work for instances `x` of that type.
+
 - `ArrayShape{N}` is restricted to integers and integer valued unit-ranges which better
   corresponds to Julia's way of representing an `N`-dimensional array shape. Methods
   `as_array_axis`, `as_array_axes`, `as_array_dim`, `as_array_shape`, and `as_array_size`
