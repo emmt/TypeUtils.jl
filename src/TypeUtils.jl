@@ -59,7 +59,7 @@ end
     TypeUtils.Dim
 
 is an alias to `eltype(Dims)`, the canonical integer type for an array dimension length.
-In principle, `eltype(Dims) === Int` hold.
+In principle, `eltype(Dims) === Int` holds.
 
 """
 const Dim = eltype(Dims)
@@ -116,9 +116,9 @@ is like [`ArrayShape{N}`](@ref) but also includes `AbstractRange{<:Integer}}}`s 
 Methods [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref) may
 be called on any argument of type `RelaxedArrayShape{N}` to convert it to a canonical form
 of array axes or size. Likewise, methods [`as_array_dim`](@ref) and
-[`as_array_axis`](@ref) may be called on any argument of type
-`eltype(RelaxedArrayShape{N})` to convert it to a canonical array dimension length or
-axis. All these methods assert that all ranges have a unit step.
+[`as_array_axis`](@ref) may be called on any argument of type `eltype(RelaxedArrayShape)`
+to convert it to a canonical array dimension length or axis. All these methods assert that
+all ranges have a unit step.
 
 !!! warning
     It is preferable to use [`ArrayShape{N}`](@ref) which better reflects Julia style.
@@ -275,15 +275,17 @@ as_return(::Type{T}, f) where {T} = TypeStableFunction{T}(f)
 
 converts array dimensions or ranges `args...` to a canonical form of array shape, one of:
 
-* array size, that is a tuple of `Int`s. This is the result if all of `args...` are integers
-  or instances of `Base.OneTo`, the ranges, if any, being replaced by their lengths.
+* array size, that is a tuple of `Int`s. This is the result if all of `args...` are
+  integers or instances of `Base.OneTo`, the latter, if any, being replaced by their
+  lengths.
 
-* array axes, that is a tuple of `AbstractUnitRange{Int}`s. This is the result if any
-  of `args...` are non-`Base.OneTo` ranges, the integers being converted to `Base.OneTo{Int}`
-  instances.
+* array axes, that is a tuple of `AbstractUnitRange{Int}`s. This is the result if any of
+  `args...` are non-`Base.OneTo` ranges, the integers being converted to instances of
+  `Base.OneTo{eltype(Dims)}`.
 
-The array dimensions or ranges may also be provided as a tuple. [`ArrayShape{N}`](@ref) is
-the union of types of `N`-tuples to which `as_array_shape` is applicable.
+The array dimensions or ranges may also be provided as a tuple.
+[`TypeUtils.RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
+`as_array_shape` is applicable.
 
 Also see [`as_array_size`](@ref), [`as_array_axes`](@ref), [`ArrayAxes`](@ref), `Dims`,
 and [`new_array`](@ref).
