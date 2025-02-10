@@ -2,27 +2,25 @@
 
 # Version 1.4.1
 
-- New macro `@public` to declare non-exported public symbols. Does nothing for Julia
+- `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the
+  eligible type for specifying an array axis. Methods `as_array_axis`, `as_array_axes`,
+  and `as_array_shape` convert index ranges to `AbstractUnitRange{Int}` throwing an
+  exception if any range does not have unit step. The downside is that this must be
+  explicitly checked for non-`AbstractUnitRange{<:Integer}` ranges while it can be
+  inferred by type (it is a trait) for `AbstractUnitRange{<:Integer}` ranges.
+
+- The exported alias `RelaxedArrayShape{N}` reflects the above change. Exported alias
+  `ArrayShape{N}` is restricted to integers and integer-valued unit-ranges which better
+  correspond to Julia's way of representing an `N`-dimensional array shape.
+
+- New macro `@public` used to declare non-exported public symbols. Does nothing for Julia
   versions older than 1.11.
 
 - For other packages, it may be sufficient to extend `convert_eltype(T, X)` to a given
   type `X` to have `convert_eltype(T, x::X)` work for instances `x` of that type.
 
-- Methods `as_array_axis`, `as_array_axes`, `as_array_dim`, `as_array_shape`, and
-  `as_array_size` accept `AbstractRange{<:Integer}` ranges and assert that they have unit
-  step. The exported alias `RelaxedArrayShape{N}` reflects that. Exported alias
-  `ArrayShape{N}` is restricted to integers and integer-valued unit-ranges which better
-  correspond to Julia's way of representing an `N`-dimensional array shape.
-
-- `TypeStableFunction(f, argtypes...)` tries to infer a suitable concrete type for `f`
-  with arguments of types `argtypes...`.
-
-- `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the
-  eligible type for specifying an array axis. Methods `as_array_axis`, `as_array_axes` and
-  `as_array_shape` convert index ranges to `AbstractUnitRange{Int}` throwing an exception
-  if any range does not have unit step. The downside is that this must be explicitly
-  checked for non-`AbstractUnitRange{<:Integer}` ranges while it can be inferred by type
-  (it is a trait) for `AbstractUnitRange{<:Integer}` ranges.
+- `TypeStableFunction(f, argtypes...)` better tries to infer a suitable concrete type for
+  `f` with arguments of types `argtypes...`.
 
 # Version 1.4.0
 
