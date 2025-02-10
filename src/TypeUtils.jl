@@ -292,10 +292,9 @@ and [`new_array`](@ref).
 
 """
 as_array_shape(::Tuple{}) = ()
-as_array_shape(args::eltype(ArrayShape)...) = as_array_shape(args)
+as_array_shape(args::eltype(RelaxedArrayShape)...) = as_array_shape(args)
 as_array_shape(args::Tuple{Vararg{Union{Integer,Base.OneTo{<:Integer}}}}) = as_array_size(args)
-as_array_shape(args::Tuple{Vararg{Union{Integer,AbstractRange{<:Integer}}}}) =
-    as_array_axes(args)
+as_array_shape(args::RelaxedArrayShape) = as_array_axes(args)
 
 """
     as_array_size(args...) -> dims::Dims
@@ -311,10 +310,9 @@ Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), [`as_array_dim`](@re
 
 """
 as_array_size(::Tuple{}) = ()
-as_array_size(args::eltype(ArrayShape)...) = as_array_size(args)
+as_array_size(args::eltype(RelaxedArrayShape)...) = as_array_size(args)
 as_array_size(dims::Dims) = dims
-as_array_size(args::Tuple{Vararg{Union{Integer,AbstractRange{<:Integer}}}}) =
-    map(as_array_dim, args)
+as_array_size(args::RelaxedArrayShape) = map(as_array_dim, args)
 
 """
     as_array_axes(args...) -> rngs::ArrayAxes
@@ -331,10 +329,9 @@ Also see [`as_array_shape`](@ref), [`as_array_size`](@ref), [`as_array_axis`](@r
 
 """
 as_array_axes(::Tuple{}) = ()
-as_array_axes(args::eltype(ArrayShape)...) = as_array_axes(args)
+as_array_axes(args::eltype(RelaxedArrayShape)...) = as_array_axes(args)
 as_array_axes(rngs::ArrayAxes) = rngs
-as_array_axes(args::Tuple{Vararg{Union{Integer,AbstractRange{<:Integer}}}}) =
-    map(as_array_axis, args)
+as_array_axes(args::RelaxedArrayShape) = map(as_array_axis, args)
 
 """
     as_array_dim(arg) -> dim::eltype(Dims)
@@ -384,12 +381,15 @@ if the package `OffsetArrays` has not been loaded.
 Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref).
 
 """
-new_array(::Type{T}, inds::eltype(ArrayShape)...) where {T} = new_array(T, inds)
-new_array(::Type{T}, inds::ArrayShape{N}) where {T,N} = new_array(T, as_array_shape(inds))
-new_array(::Type{T}, rngs::NTuple{N,Base.OneTo}) where {T,N} = new_array(T, as_array_size(rngs))
+new_array(::Type{T}, inds::eltype(RelaxedArrayShape)...) where {T} = new_array(T, inds)
+new_array(::Type{T}, inds::RelaxedArrayShape) where {T} = new_array(T, as_array_shape(inds))
 new_array(::Type{T}, dims::Dims{N}) where {T,N} = Array{T,N}(undef, dims)
 new_array(::Type{T}, rngs::Unsupported(ArrayAxes{N})) where {T,N} =
     error("package `OffsetArrays` must be loaded for such array index ranges")
+
+# The following is needed to yield regular arrays if possible.
+new_array(::Type{T}, inds::NTuple{N,Union{Integer,Base.OneTo}}) where {T,N} =
+    new_array(T, as_array_size(inds))
 
 """
     return_type(f, argtypes...) -> T
