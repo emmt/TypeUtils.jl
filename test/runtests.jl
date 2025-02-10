@@ -78,7 +78,15 @@ function scale!(::Val{3}, A::AbstractArray, α::Union{Real,Complex})
     return A
 end
 
+# Type-instable function.
+type_instable_function(i::Integer) = isodd(i) ? π : sqrt(i)
+
 @testset "TypeUtils" begin
+    @testset "Miscellaneous" begin
+        # Check that TypeUtils.Unsupported cannot be instantiated.
+        @test_throws Exception TypeUtils.Unsupported()
+    end
+
     @testset "parameterless()" begin
         @test parameterless(Array) === Array
         @test parameterless(AbstractVector) === AbstractArray
@@ -374,6 +382,28 @@ end
         @test f(-0.3) isa Float32
         @test g(0, 1) isa BigFloat
         @test g(-0.3) isa BigFloat
+        @test convert(TypeStableFunction, f) === f
+        @test convert(TypeStableFunction{return_type(f)}, f) === f
+        @test convert(TypeStableFunction{return_type(g)}, f) === g
+        @test convert(AbstractTypeStableFunction, f) === f
+        @test convert(AbstractTypeStableFunction{return_type(f)}, f) === f
+        @test convert(AbstractTypeStableFunction{return_type(g)}, f) === g
+
+        # Make a type-stable function out of a type-instable one.
+        @test typeof(type_instable_function(1)) != typeof(type_instable_function(2))
+        if VERSION < v"1.1"
+            # `Base.promote_op` returns `Any` for Julia version prior to 1.1 so we must
+            # provide the return type ourself.
+            f = @inferred TypeStableFunction{Float64}(type_instable_function)
+        else
+            f = @inferred TypeStableFunction(type_instable_function, Int)
+            @test AbstractTypeStableFunction(type_instable_function, Int) === f
+        end
+        @test parent(f) === type_instable_function
+        @test return_type(typeof(f)) === Float64
+        @test typeof(f(1)) === typeof(f(2)) === return_type(typeof(f))
+        @test TypeStableFunction{return_type(typeof(f))}(type_instable_function) === f
+        @test AbstractTypeStableFunction{return_type(typeof(f))}(type_instable_function) === f
     end
 
     @testset "Numeric types" begin

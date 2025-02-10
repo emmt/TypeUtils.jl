@@ -14,8 +14,8 @@
   `ArrayShape{N}` is restricted to integers and integer-valued unit-ranges which better
   correspond to Julia's way of representing an `N`-dimensional array shape.
 
-- `TypeUtils.RelaxedArrayShape{N}` is provided as an alias for `N`-tuples of integers and
-  integer-valued ranges.
+- `TypeStableFunction(f, argtypes...)` tries to infer a suitable concrete type for `f`
+  with arguments of types `argtypes...`.
 
 - `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the
   elligible type for specifying an array axis. Methods `as_array_axis`, `as_array_axes`
