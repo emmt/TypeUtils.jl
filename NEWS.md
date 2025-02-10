@@ -8,10 +8,11 @@
 - For other packages, it may be sufficient to extend `convert_eltype(T, X)` to a given
   type `X` to have `convert_eltype(T, x::X)` work for instances `x` of that type.
 
-- `ArrayShape{N}` is restricted to integers and integer valued unit-ranges which better
-  corresponds to Julia's way of representing an `N`-dimensional array shape. Methods
-  `as_array_axis`, `as_array_axes`, `as_array_dim`, `as_array_shape`, and `as_array_size`
-  still accept `AbstractRange{<:Integer}` ranges and assert that they have unit step.
+- Methods `as_array_axis`, `as_array_axes`, `as_array_dim`, `as_array_shape`, and
+  `as_array_size` accept `AbstractRange{<:Integer}` ranges and assert that they have unit
+  step. The exported alias `RelaxedArrayShape{N}` reflects that. Exported alias
+  `ArrayShape{N}` is restricted to integers and integer-valued unit-ranges which better
+  correspond to Julia's way of representing an `N`-dimensional array shape.
 
 - `TypeUtils.RelaxedArrayShape{N}` is provided as an alias for `N`-tuples of integers and
   integer-valued ranges.

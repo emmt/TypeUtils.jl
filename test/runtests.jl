@@ -122,6 +122,20 @@ end
 
     @testset "Array axes and size" begin
         @test TypeUtils.Dim === Int
+        @test  (42                   isa eltype(ArrayShape))
+        @test  (42                   isa eltype(RelaxedArrayShape))
+        @test  (Int8(42)             isa eltype(ArrayShape))
+        @test  (Int8(42)             isa eltype(RelaxedArrayShape))
+        @test  (-1:5                 isa eltype(ArrayShape))
+        @test  (-1:5                 isa eltype(RelaxedArrayShape))
+        @test  (0x2:0x5              isa eltype(ArrayShape))
+        @test  (0x2:0x5              isa eltype(RelaxedArrayShape))
+        @test !(-1:1:5               isa eltype(ArrayShape))
+        @test  (-1:1:5               isa eltype(RelaxedArrayShape))
+        @test  (Base.OneTo(9)        isa eltype(ArrayShape))
+        @test  (Base.OneTo(9)        isa eltype(RelaxedArrayShape))
+        @test  (Base.OneTo{Int16}(9) isa eltype(ArrayShape))
+        @test  (Base.OneTo{Int16}(9) isa eltype(RelaxedArrayShape))
 
         @test_throws MethodError as_array_dim(π)
         @test as_array_dim(7) === 7

@@ -4,6 +4,7 @@ export
     ArrayAxes,
     ArrayAxis,
     ArrayShape,
+    RelaxedArrayShape,
     AbstractTypeStableFunction,
     TypeStableFunction,
     as,
@@ -108,7 +109,7 @@ See also [`ArrayAxes`](@ref), `Dims`.
 const ArrayShape{N} = NTuple{N,Union{Integer,AbstractUnitRange{<:Integer}}}
 
 """
-    TypeUtils.RelaxedArrayShape{N}
+    RelaxedArrayShape{N}
 
 is like [`ArrayShape{N}`](@ref) but also includes `AbstractRange{<:Integer}}}`s (not just
 `AbstractUnitRange{<:Integer}`s).
@@ -125,7 +126,6 @@ all ranges have a unit step.
 
 """
 const RelaxedArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
-@public RelaxedArrayShape
 
 """
     TypeUtils.Unsupported(T::DataType...)
@@ -284,7 +284,7 @@ converts array dimensions or ranges `args...` to a canonical form of array shape
   `Base.OneTo{eltype(Dims)}`.
 
 The array dimensions or ranges may also be provided as a tuple.
-[`TypeUtils.RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
+[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
 `as_array_shape` is applicable.
 
 Also see [`as_array_size`](@ref), [`as_array_axes`](@ref), [`ArrayAxes`](@ref), `Dims`,
@@ -302,8 +302,9 @@ as_array_shape(args::RelaxedArrayShape) = as_array_axes(args)
 converts array dimensions or ranges `args...` to a canonical form of array size, that is a
 tuple of `eltype(Dims)`s. Any range in `args...` is replaced by its length.
 
-The array dimensions or ranges may also be provided as a tuple. [`ArrayShape{N}`](@ref) is
-the union of types of `N`-tuples to which `as_array_size` is applicable.
+The array dimensions or ranges may also be provided as a tuple.
+[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
+`as_array_size` is applicable.
 
 Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), [`as_array_dim`](@ref),
 `Dims`, and [`new_array`](@ref).
@@ -321,8 +322,9 @@ converts array dimensions or ranges `args...` to a canonical form of array axes,
 tuple of `AbstractUnitRange{eltype(Dims)}`s. Any integer in `args...` is replaced by an
 instance of `Base.OneTo{eltype(Dims)}`.
 
-The array dimensions or ranges may also be provided as a tuple. [`ArrayShape{N}`](@ref) is
-the union of types of `N`-tuples to which `as_array_axes` is applicable.
+The array dimensions or ranges may also be provided as a tuple.
+[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
+`as_array_axes` is applicable.
 
 Also see [`as_array_shape`](@ref), [`as_array_size`](@ref), [`as_array_axis`](@ref),
 [`ArrayAxes`](@ref), `Dims`, and [`new_array`](@ref).
@@ -338,6 +340,8 @@ as_array_axes(args::RelaxedArrayShape) = map(as_array_axis, args)
 
 converts array dimension or range `arg` to a canonical array dimension, that is an
 `eltype(Dims)`. If `arg` is a unit-step range, its length is returned.
+[`eltype(RelaxedArrayShape)`](@ref RelaxedArrayShape) is the union of types to which
+`as_array_dim` is applicable.
 
 Also see [`as_array_size`](@ref), [`as_array_axis`](@ref), and `Dims`.
 
@@ -353,7 +357,8 @@ as_array_dim(rng::AbstractRange{<:Integer}) =
 
 converts array dimension or range `arg` to a canonical array axis, that is an instance of
 `AbstractUnitRange{eltype(Dims)}`. If `arg` is an integer, `Base.OneTo{eltype(Dims)}(arg)`
-is returned.
+is returned. [`eltype(RelaxedArrayShape)`](@ref RelaxedArrayShape) is the union of types
+to which `as_array_axis` is applicable.
 
 Also see [`as_array_axes`](@ref), [`as_array_dim`](@ref), and `Dims`.
 
