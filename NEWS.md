@@ -18,11 +18,11 @@
   with arguments of types `argtypes...`.
 
 - `AbstractUnitRange{<:Integer}` has been replaced by `AbstractRange{<:Integer}` as the
-  elligible type for specifying an array axis. Methods `as_array_axis`, `as_array_axes`
-  and `as_array_shape` convert index ranges to `AbstractUnitRange{Int}` throwing an
-  exception if any range does not have unit step. The downside is that this must be
-  explictely checked for non-`AbstractUnitRange{<:Integer}` ranges while it can be
-  inferred by type (it is a trait) for `AbstractUnitRange{<:Integer}` ranges.
+  eligible type for specifying an array axis. Methods `as_array_axis`, `as_array_axes` and
+  `as_array_shape` convert index ranges to `AbstractUnitRange{Int}` throwing an exception
+  if any range does not have unit step. The downside is that this must be explicitly
+  checked for non-`AbstractUnitRange{<:Integer}` ranges while it can be inferred by type
+  (it is a trait) for `AbstractUnitRange{<:Integer}` ranges.
 
 # Version 1.4.0
 
