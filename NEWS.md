@@ -3,8 +3,7 @@
 # Version 1.4.2
 
 - New `nearest(T,x)` method to return the value of type `T` that is the nearest to `x`.
-  For `T` integer and `x` real, it can be seen as rounding with clamping to avoid
-  overflows.
+  For `T` integer and `x` real, it can be seen as rounding with clamping.
 - Non-exported `TypeUtils.@public` macro is now public.
 
 # Version 1.4.1
