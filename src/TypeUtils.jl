@@ -497,10 +497,9 @@ to_same_type(xs::DataType...) =
     throw(ArgumentError("argument(s) must be instance(s) not type(s)"))
 
 """
-    to_same_concrete_type(T1::Type, T2::Type, ...) -> T::Type
+    to_same_concrete_type(Ts::Type...) -> T::Type
 
-yields `T = promote_type(T1, T2, ...)` throwing an exception if `T` is not a concrete
-type.
+yields `T = promote_type(Ts...)` throwing an exception if `T` is not a concrete type.
 
 Also see [`to_same_type`](@ref).
 
@@ -508,12 +507,7 @@ Also see [`to_same_type`](@ref).
 
 to_same_concrete_type() = throw(ArgumentError("no type(s) specified"))
 
-function to_same_concrete_type(::Type{T}) where {T}
-    isconcretetype(T) || throw_not_concrete_type(T)
-    return T
-end
-
-function to_same_concrete_type(::Type{T}, ::Type{T}) where {T}
+@inline function to_same_concrete_type(::Type{T}...) where {T}
     isconcretetype(T) || throw_not_concrete_type(T)
     return T
 end
@@ -521,11 +515,6 @@ end
 function to_same_concrete_type(::Type{T1}, ::Type{T2}) where {T1,T2}
     T = promote_type(T1, T2)
     isconcretetype(T) || throw_no_common_concrete_type(T1, T2)
-    return T
-end
-
-@inline function to_same_concrete_type(::Type{T}...) where {T}
-    isconcretetype(T) || throw_not_concrete_type(T)
     return T
 end
 
