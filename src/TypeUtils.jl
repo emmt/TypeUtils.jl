@@ -23,6 +23,7 @@ export
     destructure!,
     destructure,
     floating_point_type,
+    nearest,
     new_array,
     parameterless,
     promote_eltype,
@@ -153,6 +154,22 @@ end
 Unsupported(T::DataType...) = Union{T...,Unsupported}
 @public Unsupported
 
+# Lists of machine integer types.
+function _bit_integers(s::Bool) # FIXME make this a macro?
+    t = ()
+    pfx = s ? "Int" : "UInt"
+    w = 8
+    while true
+        sym = Symbol(pfx, w)
+        isdefined(Base, sym) || return t
+        t = (t..., eval(sym))
+        w *= 2
+    end
+end
+@eval const SIGNED_BIT_INTEGERS = $(_bit_integers(true))
+@eval const UNSIGNED_BIT_INTEGERS = $(_bit_integers(false))
+@eval const BIT_INTEGERS = $((Bool, SIGNED_BIT_INTEGERS..., UNSIGNED_BIT_INTEGERS...))
+
 """
     as(T, x)
 
@@ -193,6 +210,65 @@ as(::Type{T}) where {T} = As{T}()
 struct As{T} <: Function; end
 
 (::As{T})(x) where {T} = as(T, x)
+
+"""
+    nearest(T::Type, x) -> y::T
+
+yields the value or instance of type `T` that is the nearest to `x`. For `T` integer and
+`x` real, it can be seen as rounding with clamping to avoid overflows.
+
+"""
+nearest(::Type{T}, x::T) where {T} = x
+nearest(::Type{T}, x::Real) where {T<:Real} = as(T, x) # by default, simply convert...
+
+# Generic methods for integer to nearest integer.
+nearest(::Type{T}, x::T) where {T<:Integer} = x
+function nearest(::Type{T}, x::Integer) where {T<:Integer}
+    # Use `ifelse` here because conversion by `%` does not throw.
+    lo, hi = typemin(T), typemax(T)
+    return ifelse(x ≤ lo, lo, ifelse(x ≥ hi, hi, x % T))
+end
+
+# Optimized methods for integer to nearest integer.
+for T in BIT_INTEGERS, X in BIT_INTEGERS
+    if X === T
+        # No conversion needed.
+        @eval nearest(::Type{$T}, x::$T) = x
+    elseif typemin(T) ≤ typemin(X) && typemax(X) ≤ typemax(T)
+        # No clamping need, just convert with `rem`.
+        @eval nearest(::Type{$T}, x::$X) = x % $T
+    end
+end
+
+# Non-integer real to nearest integer.
+function nearest(::Type{T}, x::Real) where {T<:Integer}
+    # We cannot use `ifelse` here because conversion may throw an `InexactError`. This
+    # will occur anyway for `NaN`s.
+    lo, hi, r = typemin(T), typemax(T), round(x)
+    return r ≤ lo ? lo : r ≥ hi ? hi : T(r)
+end
+
+# Special case of `Bool`.
+nearest(::Type{Bool}, x::Integer) = x > zero(x)
+function nearest(::Type{Bool}, x::Real)
+    isnan(x) && throw(InexactError(:nearest, Bool, x))
+    r = round(x)
+    return r > zero(r)
+end
+
+# Special case of `BigInt` for which `typemin` and `typemax` make no sense.
+nearest(::Type{BigInt}, x::BigInt) = x
+nearest(::Type{BigInt}, x::Integer) = BigInt(x)
+nearest(::Type{BigInt}, x::Real) = round(BigInt, x)
+nearest(::Type{BigInt}, x::Irrational) = round(BigInt, round(x))
+
+"""
+    nearest(T::Type) -> f
+
+yields a callable object `f`, such that `f(x)` yields `nearest(T, x)`.
+
+"""
+nearest(::Type{T}) where {T} = Base.Fix1(nearest, T)
 
 """
     AbstractTypeStableFunction{T}

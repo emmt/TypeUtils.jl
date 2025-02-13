@@ -15,7 +15,7 @@ end # module TestingTypeUtilsWithoutExtensions
 module TestingTypeUtils
 
 using TypeUtils
-using TypeUtils: BareNumber
+using TypeUtils: BareNumber, BIT_INTEGERS
 using Unitful
 using OffsetArrays
 using Test
@@ -81,6 +81,11 @@ end
 # Type-instable function.
 type_instable_function(i::Integer) = isodd(i) ? π : sqrt(i)
 
+# For some numbers like `BigInt` or `BigFloat`, instances of the same value are not equal
+# in the sense of `===`.
+same_value_and_type(x, y) = false
+same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
+
 @testset "TypeUtils" begin
     @testset "Miscellaneous" begin
         # Check that TypeUtils.Unsupported cannot be instantiated.
@@ -126,6 +131,62 @@ type_instable_function(i::Integer) = isodd(i) ? π : sqrt(i)
         @test as(String, :hello) == "hello"
         @test as(String, :hello) isa String
         @test as(Symbol, "hello") === :hello
+    end
+
+    @testset "nearest()" begin
+        a, b = prevfloat(1/2), nextfloat(1/2)
+        for T in (BIT_INTEGERS..., BigInt)
+            f = @inferred nearest(T)
+            for x in (pi, 3//4, 0, 1, 4, sqrt(2), 27.0, 9f0, 0.1, true, false,
+                      0.4999999999999999, 0.5, 0.5000000000000001)
+                while true
+                    y = round(x)
+                    if T <: Bool
+                        r = y > zero(y)
+                    elseif !(T <: BigInt) && y <= typemin(T)
+                        r = typemin(T)
+                    elseif !(T <: BigInt) && y >= typemax(T)
+                        r = typemax(T)
+                    else
+                        r = T(y)
+                    end
+                    @test same_value_and_type(nearest(T,x), f(x))
+                    @test same_value_and_type(nearest(T,x), r)
+                    # Next round is with -x (if it makes sense).
+                    x isa Bool && break
+                    x isa Irrational && break
+                    x > zero(x) || break
+                    x = -x
+                end
+            end
+            @test same_value_and_type(nearest(T, -b), T <: Signed ? -one(T) : zero(T))
+            @test same_value_and_type(nearest(T, -a), zero(T))
+            @test same_value_and_type(nearest(T,  a), zero(T))
+            @test same_value_and_type(nearest(T,  b), one(T))
+            @test same_value_and_type(nearest(T, float(zero(T))), zero(T))
+            @test same_value_and_type(nearest(T, float(one(T))), one(T))
+            if T == BigInt
+                # `typemin` and `typemax` make no sense for `BigInt`s.
+                @test_throws InexactError nearest(T, -Inf)
+                @test_throws InexactError nearest(T,  Inf)
+            else
+                @test same_value_and_type(nearest(T, -Inf), typemin(T))
+                @test same_value_and_type(nearest(T,  Inf), typemax(T))
+            end
+            @test_throws InexactError nearest(T, NaN)
+            for S in (BIT_INTEGERS..., BigInt)
+                @test same_value_and_type(nearest(T, zero(S)), zero(T))
+                @test same_value_and_type(nearest(T, one(S)), one(T))
+                if T == BigInt && S != BigInt
+                    @test same_value_and_type(nearest(T, typemin(S)), T(typemin(S)))
+                    @test same_value_and_type(nearest(T, typemax(S)), T(typemax(S)))
+                end
+                if T != BigInt && S != BigInt
+                    @test nearest(T, typemin(S)) === (typemin(S) <= typemin(T) ? typemin(T) : T(typemin(S)))
+                    @test nearest(T, typemax(S)) === (typemax(S) >= typemax(T) ? typemax(T) : T(typemax(S)))
+                end
+            end
+        end
     end
 
     @testset "Array axes and size" begin
