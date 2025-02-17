@@ -149,7 +149,7 @@ some_method(some_arg::SomeType) = do_something_with(some_arg)
 
 """
 struct Unsupported
-    Unsupported() = error("it is not possible to instanciate this type")
+    Unsupported() = error("it is not possible to instantiate this type")
 end
 Unsupported(T::DataType...) = Union{T...,Unsupported}
 @public Unsupported
