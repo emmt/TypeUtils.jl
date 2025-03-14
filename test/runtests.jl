@@ -109,33 +109,33 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     end
 
     @testset "as()" begin
-        @test as(Int, 3) === 3
-        @test as(Int, 1.0) === 1
-        @test as(Int16, 1.0) === Int16(1)
+        @test 3         === @inferred as(Int, 3)
+        @test 1         === @inferred as(Int, 1.0)
+        @test Int16(1)  === @inferred as(Int16, 1.0)
+        @test (1,2,3,4) === @inferred map(as(Int), (Int8(1), Int16(2), Int32(3), Int64(4)))
         @test_throws InexactError as(Int, sqrt(2))
         @test_throws Exception as(Int, π)
-        @test map(as(Int), (Int8(1), Int16(2), Int32(3), Int64(4))) === (1,2,3,4)
 
-        @test as(Tuple, CartesianIndex((1,2,3))) === (1,2,3)
-        @test as(NTuple{3}, CartesianIndex((1,2,3))) === (1,2,3)
-        @test as(Tuple, CartesianIndices((2:5, -1:4))) === (2:5, -1:4)
-        @test as(NTuple{2}, CartesianIndices((2:5, -1:4))) === (2:5, -1:4)
+        @test (1,2,3)     === @inferred as(Tuple, CartesianIndex((1,2,3)))
+        @test (1,2,3)     === @inferred as(NTuple{3}, CartesianIndex((1,2,3)))
+        @test (2:5, -1:4) === @inferred as(Tuple, CartesianIndices((2:5, -1:4)))
+        @test (2:5, -1:4) === @inferred as(NTuple{2}, CartesianIndices((2:5, -1:4)))
 
-        @test as(CartesianIndex,()) === CartesianIndex()
-        @test as(CartesianIndex, CartesianIndex((1,2,3))) === CartesianIndex((1,2,3))
-        @test as(CartesianIndex{3}, CartesianIndex((1,2,3))) === CartesianIndex((1,2,3))
-        @test as(CartesianIndex, (0x1,2,Int16(3))) === CartesianIndex((1,2,3))
-        @test as(CartesianIndex{3}, (0x1,2,Int16(3))) === CartesianIndex((1,2,3))
+        @test CartesianIndex()         === @inferred as(CartesianIndex,())
+        @test CartesianIndex((1,2,3)) === @inferred as(CartesianIndex, CartesianIndex((1,2,3)))
+        @test CartesianIndex((1,2,3)) === @inferred as(CartesianIndex{3}, CartesianIndex((1,2,3)))
+        @test CartesianIndex((1,2,3)) === @inferred as(CartesianIndex, (0x1,2,Int16(3)))
+        @test CartesianIndex((1,2,3)) === @inferred as(CartesianIndex{3}, (0x1,2,Int16(3)))
 
-        @test as(CartesianIndices,()) === CartesianIndices(())
-        @test as(CartesianIndices,(2:3,6)) === CartesianIndices((2:3,6))
-        @test as(CartesianIndices,CartesianIndices((2:3,6))) === CartesianIndices((2:3,6))
-        @test as(CartesianIndices{3},(2:3,6,-1:4)) === CartesianIndices((2:3,6,-1:4))
-        @test as(CartesianIndices{3},CartesianIndices((2:3,6,-1:4))) === CartesianIndices((2:3,6,-1:4))
+        @test CartesianIndices(()) === @inferred as(CartesianIndices,())
+        @test CartesianIndices((2:3,6)) === @inferred as(CartesianIndices,(2:3,6))
+        @test CartesianIndices((2:3,6)) === @inferred as(CartesianIndices,CartesianIndices((2:3,6)))
+        @test CartesianIndices((2:3,6,-1:4)) === @inferred as(CartesianIndices{3},(2:3,6,-1:4))
+        @test CartesianIndices((2:3,6,-1:4)) === @inferred as(CartesianIndices{3},CartesianIndices((2:3,6,-1:4)))
 
-        @test as(String, :hello) == "hello"
+        @test :hello === @inferred as(Symbol, "hello")
+        @test "hello" == @inferred as(String, :hello)
         @test as(String, :hello) isa String
-        @test as(Symbol, "hello") === :hello
     end
 
     @testset "nearest()" begin
@@ -155,8 +155,8 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                     else
                         r = T(y)
                     end
-                    @test same_value_and_type(nearest(T,x), f(x))
-                    @test same_value_and_type(nearest(T,x), r)
+                    @test same_value_and_type(@inferred(nearest(T,x)), @inferred(f(x)))
+                    @test same_value_and_type(@inferred(nearest(T,x)), r)
                     # Next round is with -x (if it makes sense).
                     x isa Bool && break
                     x isa Irrational && break
@@ -164,34 +164,41 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                     x = -x
                 end
             end
-            @test same_value_and_type(nearest(T, -b), T <: Signed ? -one(T) : zero(T))
-            @test same_value_and_type(nearest(T, -a), zero(T))
-            @test same_value_and_type(nearest(T,  a), zero(T))
-            @test same_value_and_type(nearest(T,  b), one(T))
-            @test same_value_and_type(nearest(T, float(zero(T))), zero(T))
-            @test same_value_and_type(nearest(T, float(one(T))), one(T))
+            @test same_value_and_type(@inferred(nearest(T, -b)), T <: Signed ? -one(T) : zero(T))
+            @test same_value_and_type(@inferred(nearest(T, -a)), zero(T))
+            @test same_value_and_type(@inferred(nearest(T,  a)), zero(T))
+            @test same_value_and_type(@inferred(nearest(T,  b)), one(T))
+            @test same_value_and_type(@inferred(nearest(T, float(zero(T)))), zero(T))
+            @test same_value_and_type(@inferred(nearest(T, float(one(T)))), one(T))
             if T == BigInt
                 # `typemin` and `typemax` make no sense for `BigInt`s.
                 @test_throws InexactError nearest(T, -Inf)
                 @test_throws InexactError nearest(T,  Inf)
             else
-                @test same_value_and_type(nearest(T, -Inf), typemin(T))
-                @test same_value_and_type(nearest(T,  Inf), typemax(T))
+                @test same_value_and_type(@inferred(nearest(T, -Inf)), typemin(T))
+                @test same_value_and_type(@inferred(nearest(T,  Inf)), typemax(T))
             end
             @test_throws InexactError nearest(T, NaN)
             for S in (BIT_INTEGERS..., BigInt)
-                @test same_value_and_type(nearest(T, zero(S)), zero(T))
-                @test same_value_and_type(nearest(T, one(S)), one(T))
+                @test same_value_and_type(@inferred(nearest(T, zero(S))), zero(T))
+                @test same_value_and_type(@inferred(nearest(T, one(S))), one(T))
                 if T == BigInt && S != BigInt
-                    @test same_value_and_type(nearest(T, typemin(S)), T(typemin(S)))
-                    @test same_value_and_type(nearest(T, typemax(S)), T(typemax(S)))
+                    @test same_value_and_type(@inferred(nearest(T, typemin(S))), T(typemin(S)))
+                    @test same_value_and_type(@inferred(nearest(T, typemax(S))), T(typemax(S)))
                 end
                 if T != BigInt && S != BigInt
-                    @test nearest(T, typemin(S)) === (typemin(S) <= typemin(T) ? typemin(T) : T(typemin(S)))
-                    @test nearest(T, typemax(S)) === (typemax(S) >= typemax(T) ? typemax(T) : T(typemax(S)))
+                    @test @inferred(nearest(T, typemin(S))) === (typemin(S) <= typemin(T) ? typemin(T) : T(typemin(S)))
+                    @test @inferred(nearest(T, typemax(S))) === (typemax(S) >= typemax(T) ? typemax(T) : T(typemax(S)))
                 end
             end
         end
+        # Cases where `nearest` behaves as identity or non-integer `T`.
+        @test -42    === @inferred nearest(Int, -42)
+        @test -42    === @inferred nearest(Int, Int8(-42))
+        @test 4.2    === @inferred nearest(Float64, 4.2)
+        @test 42.0   === @inferred nearest(Float64, 42)
+        @test -7.0f0 === @inferred nearest(Float32, -7)
+        # Mapping.
         let vals = (1.3, -2.7, pi, 42)
             @test map(nearest(Int), vals) === map(x -> nearest(Int, x), vals)
         end
@@ -215,64 +222,64 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test  (Base.OneTo{Int16}(9) isa eltype(RelaxedArrayShape))
 
         @test_throws MethodError as_array_dim(π)
-        @test as_array_dim(7) === 7
-        @test as_array_dim(Int16(9)) === 9
-        @test as_array_dim(Base.OneTo(5)) === 5
-        @test as_array_dim(-1:4) === 6
-        @test as_array_dim(Int8(0):Int8(3)) === 4
-        @test as_array_dim(-1:1:4) === 6
+        @test 7 === @inferred as_array_dim(7)
+        @test 9 === @inferred as_array_dim(Int16(9))
+        @test 5 === @inferred as_array_dim(Base.OneTo(5))
+        @test 6 === @inferred as_array_dim(-1:4)
+        @test 4 === @inferred as_array_dim(Int8(0):Int8(3))
+        @test 6 === @inferred as_array_dim(-1:1:4)
         @test_throws ArgumentError as_array_dim(-1:2:3) # non-unit step
 
         @test_throws MethodError as_array_axis(π)
-        @test as_array_axis(7) === Base.OneTo(7)
-        @test as_array_axis(Int16(9)) === Base.OneTo(9)
-        @test as_array_axis(Base.OneTo(5)) === Base.OneTo(5)
-        @test as_array_axis(-1:4) === -1:4
-        @test as_array_axis(1:4) === 1:4
-        @test as_array_axis(Int8(0):Int8(3)) === 0:3
-        @test as_array_axis(-1:1:4) === -1:4
+        @test Base.OneTo(7) === @inferred as_array_axis(7)
+        @test Base.OneTo(9) === @inferred as_array_axis(Int16(9))
+        @test Base.OneTo(5) === @inferred as_array_axis(Base.OneTo(5))
+        @test -1:4          === @inferred as_array_axis(-1:4)
+        @test 1:4           === @inferred as_array_axis(1:4)
+        @test 0:3           === @inferred as_array_axis(Int8(0):Int8(3))
+        @test -1:4          === @inferred as_array_axis(-1:1:4)
         @test_throws ArgumentError as_array_axis(-1:2:3) # non-unit step
 
         @test_throws MethodError as_array_shape(π)
         @test_throws MethodError as_array_shape((π,))
-        @test as_array_shape() === ()
-        @test as_array_shape(()) === ()
-        @test as_array_shape(5) === (5,)
-        @test as_array_shape(2:5) === (2:5,)
-        @test as_array_shape(2,Int16(9),Int8(3)) === (2,9,3)
-        @test as_array_shape((2,Int16(9),Int8(3))) === (2,9,3)
-        @test as_array_shape(2,3,4) === (2,3,4)
-        @test as_array_shape(2,Base.OneTo{Int8}(3),4) === (2,3,4)
-        @test as_array_shape(2,Int8(1):Int8(3),4) === (Base.OneTo(2),1:3,Base.OneTo(4))
-        @test as_array_shape((0:2,-4:4,-2:1)) === (0:2,-4:4,-2:1)
+        @test ()                                === @inferred as_array_shape()
+        @test ()                                === @inferred as_array_shape(())
+        @test (5,)                              === @inferred as_array_shape(5)
+        @test (2:5,)                            === @inferred as_array_shape(2:5)
+        @test (2,9,3)                           === @inferred as_array_shape(2,Int16(9),Int8(3))
+        @test (2,9,3)                           === @inferred as_array_shape((2,Int16(9),Int8(3)))
+        @test (2,3,4)                           === @inferred as_array_shape(2,3,4)
+        @test (2,3,4)                           === @inferred as_array_shape(2,Base.OneTo{Int8}(3),4)
+        @test (Base.OneTo(2),1:3,Base.OneTo(4)) === @inferred as_array_shape(2,Int8(1):Int8(3),4)
+        @test (0:2,-4:4,-2:1)                   === @inferred as_array_shape((0:2,-4:4,-2:1))
         @test_throws ArgumentError as_array_shape((1:4, 1:2:6,)) # non-unit step
 
         @test_throws MethodError as_array_axes(π)
         @test_throws MethodError as_array_axes((π,))
-        @test as_array_axes() === ()
-        @test as_array_axes(()) === ()
-        @test as_array_axes(5) === (Base.OneTo(5),)
-        @test as_array_axes(2:5) === (2:5,)
-        @test as_array_axes(2,Int16(9),Int8(3)) === (Base.OneTo(2),Base.OneTo(9),Base.OneTo(3))
-        @test as_array_axes((2,Int16(9),Int8(3))) === (Base.OneTo(2),Base.OneTo(9),Base.OneTo(3))
-        @test as_array_axes(2,3,4) === (Base.OneTo(2),Base.OneTo(3),Base.OneTo(4))
-        @test as_array_axes(2,Base.OneTo{Int8}(3),4) === (Base.OneTo(2),Base.OneTo(3),Base.OneTo(4))
-        @test as_array_axes(2,Int8(1):Int8(3),4) === (Base.OneTo(2),1:3,Base.OneTo(4))
-        @test as_array_axes((0:2,-4:4,-2:1)) === (0:2,-4:4,-2:1)
+        @test ()                                          === @inferred as_array_axes()
+        @test ()                                          === @inferred as_array_axes(())
+        @test (Base.OneTo(5),)                            === @inferred as_array_axes(5)
+        @test (2:5,)                                      === @inferred as_array_axes(2:5)
+        @test (Base.OneTo(2),Base.OneTo(9),Base.OneTo(3)) === @inferred as_array_axes(2,Int16(9),Int8(3))
+        @test (Base.OneTo(2),Base.OneTo(9),Base.OneTo(3)) === @inferred as_array_axes((2,Int16(9),Int8(3)))
+        @test (Base.OneTo(2),Base.OneTo(3),Base.OneTo(4)) === @inferred as_array_axes(2,3,4)
+        @test (Base.OneTo(2),Base.OneTo(3),Base.OneTo(4)) === @inferred as_array_axes(2,Base.OneTo{Int8}(3),4)
+        @test (Base.OneTo(2),1:3,Base.OneTo(4))           === @inferred as_array_axes(2,Int8(1):Int8(3),4)
+        @test (0:2,-4:4,-2:1)                             === @inferred as_array_axes((0:2,-4:4,-2:1))
         @test_throws ArgumentError as_array_axes((1:4, 1:2:6,)) # non-unit step
 
         @test_throws MethodError as_array_size(π)
         @test_throws MethodError as_array_size((π,))
-        @test as_array_size() === ()
-        @test as_array_size(()) === ()
-        @test as_array_size(5) === (5,)
-        @test as_array_size(2:5) === (4,)
-        @test as_array_size(2,Int16(9),Int8(3)) === (2,9,3)
-        @test as_array_size((2,Int16(9),Int8(3))) === (2,9,3)
-        @test as_array_size(2,3,4) === (2,3,4)
-        @test as_array_size(2,Base.OneTo{Int8}(3),4) === (2,3,4)
-        @test as_array_size(2,Int8(1):Int8(3),4) === (2,3,4)
-        @test as_array_size((0:2,-4:4,-2:1)) === (3,9,4)
+        @test ()      === @inferred as_array_size()
+        @test ()      === @inferred as_array_size(())
+        @test (5,)    === @inferred as_array_size(5)
+        @test (4,)    === @inferred as_array_size(2:5)
+        @test (2,9,3) === @inferred as_array_size(2,Int16(9),Int8(3))
+        @test (2,9,3) === @inferred as_array_size((2,Int16(9),Int8(3)))
+        @test (2,3,4) === @inferred as_array_size(2,3,4)
+        @test (2,3,4) === @inferred as_array_size(2,Base.OneTo{Int8}(3),4)
+        @test (2,3,4) === @inferred as_array_size(2,Int8(1):Int8(3),4)
+        @test (3,9,4) === @inferred as_array_size((0:2,-4:4,-2:1))
         @test_throws ArgumentError as_array_size((1:4, 1:2:6,)) # non-unit step
     end
 
@@ -293,11 +300,11 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     end
 
     @testset "to_same_concrete_type()" begin
-        @test to_same_concrete_type(Int) === Int
-        @test to_same_concrete_type(UInt8, UInt8) === UInt8
-        @test to_same_concrete_type(Int8, Int8, Int8) === Int8
-        @test to_same_concrete_type(UInt8, UInt16) === UInt16
-        @test to_same_concrete_type(Int8, Int16, Int32) === Int32
+        @test Int    === @inferred to_same_concrete_type(Int)
+        @test UInt8  === @inferred to_same_concrete_type(UInt8, UInt8)
+        @test Int8   === @inferred to_same_concrete_type(Int8, Int8, Int8)
+        @test UInt16 === @inferred to_same_concrete_type(UInt8, UInt16)
+        @test Int32  === @inferred to_same_concrete_type(Int8, Int16, Int32)
         @test_throws ArgumentError to_same_concrete_type()
         @test_throws ArgumentError to_same_concrete_type(AbstractUnitRange)
         @test_throws ArgumentError to_same_concrete_type(AbstractFloat, Float32)
@@ -305,13 +312,13 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     end
 
     @testset "to_same_type()" begin
-        @test to_same_type() === ()
-        @test to_same_type(pi) === (pi,)
-        @test to_same_type('x') === ('x',)
-        @test to_same_type(1, 2) === (1, 2)
-        @test to_same_type(0x1, 0x2, 0x3) === (0x1, 0x2, 0x3)
-        @test to_same_type(0x1, 2) === (1, 2)
-        @test to_same_type(UInt8(1), Int8(2), Int16(3)) === (Int16(1), Int16(2), Int16(3))
+        @test ()                             === @inferred to_same_type()
+        @test (pi,)                          === @inferred to_same_type(pi)
+        @test ('x',)                         === @inferred to_same_type('x')
+        @test (1, 2)                         === @inferred to_same_type(1, 2)
+        @test (0x1, 0x2, 0x3)                === @inferred to_same_type(0x1, 0x2, 0x3)
+        @test (1, 2)                         === @inferred to_same_type(0x1, 2)
+        @test (Int16(1), Int16(2), Int16(3)) === @inferred to_same_type(UInt8(1), Int8(2), Int16(3))
         @test_throws ArgumentError to_same_type(2u"mm", 3.0)
         @test_throws ArgumentError to_same_type(2u"mm", 3.0u"kg")
         x1, x2 = @inferred to_same_type(2u"mm", 3.0u"cm")
@@ -327,12 +334,12 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         A = rand(Float32, 2, 3)
         B = ones(Int16, 2)
         C = zeros(Bool, 3, 4)
-        @test promote_eltype() === promote_type()
-        @test promote_eltype(A) === eltype(A)
-        @test promote_eltype(B) === eltype(B)
-        @test promote_eltype(C) === eltype(C)
-        @test promote_eltype(A,B) === promote_type(eltype(A), eltype(B))
-        @test promote_eltype(A,B,C) === promote_type(eltype(A), eltype(B), eltype(C))
+        @test promote_type()                                === @inferred promote_eltype()
+        @test eltype(A)                                     === @inferred promote_eltype(A)
+        @test eltype(B)                                     === @inferred promote_eltype(B)
+        @test eltype(C)                                     === @inferred promote_eltype(C)
+        @test promote_type(eltype(A), eltype(B))            === @inferred promote_eltype(A,B)
+        @test promote_type(eltype(A), eltype(B), eltype(C)) === @inferred promote_eltype(A,B,C)
     end
 
     @testset "convert_eltype()" begin
@@ -414,29 +421,33 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test length(B) === length(A)
             @test size(B) === size(A)
             @test axes(B) === axes(A)
+            @test IndexStyle(B) === IndexStyle(A)
+            @test parent(B) === A
             A[1,2,3] = -7
             @test B[1,2,3] === Float32(-7)
             B[1,2,3] = 19
             @test A[1,2,3] == 19
         end
         let A = view(rand(Float64, 3, 4, 5), :, 2, :), B = @inferred as_eltype(Float32, A)
-            @test as_eltype(eltype(A), A) === A
+            @test A === @inferred as_eltype(eltype(A), A)
             @test B == Float32.(A)
             @test eltype(B) === Float32
             @test length(B) === length(A)
             @test size(B) === size(A)
             @test axes(B) === axes(A)
+            @test IndexStyle(B) === IndexStyle(A)
+            @test parent(B) === A
             A[2,3] = -7
             @test B[2,3] === Float32(-7)
             B[2,3] = 19
             @test A[2,3] == 19
         end
         let A = 1:5
-            @test as_eltype(eltype(A), A) === A
+            @test A === @inferred as_eltype(eltype(A), A)
             @test as_eltype(Float32, A) == Float32.(A)
         end
         let A = 2.0:3.0:11.0
-            @test as_eltype(eltype(A), A) === A
+            @test A === @inferred as_eltype(eltype(A), A)
             @test as_eltype(Float32, A) == Float32.(A)
         end
     end
@@ -494,182 +505,182 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
     @testset "Numeric types" begin
         # bare_type with no argument
-        @test bare_type() === BareNumber
+        @test BareNumber === @inferred bare_type()
 
         # bare_type for values
-        @test bare_type(1.0) === Float64
-        @test bare_type(Float32) === Float32
-        @test bare_type(Complex(2,3)) === Complex{Int}
-        @test bare_type(NaN) === typeof(NaN)
-        @test bare_type(π) === typeof(π)
-        @test bare_type(3//4) === typeof(3//4)
+        @test Float64      === @inferred bare_type(1.0)
+        @test Float32      === @inferred bare_type(Float32)
+        @test Complex{Int} === @inferred bare_type(Complex(2,3))
+        @test typeof(NaN)  === @inferred bare_type(NaN)
+        @test typeof(π)    === @inferred bare_type(π)
+        @test typeof(3//4) === @inferred bare_type(3//4)
         @test_throws ErrorException bare_type("hello")
 
         # bare_type for types
-        @test bare_type(Real) === Real
-        @test bare_type(Integer) === Integer
-        @test bare_type(Float32) === Float32
-        @test bare_type(BigFloat) === BigFloat
-        @test bare_type(Complex{Int}) === Complex{Int}
-        @test bare_type(typeof(π)) === typeof(π)
-        @test bare_type(typeof(3//4)) === typeof(3//4)
+        @test Real         === @inferred bare_type(Real)
+        @test Integer      === @inferred bare_type(Integer)
+        @test Float32      === @inferred bare_type(Float32)
+        @test BigFloat     === @inferred bare_type(BigFloat)
+        @test Complex{Int} === @inferred bare_type(Complex{Int})
+        @test typeof(π)    === @inferred bare_type(typeof(π))
+        @test typeof(3//4) === @inferred bare_type(typeof(3//4))
         @test_throws ErrorException bare_type(AbstractString)
 
         # bare_type with multiple arguments
-        @test bare_type(1, 0f0) === Float32
-        @test bare_type(Int, pi) === promote_type(Int, typeof(pi))
-        @test bare_type(4, pi, 1.0) === promote_type(Int, typeof(pi), Float64)
-        @test bare_type(Int, Int8, Float32) === promote_type(Int, Int8, Float32)
-        @test bare_type(Int, Int8, Float32) === promote_type(Int, Int8, Float32)
-        @test bare_type(Int, Int8, Int16, Float32) === promote_type(Int, Int8, Int16, Float32)
+        @test Float32                                 === @inferred bare_type(1, 0f0)
+        @test promote_type(Int, typeof(pi))           === @inferred bare_type(Int, pi)
+        @test promote_type(Int, typeof(pi), Float64)  === @inferred bare_type(4, pi, 1.0)
+        @test promote_type(Int, Int8, Float32)        === @inferred bare_type(Int, Int8, Float32)
+        @test promote_type(Int, Int8, Float32)        === @inferred bare_type(Int, Int8, Float32)
+        @test promote_type(Int, Int8, Int16, Float32) === #=@inferred=# bare_type(Int, Int8, Int16, Float32)
 
         # default implementation
-        @test bare_type(MyNumber(1.2f0)) === Float32
-        @test bare_type(MyNumber{Int16}) === Int16
+        @test Float32 === @inferred bare_type(MyNumber(1.2f0))
+        @test Int16   === @inferred bare_type(MyNumber{Int16})
 
         # convert_bare_type
-        @test convert_bare_type(Int, -1) === -1
-        @test convert_bare_type(Int, 2.0) === 2
-        @test convert_bare_type(Float32, 2.0) === 2.0f0
-        @test convert_bare_type(MyNumber{Int16}, 12.0) === Int16(12)
+        @test -1        === @inferred convert_bare_type(Int, -1)
+        @test 2         === @inferred convert_bare_type(Int, 2.0)
+        @test 2.0f0     === @inferred convert_bare_type(Float32, 2.0)
+        @test Int16(12) === @inferred convert_bare_type(MyNumber{Int16}, 12.0)
         @test_throws ErrorException convert_bare_type(Int, "oups!")
         for x in (missing, nothing, undef)
-            @test convert_bare_type(Int8, x) === x
-            @test convert_bare_type(Int8, typeof(x)) === typeof(x)
+            @test x         === @inferred convert_bare_type(Int8, x)
+            @test typeof(x) === @inferred convert_bare_type(Int8, typeof(x))
         end
-        @test convert_bare_type(Int16, Int32) === Int16
-        @test convert_bare_type(Int16, Complex{Int32}) === Int16
-        @test convert_bare_type(Complex{Int16}, Int32) === Complex{Int16}
-        @test convert_bare_type(Complex{Int16}, Complex{Int32}) === Complex{Int16}
-        @test convert_bare_type(MyNumber{Int16}, MyNumber{Int32}) === MyNumber{Int16}
-        @test convert_bare_type(Int16, MyNumber{Complex{Int32}}) === MyNumber{Int16}
-        @test convert_bare_type(Complex{Int16}, MyNumber{Int32}) === MyNumber{Complex{Int16}}
+        @test Int16                    === @inferred convert_bare_type(Int16, Int32)
+        @test Int16                    === @inferred convert_bare_type(Int16, Complex{Int32})
+        @test Complex{Int16}           === @inferred convert_bare_type(Complex{Int16}, Int32)
+        @test Complex{Int16}           === @inferred convert_bare_type(Complex{Int16}, Complex{Int32})
+        @test MyNumber{Int16}          === @inferred convert_bare_type(MyNumber{Int16}, MyNumber{Int32})
+        @test MyNumber{Int16}          === @inferred convert_bare_type(Int16, MyNumber{Complex{Int32}})
+        @test MyNumber{Complex{Int16}} === @inferred convert_bare_type(Complex{Int16}, MyNumber{Int32})
         @test_throws ErrorException convert_bare_type(Int, String)
         let vals = (1.3, -2.7, pi, 42, u"35GHz")
-            @test map(convert_bare_type(Float32), vals) === map(x -> convert_bare_type(Float32, x), vals)
+            @test map(x -> convert_bare_type(Float32, x), vals) === @inferred map(convert_bare_type(Float32), vals)
         end
 
         # real_type with no argument
-        @test real_type() === Real
+        @test Real === @inferred real_type()
 
         # real_type for values
-        @test real_type(1.0) === Float64
-        @test real_type(Float32) === Float32
-        @test real_type(Complex(2,3)) === Int
-        @test real_type(NaN) === typeof(NaN)
-        @test real_type(π) === typeof(π)
-        @test real_type(3//4) === typeof(3//4)
+        @test Float64      === @inferred real_type(1.0)
+        @test Float32      === @inferred real_type(Float32)
+        @test Int          === @inferred real_type(Complex(2,3))
+        @test typeof(NaN)  === @inferred real_type(NaN)
+        @test typeof(π)    === @inferred real_type(π)
+        @test typeof(3//4) === @inferred real_type(3//4)
         @test_throws ErrorException real_type("hello")
 
         # real_type for types
-        @test real_type(Real) === Real
-        @test real_type(Integer) === Integer
-        @test real_type(Float32) === Float32
-        @test real_type(BigFloat) === BigFloat
-        @test real_type(Complex{Int}) === Int
-        @test real_type(typeof(π)) === typeof(π)
-        @test real_type(typeof(3//4)) === typeof(3//4)
+        @test Real         === @inferred real_type(Real)
+        @test Integer      === @inferred real_type(Integer)
+        @test Float32      === @inferred real_type(Float32)
+        @test BigFloat     === @inferred real_type(BigFloat)
+        @test Int          === @inferred real_type(Complex{Int})
+        @test typeof(π)    === @inferred real_type(typeof(π))
+        @test typeof(3//4) === @inferred real_type(typeof(3//4))
         @test_throws ErrorException real_type(AbstractString)
 
         # real_type with multiple arguments
-        @test real_type(1, 0f0) === Float32
-        @test real_type(Int, pi) === promote_type(Int, typeof(pi))
-        @test real_type(4, pi, 1.0) === promote_type(Int, typeof(pi), Float64)
-        @test real_type(Int, Int8, Float32) === promote_type(Int, Int8, Float32)
-        @test real_type(Int, Int8, Float32) === promote_type(Int, Int8, Float32)
-        @test real_type(Int, Int8, Complex{Int16}, Float32) === promote_type(Int, Int8, Int16, Float32)
+        @test Float32                                 === @inferred real_type(1, 0f0)
+        @test promote_type(Int, typeof(pi))           === @inferred real_type(Int, pi)
+        @test promote_type(Int, typeof(pi), Float64)  === @inferred real_type(4, pi, 1.0)
+        @test promote_type(Int, Int8, Float32)        === @inferred real_type(Int, Int8, Float32)
+        @test promote_type(Int, Int8, Float32)        === @inferred real_type(Int, Int8, Float32)
+        @test promote_type(Int, Int8, Int16, Float32) === #=@inferred=# real_type(Int, Int8, Complex{Int16}, Float32)
 
         # default implementation
-        @test real_type(MyNumber(1.2f0)) === Float32
-        @test real_type(MyNumber{Complex{Int16}}) === Int16
+        @test Float32 === @inferred real_type(MyNumber(1.2f0))
+        @test Int16   === @inferred real_type(MyNumber{Complex{Int16}})
 
         # convert_real_type
-        @test convert_real_type(Int, -1) === -1
-        @test convert_real_type(Int, 2.0) === 2
-        @test convert_real_type(Complex{Float32}, 2.0) === 2.0f0
+        @test -1    === @inferred convert_real_type(Int, -1)
+        @test 2     === @inferred convert_real_type(Int, 2.0)
+        @test 2.0f0 === @inferred convert_real_type(Complex{Float32}, 2.0)
         let x = 2.1f0
-            @test convert_real_type(typeof(x), x) === x
+            @test x === @inferred convert_real_type(typeof(x), x)
         end
         let x = 2 + 3im
-            @test convert_real_type(typeof(x), x) === x
-            @test convert_real_type(real(typeof(x)), x) === x
+            @test x === @inferred convert_real_type(typeof(x), x)
+            @test x === @inferred convert_real_type(real(typeof(x)), x)
         end
-        @test convert_real_type(Complex{Int16}, 2 + 3im) === Complex{Int16}(2, 3)
-        @test convert_real_type(Float32, 2.0 - 1.0im) === Complex{Float32}(2, -1)
-        @test convert_real_type(MyNumber{Int16}, 12.0) === Int16(12)
+        @test Complex{Int16}(2, 3)    === @inferred convert_real_type(Complex{Int16}, 2 + 3im)
+        @test Complex{Float32}(2, -1) === @inferred convert_real_type(Float32, 2.0 - 1.0im)
+        @test Int16(12)               === @inferred convert_real_type(MyNumber{Int16}, 12.0)
         @test_throws ErrorException convert_real_type(Int, "oups!")
         for x in (missing, nothing, undef)
-            @test convert_real_type(Int8, x) === x
-            @test convert_real_type(Int8, typeof(x)) === typeof(x)
+            @test x         === @inferred convert_real_type(Int8, x)
+            @test typeof(x) === @inferred convert_real_type(Int8, typeof(x))
         end
-        @test convert_real_type(Int16, Int32) === Int16
-        @test convert_real_type(Int16, Complex{Int32}) === Complex{Int16}
-        @test convert_real_type(Complex{Int16}, Int32) === Int16
-        @test convert_real_type(Complex{Int16}, Complex{Int32}) === Complex{Int16}
-        @test convert_real_type(MyNumber{Int16}, MyNumber{Int32}) === MyNumber{Int16}
-        @test convert_real_type(Int16, MyNumber{Complex{Int32}}) === MyNumber{Complex{Int16}}
-        @test convert_real_type(Complex{Int16}, MyNumber{Int32}) === MyNumber{Int16}
+        @test Int16                    === @inferred convert_real_type(Int16, Int32)
+        @test Complex{Int16}           === @inferred convert_real_type(Int16, Complex{Int32})
+        @test Int16                    === @inferred convert_real_type(Complex{Int16}, Int32)
+        @test Complex{Int16}           === @inferred convert_real_type(Complex{Int16}, Complex{Int32})
+        @test MyNumber{Int16}          === @inferred convert_real_type(MyNumber{Int16}, MyNumber{Int32})
+        @test MyNumber{Complex{Int16}} === @inferred convert_real_type(Int16, MyNumber{Complex{Int32}})
+        @test MyNumber{Int16}          === @inferred convert_real_type(Complex{Int16}, MyNumber{Int32})
         @test_throws ErrorException convert_real_type(Int, String)
         let vals = (1.3, -2.7, pi, Complex(-3,42), u"35GHz")
-            @test map(convert_real_type(Float32), vals) === map(x -> convert_real_type(Float32, x), vals)
+            @test map(x -> convert_real_type(Float32, x), vals) === @inferred map(convert_real_type(Float32), vals)
         end
 
         # floating_point_type
-        @test floating_point_type() === AbstractFloat
-        @test floating_point_type(Int16) === float(Int16)
-        @test floating_point_type(Int16, Float32) === Float32
-        @test floating_point_type(Int16, Float32, Complex{Float64}) === Float64
-        @test floating_point_type(Int16, Float32, Complex{Float16}, 0x1) === Float32
+        @test AbstractFloat === @inferred floating_point_type()
+        @test float(Int16)  === @inferred floating_point_type(Int16)
+        @test Float32       === @inferred floating_point_type(Int16, Float32)
+        @test Float64       === @inferred floating_point_type(Int16, Float32, Complex{Float64})
+        @test Float32       === #=@inferred=# floating_point_type(Int16, Float32, Complex{Float16}, 0x1)
 
         # convert_floating_point_type
-        @test convert_floating_point_type(Int, -1) === -1.0
-        @test convert_floating_point_type(Int, 2.0) === 2.0
-        @test convert_floating_point_type(Complex{Float32}, 2.0) === 2.0f0
+        @test -1.0  === @inferred convert_floating_point_type(Int, -1)
+        @test 2.0   === @inferred convert_floating_point_type(Int, 2.0)
+        @test 2.0f0 === @inferred convert_floating_point_type(Complex{Float32}, 2.0)
         let x = 2.1f0
-            @test convert_floating_point_type(typeof(x), x) === x
+            @test x === @inferred convert_floating_point_type(typeof(x), x)
         end
         let x = 2 + 3im
-            @test convert_floating_point_type(typeof(x), x) === float(x)
-            @test convert_floating_point_type(real(typeof(x)), x) === float(x)
+            @test float(x) === @inferred convert_floating_point_type(typeof(x), x)
+            @test float(x) === @inferred convert_floating_point_type(real(typeof(x)), x)
         end
-        @test convert_floating_point_type(Complex{Int16}, 2 + 3im) === Complex{Float64}(2, 3)
-        @test convert_floating_point_type(Float32, 2.0 - 1.0im) === Complex{Float32}(2, -1)
-        @test convert_floating_point_type(MyNumber{Int16}, 12.0) === Float64(12)
+        @test Complex{Float64}(2, 3)  === @inferred convert_floating_point_type(Complex{Int16}, 2 + 3im)
+        @test Complex{Float32}(2, -1) === @inferred convert_floating_point_type(Float32, 2.0 - 1.0im)
+        @test Float64(12)             === @inferred convert_floating_point_type(MyNumber{Int16}, 12.0)
         @test_throws ErrorException convert_floating_point_type(Int, "oups!")
         for x in (missing, nothing, undef)
-            @test convert_floating_point_type(Float32, x) === x
-            @test convert_floating_point_type(Float32, typeof(x)) === typeof(x)
+            @test x         === @inferred convert_floating_point_type(Float32, x)
+            @test typeof(x) === @inferred convert_floating_point_type(Float32, typeof(x))
         end
-        @test convert_floating_point_type(Float32, Float64) === Float32
-        @test convert_floating_point_type(Float32, Complex{Float64}) === Complex{Float32}
-        @test convert_floating_point_type(Complex{Float32}, Float64) === Float32
-        @test convert_floating_point_type(Complex{Float32}, Complex{Float64}) === Complex{Float32}
-        @test convert_floating_point_type(MyNumber{Float32}, MyNumber{Float64}) === MyNumber{Float32}
-        @test convert_floating_point_type(Float32, MyNumber{Complex{Float64}}) === MyNumber{Complex{Float32}}
-        @test convert_floating_point_type(Complex{Float32}, MyNumber{Float64}) === MyNumber{Float32}
+        @test Float32                    === @inferred convert_floating_point_type(Float32, Float64)
+        @test Complex{Float32}           === @inferred convert_floating_point_type(Float32, Complex{Float64})
+        @test Float32                    === @inferred convert_floating_point_type(Complex{Float32}, Float64)
+        @test Complex{Float32}           === @inferred convert_floating_point_type(Complex{Float32}, Complex{Float64})
+        @test MyNumber{Float32}          === @inferred convert_floating_point_type(MyNumber{Float32}, MyNumber{Float64})
+        @test MyNumber{Complex{Float32}} === @inferred convert_floating_point_type(Float32, MyNumber{Complex{Float64}})
+        @test MyNumber{Float32}          === @inferred convert_floating_point_type(Complex{Float32}, MyNumber{Float64})
         @test_throws ErrorException convert_floating_point_type(Int, String)
         let vals = (1.3, -2.7, pi, Complex(-3,42), u"35GHz")
-            @test map(convert_floating_point_type(Float32), vals) === map(x -> convert_floating_point_type(Float32, x), vals)
+            @test map(x -> convert_floating_point_type(Float32, x), vals) === @inferred map(convert_floating_point_type(Float32), vals)
         end
 
         # unitless
-        @test unitless(Real) === bare_type(Real)
-        @test unitless(Integer) === bare_type(Integer)
-        @test unitless(Float32) === bare_type(Float32)
-        @test unitless(BigFloat) === bare_type(BigFloat)
-        @test unitless(Complex{Int}) === bare_type(Complex{Int})
-        @test unitless(typeof(3//4)) === bare_type(typeof(3//4))
-        @test unitless(typeof(π)) === bare_type(typeof(π))
-        @test unitless(17.0) === 17.0
-        @test unitless(17.0f0) === 17.0f0
-        @test unitless(17) === 17
-        @test unitless(Int16(17)) === Int16(17)
-        @test unitless(true) === true
-        @test unitless(false) === false
-        @test unitless(3//4) === 3//4
-        @test unitless(π) === π
-        @test unitless(MyNumber(1.2f0)) === 1.2f0
-        @test unitless(MyNumber{Int16}) === Int16
+        @test bare_type(Real)         === @inferred unitless(Real)
+        @test bare_type(Integer)      === @inferred unitless(Integer)
+        @test bare_type(Float32)      === @inferred unitless(Float32)
+        @test bare_type(BigFloat)     === @inferred unitless(BigFloat)
+        @test bare_type(Complex{Int}) === @inferred unitless(Complex{Int})
+        @test bare_type(typeof(3//4)) === @inferred unitless(typeof(3//4))
+        @test bare_type(typeof(π))    === @inferred unitless(typeof(π))
+        @test 17.0                    === @inferred unitless(17.0)
+        @test 17.0f0                  === @inferred unitless(17.0f0)
+        @test 17                      === @inferred unitless(17)
+        @test Int16(17)               === @inferred unitless(Int16(17))
+        @test true                    === @inferred unitless(true)
+        @test false                   === @inferred unitless(false)
+        @test 3//4                    === @inferred unitless(3//4)
+        @test π                       === @inferred unitless(π)
+        @test 1.2f0                   === @inferred unitless(MyNumber(1.2f0))
+        @test Int16                   === @inferred unitless(MyNumber{Int16})
 
         # in-place multiplication
         A = [1.1, 1.3, 2.7]
@@ -687,85 +698,85 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
     @testset "Unitful quantities" begin
         # bare_type for values
-        @test bare_type(u"2.0m/s") === Float64
-        @test bare_type(u"35GHz") === Int
+        @test Float64 === @inferred bare_type(u"2.0m/s")
+        @test Int     === @inferred bare_type(u"35GHz")
 
         # bare_type for types
-        @test bare_type(typeof(u"2.0m/s")) === Float64
-        @test bare_type(typeof(u"35GHz")) === Int
+        @test Float64 === @inferred bare_type(typeof(u"2.0m/s"))
+        @test Int     === @inferred bare_type(typeof(u"35GHz"))
 
         # bare_type with multiple arguments
-        @test bare_type(u"2.0m/s", u"35GHz") === Float64
-        @test bare_type(1, u"2.0f0m/s", u"35GHz") === Float32
-        @test bare_type(1, u"2.0f0m/s", u"35GHz", Complex{Int8}(11)) === Complex{Float32}
+        @test Float64          === @inferred bare_type(u"2.0m/s", u"35GHz")
+        @test Float32          === @inferred bare_type(1, u"2.0f0m/s", u"35GHz")
+        @test Complex{Float32} === @inferred bare_type(1, u"2.0f0m/s", u"35GHz", Complex{Int8}(11))
 
         # convert_bare_type
-        @test convert_bare_type(Float64, u"2.0m/s") === u"2.0m/s"
-        @test convert_bare_type(Int, u"2.0m/s") === u"2m/s"
-        @test convert_bare_type(Float32, u"35GHz") === u"35.0f0GHz"
+        @test u"2.0m/s"    === @inferred convert_bare_type(Float64, u"2.0m/s")
+        @test u"2m/s"      === @inferred convert_bare_type(Int, u"2.0m/s")
+        @test u"35.0f0GHz" === @inferred convert_bare_type(Float32, u"35GHz")
         let T = typeof(u"3.5GHz")
             for x in (missing, nothing, undef)
-                @test convert_bare_type(T, x) === x
-                @test convert_bare_type(T, typeof(x)) === typeof(x)
+                @test x         === @inferred convert_bare_type(T, x)
+                @test typeof(x) === @inferred convert_bare_type(T, typeof(x))
             end
         end
         let u = u"km/s"
-            @test convert_bare_type(Int16, typeof(one(Int32)*u)) === typeof(one(Int16)*u)
-            @test convert_bare_type(Int16, typeof(one(Complex{Int32})*u)) === typeof(one(Int16)*u)
-            @test convert_bare_type(Complex{Int16}, typeof(one(Int32)*u)) === typeof(one(Complex{Int16})*u)
-            @test convert_bare_type(Complex{Int16}, typeof(one(Complex{Int32})*u)) === typeof(one(Complex{Int16})*u)
+            @test typeof(one(Int16)*u)          === @inferred convert_bare_type(Int16, typeof(one(Int32)*u))
+            @test typeof(one(Int16)*u)          === @inferred convert_bare_type(Int16, typeof(one(Complex{Int32})*u))
+            @test typeof(one(Complex{Int16})*u) === @inferred convert_bare_type(Complex{Int16}, typeof(one(Int32)*u))
+            @test typeof(one(Complex{Int16})*u) === @inferred convert_bare_type(Complex{Int16}, typeof(one(Complex{Int32})*u))
         end
 
         # real_type for values
-        @test real_type(u"2.0m/s") === Float64
-        @test real_type(u"35GHz") === Int
+        @test Float64 === @inferred real_type(u"2.0m/s")
+        @test Int     === @inferred real_type(u"35GHz")
 
         # real_type for types
-        @test real_type(typeof(u"2.0m/s")) === Float64
-        @test real_type(typeof(u"35GHz")) === Int
+        @test Float64 === @inferred real_type(typeof(u"2.0m/s"))
+        @test Int     === @inferred real_type(typeof(u"35GHz"))
 
         # real_type with multiple arguments
-        @test real_type(u"2.0m/s", u"35GHz") === Float64
-        @test real_type(1, u"2.0f0m/s", u"35GHz") === Float32
-        @test real_type(1, u"2.0f0m/s", u"35GHz", Complex{Int8}(11)) === Float32
+        @test Float64 === @inferred real_type(u"2.0m/s", u"35GHz")
+        @test Float32 === @inferred real_type(1, u"2.0f0m/s", u"35GHz")
+        @test Float32 === @inferred real_type(1, u"2.0f0m/s", u"35GHz", Complex{Int8}(11))
 
         # convert_real_type
-        @test convert_real_type(Float64, u"2.0m/s") === u"2.0m/s"
-        @test convert_real_type(Int, u"2.0m/s") === u"2m/s"
-        @test convert_real_type(Float32, u"35GHz") === u"35.0f0GHz"
+        @test u"2.0m/s"    === @inferred convert_real_type(Float64, u"2.0m/s")
+        @test u"2m/s"      === @inferred convert_real_type(Int, u"2.0m/s")
+        @test u"35.0f0GHz" === @inferred convert_real_type(Float32, u"35GHz")
         let T = typeof(u"3.5GHz")
             for x in (missing, nothing, undef)
-                @test convert_real_type(T, x) === x
-                @test convert_real_type(T, typeof(x)) === typeof(x)
+                @test x         === @inferred convert_real_type(T, x)
+                @test typeof(x) === @inferred convert_real_type(T, typeof(x))
             end
         end
         let u = u"km/s"
-            @test convert_real_type(Int16, typeof(one(Int32)*u)) === typeof(one(Int16)*u)
-            @test convert_real_type(Int16, typeof(one(Complex{Int32})*u)) === typeof(one(Complex{Int16})*u)
-            @test convert_real_type(Complex{Int16}, typeof(one(Int32)*u)) === typeof(one(Int16)*u)
-            @test convert_real_type(Complex{Int16}, typeof(one(Complex{Int32})*u)) === typeof(one(Complex{Int16})*u)
+            @test typeof(one(Int16)*u)          === @inferred convert_real_type(Int16, typeof(one(Int32)*u))
+            @test typeof(one(Complex{Int16})*u) === @inferred convert_real_type(Int16, typeof(one(Complex{Int32})*u))
+            @test typeof(one(Int16)*u)          === @inferred convert_real_type(Complex{Int16}, typeof(one(Int32)*u))
+            @test typeof(one(Complex{Int16})*u) === @inferred convert_real_type(Complex{Int16}, typeof(one(Complex{Int32})*u))
         end
 
         # convert_floating_point_type
-        @test convert_floating_point_type(Float64, u"2.0m/s") === u"2.0m/s"
-        @test convert_floating_point_type(Int, u"2.0m/s") === u"2.0m/s"
-        @test convert_floating_point_type(Float32, u"35GHz") === u"35.0f0GHz"
+        @test u"2.0m/s"    === @inferred convert_floating_point_type(Float64, u"2.0m/s")
+        @test u"2.0m/s"    === @inferred convert_floating_point_type(Int, u"2.0m/s")
+        @test u"35.0f0GHz" === @inferred convert_floating_point_type(Float32, u"35GHz")
         let T = typeof(u"3.5GHz")
             for x in (missing, nothing, undef)
-                @test convert_floating_point_type(T, x) === x
-                @test convert_floating_point_type(T, typeof(x)) === typeof(x)
+                @test x         === @inferred convert_floating_point_type(T, x)
+                @test typeof(x) === @inferred convert_floating_point_type(T, typeof(x))
             end
         end
         let u = u"km/s"
-            @test convert_floating_point_type(Int16, typeof(one(Int32)*u)) === typeof(float(one(Int16))*u)
-            @test convert_floating_point_type(Int16, typeof(one(Complex{Int32})*u)) === typeof(float(one(Complex{Int16}))*u)
-            @test convert_floating_point_type(Complex{Int16}, typeof(one(Int32)*u)) === typeof(float(one(Int16))*u)
-            @test convert_floating_point_type(Complex{Int16}, typeof(one(Complex{Int32})*u)) === typeof(float(one(Complex{Int16}))*u)
+            @test typeof(float(one(Int16))*u)          === @inferred convert_floating_point_type(Int16, typeof(one(Int32)*u))
+            @test typeof(float(one(Complex{Int16}))*u) === @inferred convert_floating_point_type(Int16, typeof(one(Complex{Int32})*u))
+            @test typeof(float(one(Int16))*u)          === @inferred convert_floating_point_type(Complex{Int16}, typeof(one(Int32)*u))
+            @test typeof(float(one(Complex{Int16}))*u) === @inferred convert_floating_point_type(Complex{Int16}, typeof(one(Complex{Int32})*u))
         end
 
         # unitless
-        @test unitless(u"17GHz") === 17
-        @test unitless(typeof(u"2.0f0m/s")) === Float32
+        @test 17      === @inferred unitless(u"17GHz")
+        @test Float32 === @inferred unitless(typeof(u"2.0f0m/s"))
 
         # in-place multiplication
         A = [1.1u"m/s", 1.3u"m/s", 2.7u"m/s"]
