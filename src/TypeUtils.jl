@@ -173,20 +173,28 @@ Unsupported(T::DataType...) = Union{T...,Unsupported}
 @public Unsupported
 
 # Lists of machine integer types.
-function _bit_integers(s::Bool) # FIXME make this a macro?
-    t = ()
-    pfx = s ? "Int" : "UInt"
-    w = 8
+function _bit_integers(pfx)
+    # FIXME This is equivalent to:
+    #
+    # map(eval, Iterators.takewhile(Base.Fix1(isdefined, Base),
+    #                               Iterators.map(i -> Symbol(pfx, 8<<i),
+    #                                             Iterators.countfrom(0))))
+    #
+    # but not all these iterators exist in old Julia versions.
+    types = Type[]
+    nbits = 8
     while true
-        sym = Symbol(pfx, w)
-        isdefined(Base, sym) || return t
-        t = (t..., eval(sym))
-        w *= 2
+        sym = Symbol(pfx, nbits)
+        isdefined(Base, sym) || return types
+        push!(types, eval(sym))
+        nbits *= 2
     end
 end
-@eval const SIGNED_BIT_INTEGERS = $(_bit_integers(true))
-@eval const UNSIGNED_BIT_INTEGERS = $(_bit_integers(false))
-@eval const BIT_INTEGERS = $((Bool, SIGNED_BIT_INTEGERS..., UNSIGNED_BIT_INTEGERS...))
+const BIT_INTEGERS = (Bool, _bit_integers("Int")..., _bit_integers("UInt")...,)
+# FIXME `filter` does not work on collections other than arrays and dictionaries for
+#       Julia < 1.4. Hence, `collect`...
+const SIGNED_BIT_INTEGERS = (filter(T -> T <: Signed, collect(BIT_INTEGERS))...,)
+const UNSIGNED_BIT_INTEGERS = (filter(T -> T <: Unsigned, collect(BIT_INTEGERS))...,)
 
 """
     as(T, x)
