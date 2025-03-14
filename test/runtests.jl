@@ -187,6 +187,9 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 end
             end
         end
+        let vals = (1.3, -2.7, pi, 42)
+            @test map(nearest(Int), vals) === map(x -> nearest(Int, x), vals)
+        end
     end
 
     @testset "Array axes and size" begin
@@ -380,6 +383,12 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test B isa NTuple{<:Any,Float32}
             @test B == Float32.(A)
         end
+        # Map `convert_eltype`.
+        let A = rand(Float64, 2, 3), B = reshape(1:12, 3, 4)
+            f = @inferred convert_eltype(Float32)
+            @test isequal(f(A), convert_eltype(Float32, A))
+            @test isequal(f(B), convert_eltype(Float32, B))
+        end
     end
 
     @testset "as_eltype()" begin
@@ -520,6 +529,9 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test convert_bare_type(Int16, MyNumber{Complex{Int32}}) === MyNumber{Int16}
         @test convert_bare_type(Complex{Int16}, MyNumber{Int32}) === MyNumber{Complex{Int16}}
         @test_throws ErrorException convert_bare_type(Int, String)
+        let vals = (1.3, -2.7, pi, 42, u"35GHz")
+            @test map(convert_bare_type(Float32), vals) === map(x -> convert_bare_type(Float32, x), vals)
+        end
 
         # real_type with no argument
         @test real_type() === Real
@@ -582,6 +594,9 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test convert_real_type(Int16, MyNumber{Complex{Int32}}) === MyNumber{Complex{Int16}}
         @test convert_real_type(Complex{Int16}, MyNumber{Int32}) === MyNumber{Int16}
         @test_throws ErrorException convert_real_type(Int, String)
+        let vals = (1.3, -2.7, pi, Complex(-3,42), u"35GHz")
+            @test map(convert_real_type(Float32), vals) === map(x -> convert_real_type(Float32, x), vals)
+        end
 
         # floating_point_type
         @test floating_point_type() === AbstractFloat
@@ -617,6 +632,9 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test convert_floating_point_type(Float32, MyNumber{Complex{Float64}}) === MyNumber{Complex{Float32}}
         @test convert_floating_point_type(Complex{Float32}, MyNumber{Float64}) === MyNumber{Float32}
         @test_throws ErrorException convert_floating_point_type(Int, String)
+        let vals = (1.3, -2.7, pi, Complex(-3,42), u"35GHz")
+            @test map(convert_floating_point_type(Float32), vals) === map(x -> convert_floating_point_type(Float32, x), vals)
+        end
 
         # unitless
         @test unitless(Real) === bare_type(Real)

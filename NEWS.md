@@ -1,5 +1,12 @@
 # User visible changes in `TypeUtils`
 
+- Non-exported public constructor `c = TypeUtils.Converter(f,T::Type)` such that `c` is
+  callable and `c(x)` yields `f(T,x)` for any `x`. This replaces and generalizes private
+  type `As`.
+
+- Methods `as(T)`, `nearest(T)`, `convert_bare_type(T)`, `convert_real_type(T)`,
+  `convert_floating_point_type(T)`, and `convert_eltype(T)` yield converters to type `T`.
+
 # Version 1.4.2
 
 - New `nearest(T,x)` method to return the value of type `T` that is the nearest to `x`.

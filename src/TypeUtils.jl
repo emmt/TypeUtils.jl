@@ -55,6 +55,24 @@ end
 VERSION ≥ v"1.11.0-DEV.469" && eval(Expr(:public, Symbol("@public")))
 
 """
+    c = TypeUtils.Converter(f, T::Type)
+
+builds a lightweight callable object `c` such that `c(x)` yields `f(T, x)` for any `x`.
+Converter objects are suitable to map conversion to type `T` by function `f` to
+collections.
+
+This is similar to `Base.Fix1(f,T)` except that `sizeof(Base.Fix1(f,T)) = sizeof(Int)`
+while `sizeof(TypeUtils.Converter(f,T)) = 0`.
+
+"""
+struct Converter{F,T} <: Function
+    func::F
+    Converter(func::F, ::Type{T}) where {F,T} = new{F,T}(func)
+end
+(c::Converter{F,T})(x) where {F,T} = c.func(T, x)
+@public Converter
+
+"""
     TypeUtils.Dim
 
 is an alias to `eltype(Dims)`, the canonical integer type for an array dimension length.
@@ -199,17 +217,12 @@ as(::Type{String}, x::Symbol) = String(x)
 as(::Type{Symbol}, x::String) = Symbol(x)
 
 """
-    f = as(T)
+    as(T) -> f
 
-yields a callable object which converts its argument to type `T`. More
-specifically, a call like `f(x)` yields `as(T, x)`.
+yields a callable object `f` such that `f(x)` yields `as(T, x)` for any `x`.
 
 """
-as(::Type{T}) where {T} = As{T}()
-
-struct As{T} <: Function; end
-
-(::As{T})(x) where {T} = as(T, x)
+as(::Type{T}) where {T} = Converter(as, T)
 
 """
     nearest(T::Type, x) -> y::T
@@ -265,10 +278,10 @@ nearest(::Type{BigInt}, x::Irrational) = round(BigInt, round(x))
 """
     nearest(T::Type) -> f
 
-yields a callable object `f`, such that `f(x)` yields `nearest(T, x)`.
+yields a callable object `f` such that `f(x)` yields `nearest(T, x)` for any `x`.
 
 """
-nearest(::Type{T}) where {T} = Base.Fix1(nearest, T)
+nearest(::Type{T}) where {T} = Converter(nearest, T)
 
 """
     AbstractTypeStableFunction{T}
@@ -747,6 +760,15 @@ convert_bare_type(::Type{T}, ::Type{<:BareNumber}) where {T<:BareNumber} = T
     "unsupported conversion of bare numeric type of type `", S, "` to `", T, "`")
 
 """
+    convert_bare_type(T) -> f
+
+yields a callable object `f` such that `f(x)` yields `convert_bare_type(T, x)` for any
+`x`.
+
+"""
+convert_bare_type(::Type{T}) where {T} = Converter(convert_bare_type, T)
+
+"""
     convert_real_type(T, x)
 
 converts `x` so that its bare real type is that of `T`. Argument `x` may be a
@@ -773,6 +795,15 @@ convert_real_type(::Type{T}, ::Type{<:Real}) where {T<:Real} = T
 convert_real_type(::Type{T}, ::Type{<:Complex}) where {T<:Real} = Complex{T}
 @noinline convert_real_type(::Type{T}, ::Type{S}) where {T<:Real,S} = error(
     "unsupported conversion of bare real type of type `", S, "` to `", T, "`")
+
+"""
+    convert_real_type(T) -> f
+
+yields a callable object `f` such that `f(x)` yields `convert_real_type(T, x)` for any
+`x`.
+
+"""
+convert_real_type(::Type{T}) where {T} = Converter(convert_real_type, T)
 
 # Special values/types.
 const Special = Union{Missing,Nothing,typeof(undef)}
@@ -827,6 +858,15 @@ numeric type.
 """
 convert_floating_point_type(::Type{T}, x) where {T<:Number} =
     convert_real_type(floating_point_type(T), x)
+
+"""
+    convert_floating_point_type(T) -> f
+
+yields a callable object `f` such that `f(x)` yields `convert_floating_point_type(T, x)`
+for any `x`.
+
+"""
+convert_floating_point_type(::Type{T}) where {T} = Converter(convert_floating_point_type, T)
 
 """
     promote_eltype(args...)
@@ -895,6 +935,14 @@ convert_eltype(::Type{T}, A::AbstractRange) where {T} =
 convert_eltype(::Type{T}, A::LinRange{T}) where {T} = A
 convert_eltype(::Type{T}, A::LinRange) where {T} =
     LinRange(as(T, first(A)), as(T, last(A)), length(A))
+
+"""
+    convert_eltype(T) -> f
+
+yields a callable object `f` such that `f(x)` yields `convert_eltype(T, x)` for any `x`.
+
+"""
+convert_eltype(::Type{T}) where {T} = Converter(convert_eltype, T)
 
 """
     as_eltype(T, A) -> B
