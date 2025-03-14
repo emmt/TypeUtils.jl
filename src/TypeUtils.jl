@@ -738,7 +738,7 @@ for f in (:bare_type, :real_type)
     @eval begin
         $f(a, b) = promote_type($f(a), $f(b))
         $f(a, b, c) = promote_type($f(a), $f(b), $f(c))
-        @inline $f(a, b, c...) = promote_type($f(a), $f(b), map($f, c)...)
+        @inline $f(a, b, c...) = promote_type($f(a, b), $f(c...))
     end
 end
 

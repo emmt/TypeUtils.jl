@@ -9,6 +9,9 @@
 - Methods `as(T)`, `nearest(T)`, `convert_bare_type(T)`, `convert_real_type(T)`,
   `convert_floating_point_type(T)`, and `convert_eltype(T)` yield converters to type `T`.
 
+- Inference works for more than 3 arguments for `bare_type(args...)`,
+  `real_type(args...)`, and `floating_point_type(args...)`.
+
 # Version 1.4.2
 
 - New `nearest(T,x)` method to return the value of type `T` that is the nearest to `x`.
