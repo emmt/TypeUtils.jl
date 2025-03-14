@@ -911,6 +911,8 @@ convert_eltype(::Type{T}, ::Type{X}) where {T,X} =
 
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractArray) where {T} = as(AbstractArray{T}, A)
+convert_eltype(::Type{T}, ::Type{<:Array{<:Any,N}}) where {T,N} = Array{T,N}
+convert_eltype(::Type{T}, ::Type{<:AbstractArray{<:Any,N}}) where {T,N} = AbstractArray{T,N}
 
 # Convert element type for numbers.
 convert_eltype(::Type{T}, ::Type{<:Number}) where {T} = T
@@ -930,11 +932,13 @@ convert_eltype(::Type{T}, A::Union{OneTo,UnitRange}) where {T} =
     as(convert_eltype(T, typeof(A)), A)
 
 # Convert element type for AbstractUnitRange{T} <: OrdinalRange{T,T}.
+convert_eltype(::Type{T}, ::Type{<:AbstractUnitRange}) where {T} = AbstractUnitRange{T}
 convert_eltype(::Type{T}, A::AbstractUnitRange{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractUnitRange) where {T} =
     as(T, first(A)):as(T, last(A))
 
 # Convert element type for other range types.
+convert_eltype(::Type{T}, ::Type{<:AbstractRange}) where {T} = AbstractRange{T}
 convert_eltype(::Type{T}, A::AbstractRange{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractRange) where {T} =
     as(T, first(A)):as(T, step(A)):as(T, last(A))

@@ -338,55 +338,65 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     @testset "convert_eltype()" begin
         # Numbers.
         let A = rand(Float64), B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa Float32
             @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(eltype(B), typeof(A))
         end
         # Abstract arrays.
         let A = rand(Float64, 2, 3), B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa AbstractArray{Float32,ndims(A)}
             @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(eltype(B), typeof(A))
+            @test AbstractArray{UInt8,2} === @inferred convert_eltype(UInt8, typeof(view(A,:,1:2:3)))
         end
         # Base.OneTo
         let A = OneTo{Int32}(7), B = @inferred convert_eltype(Int16, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa OneTo{Int16}
             @test B == Int16.(A)
+            @test typeof(B) === @inferred convert_eltype(eltype(B), typeof(A))
         end
         let A = OneTo(7), B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa AbstractRange{Float32}
             @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(eltype(B), typeof(A))
         end
         # UnitRange
         let A = 2:8, B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa AbstractRange{Float32}
             @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(eltype(B), typeof(A))
         end
         # OrdinalRange
         let A = 2.0:3.0:11.0, B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa AbstractRange{Float32}
             @test B == Float32.(A)
+            @test typeof(B) <: @inferred convert_eltype(eltype(B), typeof(A))
         end
         # LinRange
         let A = LinRange(-2.0, 3.0, 5), B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
+            @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa LinRange{Float32}
             @test B == Float32.(A)
+            @test typeof(B) <: @inferred convert_eltype(eltype(B), typeof(A))
         end
         # Tuples.
         let A = (1, 2, 3) #= NTuple =#, B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
-            @test B isa NTuple{<:Any,Float32}
+            @test A === @inferred convert_eltype(eltype(A), A)
+            @test B isa NTuple{3,Float32}
             @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(Float32, typeof(A))
         end
-        let A = (1, 2.0, 3) #= not NTuple but Tuple =#, B = @inferred convert_eltype(Float32, A)
-            @test convert_eltype(eltype(A), A) === A
-            @test B isa NTuple{<:Any,Float32}
+        let A = (1, 2.0, pi) #= not NTuple but Tuple =#, B = @inferred convert_eltype(Float32, A)
+            @test A === @inferred convert_eltype(eltype(A), A)
+            @test B isa NTuple{3,Float32}
             @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(Float32, typeof(A))
         end
         # Map `convert_eltype`.
         let A = rand(Float64, 2, 3), B = reshape(1:12, 3, 4)
@@ -394,6 +404,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test isequal(f(A), convert_eltype(Float32, A))
             @test isequal(f(B), convert_eltype(Float32, B))
         end
+        @test_throws ErrorException convert_eltype(Char, String)
     end
 
     @testset "as_eltype()" begin
