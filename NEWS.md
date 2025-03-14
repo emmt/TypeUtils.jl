@@ -1,5 +1,7 @@
 # User visible changes in `TypeUtils`
 
+# Version 1.5.0
+
 - Non-exported public constructor `c = TypeUtils.Converter(f,T::Type)` such that `c` is
   callable and `c(x)` yields `f(T,x)` for any `x`. This replaces and generalizes private
   type `As`.
