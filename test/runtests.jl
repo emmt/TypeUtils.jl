@@ -15,7 +15,7 @@ end # module TestingTypeUtilsWithoutExtensions
 module TestingTypeUtils
 
 using TypeUtils
-using TypeUtils: BareNumber, BIT_INTEGERS
+using TypeUtils: BareNumber, BIT_INTEGERS, Unsupported
 using Unitful
 using OffsetArrays
 using Test
@@ -89,7 +89,12 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 @testset "TypeUtils" begin
     @testset "Miscellaneous" begin
         # Check that TypeUtils.Unsupported cannot be instantiated.
-        @test_throws Exception TypeUtils.Unsupported()
+        @test_throws Exception Unsupported()
+        @test Union{Real,Unsupported} <: @inferred Unsupported(Real)
+        f(x::Unsupported(Integer)) = error("this method is not yet implemented")
+        @test_throws ErrorException f(8)
+        f(x::Integer) = x + 1
+        @test f(8) == 9
     end
 
     @testset "parameterless()" begin
