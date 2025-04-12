@@ -755,7 +755,7 @@ This method may be extended with `T<:TypeUtils.BareNumber` and for `x` of
 non-standard numeric type.
 
 """
-convert_bare_type(::Type{T}, x) where {T<:Number} = convert_bare_type(bare_type(T), x)
+convert_bare_type(::Type{T}, x) where {T} = convert_bare_type(bare_type(T), x)
 
 # NOTE: All other specializations of `convert_bare_type(T,x)` are for `T<:BareNumber`.
 convert_bare_type(::Type{T}, x::T) where {T<:BareNumber} = x
@@ -789,7 +789,7 @@ This method may be extended with `T<:Real` and for `x` of non-standard numeric
 type.
 
 """
-convert_real_type(::Type{T}, x) where {T<:Number} = convert_real_type(real_type(T), x)
+convert_real_type(::Type{T}, x) where {T} = convert_real_type(real_type(T), x)
 
 # NOTE: All other specializations of `convert_real_type(T,x)` are for `T<:Real`.
 convert_real_type(::Type{T}, x::T) where {T<:Real} = x
@@ -865,7 +865,7 @@ This method may be extended with `T<:AbstractFloat` and for `x` of non-standard
 numeric type.
 
 """
-convert_floating_point_type(::Type{T}, x) where {T<:Number} =
+convert_floating_point_type(::Type{T}, x) where {T} =
     convert_real_type(floating_point_type(T), x)
 
 """

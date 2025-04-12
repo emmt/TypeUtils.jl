@@ -6,6 +6,11 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ## Unreleased
 
+### Changed
+
+- Relax type restriction on `T` in `convert_bare_type(T, x)`, `convert_real_type(T, x)`,
+  and `convert_floating_point_type(T, x)`.
+
 ### Fixed
 
 - Fix `new_array(T)` and `new_array(T,())` of yield a 0-dimensional array.
