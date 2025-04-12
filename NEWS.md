@@ -25,7 +25,7 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ### Fixed
 
-- Fix `new_array(T)` and `new_array(T,())` of yield a 0-dimensional array.
+- Fix `new_array(T)` and `new_array(T,())` to yield a 0-dimensional array.
 
 
 ## Version 1.5.0
