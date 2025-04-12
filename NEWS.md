@@ -4,7 +4,7 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec).
 
-## Unreleased
+## Version 1.5.1 (2025-04-12)
 
 ### Changed
 
