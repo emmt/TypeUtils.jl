@@ -124,6 +124,9 @@ See also [`ArrayAxes`](@ref), `Dims`.
 """
 const ArrayShape{N} = NTuple{N,Union{Integer,AbstractUnitRange{<:Integer}}}
 
+# Type of array shape that yields a regular `Array` in `new_array`.
+const RegularArrayShape{N} = NTuple{N,Union{Integer,Base.OneTo{<:Integer}}}
+
 """
     RelaxedArrayShape{N}
 
@@ -389,7 +392,7 @@ and [`new_array`](@ref).
 """
 as_array_shape(::Tuple{}) = ()
 as_array_shape(args::eltype(RelaxedArrayShape)...) = as_array_shape(args)
-as_array_shape(args::Tuple{Vararg{Union{Integer,Base.OneTo{<:Integer}}}}) = as_array_size(args)
+as_array_shape(args::RegularArrayShape) = as_array_size(args)
 as_array_shape(args::RelaxedArrayShape) = as_array_axes(args)
 
 """
@@ -484,9 +487,8 @@ Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`
 """
 new_array(::Type{T}, shape::eltype(RelaxedArrayShape)...) where {T} = new_array(T, shape)
 new_array(::Type{T}, shape::RelaxedArrayShape) where {T} = new_array(T, as_array_shape(shape))
+new_array(::Type{T}, shape::RegularArrayShape) where {T} = new_array(T, as_array_size(shape))
 new_array(::Type{T}, shape::Dims{N}) where {T,N} = Array{T,N}(undef, shape)
-new_array(::Type{T}, shape::NTuple{N,Union{Integer,Base.OneTo}}) where {T,N} =
-    new_array(T, as_array_size(shape))
 new_array(::Type{T}, shape::Unsupported(ArrayAxes{N})) where {T,N} =
     error("package `OffsetArrays` must be loaded for such array index ranges")
 
