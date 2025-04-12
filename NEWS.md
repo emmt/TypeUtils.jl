@@ -4,6 +4,18 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec).
 
+## Unreleased
+
+## Added
+
+- Macro `@assert_floating_point` to assert whether arguments or variables of a function
+  do use floating-point for storing their value(s).
+
+- New function `assert_floating_point` to assert whether an object does use floating-point
+  for storing its value(s). This method is a *trait*: its result only depend on the type
+  of its argument and this type may be directly specified.
+
+
 ## Version 1.5.1 (2025-04-12)
 
 ### Changed

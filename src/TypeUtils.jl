@@ -1,6 +1,7 @@
 module TypeUtils
 
 export
+    @assert_floating_point,
     ArrayAxes,
     ArrayAxis,
     ArrayShape,
@@ -15,6 +16,7 @@ export
     as_array_size,
     as_eltype,
     as_return,
+    assert_floating_point,
     bare_type,
     convert_bare_type,
     convert_eltype,
@@ -53,6 +55,22 @@ macro public(args::Union{Symbol,Expr}...)
     VERSION ≥ v"1.11.0-DEV.469" ? esc(Expr(:public, args...)) : nothing
 end
 VERSION ≥ v"1.11.0-DEV.469" && eval(Expr(:public, Symbol("@public")))
+
+"""
+    @assert_floating_point A B ...
+
+throws an `ArgumentError` exception if any of the variables `A`, `B`, etc. does not use
+floating-point to store its value(s).
+
+See also [`assert_floating_point`](@ref).
+
+"""
+macro assert_floating_point(args::Symbol...)
+    code = [:(assert_floating_point($(QuoteNode(arg)), $(esc(arg)))) for arg in args]
+    return quote
+        $(code...)
+    end
+end
 
 """
     c = TypeUtils.Converter(f, T::Type)
@@ -877,6 +895,52 @@ for any `x`.
 """
 convert_floating_point_type(::Type{T}) where {T} =
     Converter(convert_floating_point_type, floating_point_type(T))
+
+"""
+    assert_floating_point(Bool, x) -> bool
+
+yields whether `x` uses floating-point to store its value(s). For n-tuples, the same
+floating-point type must be used for all values.
+
+"""
+assert_floating_point(::Type{Bool}, x) =
+    assert_floating_point(Bool, typeof(x))
+
+assert_floating_point(::Type{Bool}, ::Type{<:AbstractArray{T}}) where {T} =
+    assert_floating_point(Bool, T)
+
+assert_floating_point(::Type{Bool}, ::Type{<:NTuple{N,T}}) where {N,T} =
+    assert_floating_point(Bool, T)
+
+assert_floating_point(::Type{Bool}, ::DataType) = false
+
+assert_floating_point(::Type{Bool}, ::Type{T}) where {T<:Number} =
+    _assert_floating_point(Bool, real_type(T))
+
+_assert_floating_point(::Type{Bool}, ::Type{T}) where {T<:AbstractFloat} = isconcretetype(T)
+_assert_floating_point(::Type{Bool}, ::Type{T}) where {T<:Number} = false
+
+"""
+    assert_floating_point([name,] x)
+
+throws an exception if `x` does not use floating-point to store its value(s). Optional
+`name` argument is to specify the name to use for the error message.
+
+See also [`@assert_floating_point`](@ref).
+
+"""
+assert_floating_point(x) = assert_floating_point(typeof(x))
+assert_floating_point(::Type{T}) where {T} =
+    assert_floating_point(Bool, T) ? nothing : throw_not_floating_point(T)
+
+assert_floating_point(name::Union{Symbol,AbstractString}, x) = assert_floating_point(name, typeof(x))
+assert_floating_point(name::Union{Symbol,AbstractString}, ::Type{T}) where {T} =
+    assert_floating_point(Bool, T) ? nothing : throw_not_floating_point(name, T)
+
+@noinline throw_not_floating_point(::Type{T}) where {T} =
+    throw(ArgumentError("type `$T` is not floating-point"))
+@noinline throw_not_floating_point(name::Union{Symbol,AbstractString}, ::Type{T}) where {T} =
+    throw(ArgumentError("argument or variable `$name` of type `$T` is not floating-point"))
 
 """
     promote_eltype(args...)

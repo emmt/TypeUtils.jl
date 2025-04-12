@@ -669,6 +669,36 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test map(x -> convert_floating_point_type(Float32, x), vals) === @inferred map(convert_floating_point_type(Float32), vals)
         end
 
+        # assert_floating_point
+        @test !assert_floating_point(Bool, 1)
+        @test !assert_floating_point(Bool, π)
+        @test !assert_floating_point(Bool, 1//2)
+        @test !assert_floating_point(Bool, "hello")
+        @test !assert_floating_point(Bool, [0x1, 0x2])
+        @test !assert_floating_point(Bool, (0x1, -1))
+        @test  assert_floating_point(Bool, 1.0)
+        @test  assert_floating_point(Bool, complex(-2f0,3f0))
+        @test  assert_floating_point(Bool, [0.0f0, 2.0f0])
+        @test !assert_floating_point(Bool, Int)
+        @test !assert_floating_point(Bool, AbstractFloat)
+        @test  assert_floating_point(Bool, Float16)
+        @test  assert_floating_point(Bool, Float32)
+        @test  assert_floating_point(Bool, Float64)
+        @test  assert_floating_point(Bool, Complex{Float32})
+        @test  assert_floating_point(Bool, AbstractRange{Float64})
+        # only ok for homogeneous tuples
+        @test !assert_floating_point(Bool, (-1.0, 2.0f0))
+        @test  assert_floating_point(Bool, (-1.0, 2.0))
+        @test !assert_floating_point(Bool, Tuple{Float64,Float32})
+        @test  assert_floating_point(Bool, Tuple{Float32,Float32})
+        #
+        x, y = 2, 3.0
+        @test assert_floating_point(y) === nothing
+        @test assert_floating_point("y", y) === nothing
+        @test_throws Exception assert_floating_point(x)
+        @test_throws Exception assert_floating_point(:x, x)
+        @test_throws Exception @assert_floating_point x y
+
         # unitless
         @test bare_type(Real)         === @inferred unitless(Real)
         @test bare_type(Integer)      === @inferred unitless(Integer)
