@@ -482,15 +482,14 @@ if the package `OffsetArrays` has not been loaded.
 Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref).
 
 """
-new_array(::Type{T}, inds::eltype(RelaxedArrayShape)...) where {T} = new_array(T, inds)
-new_array(::Type{T}, inds::RelaxedArrayShape) where {T} = new_array(T, as_array_shape(inds))
-new_array(::Type{T}, dims::Dims{N}) where {T,N} = Array{T,N}(undef, dims)
-new_array(::Type{T}, rngs::Unsupported(ArrayAxes{N})) where {T,N} =
+new_array(::Type{T}, shape::eltype(RelaxedArrayShape)...) where {T} = new_array(T, shape)
+new_array(::Type{T}, shape::RelaxedArrayShape) where {T} = new_array(T, as_array_shape(shape))
+new_array(::Type{T}, shape::Dims{N}) where {T,N} = Array{T,N}(undef, shape)
+new_array(::Type{T}, shape::NTuple{N,Union{Integer,Base.OneTo}}) where {T,N} =
+    new_array(T, as_array_size(shape))
+new_array(::Type{T}, shape::Unsupported(ArrayAxes{N})) where {T,N} =
     error("package `OffsetArrays` must be loaded for such array index ranges")
 
-# The following is needed to yield regular arrays if possible.
-new_array(::Type{T}, inds::NTuple{N,Union{Integer,Base.OneTo}}) where {T,N} =
-    new_array(T, as_array_size(inds))
 
 """
     return_type(f, argtypes...) -> T
