@@ -488,10 +488,10 @@ Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`
 new_array(::Type{T}, shape::eltype(RelaxedArrayShape)...) where {T} = new_array(T, shape)
 new_array(::Type{T}, shape::RelaxedArrayShape) where {T} = new_array(T, as_array_shape(shape))
 new_array(::Type{T}, shape::RegularArrayShape) where {T} = new_array(T, as_array_size(shape))
+new_array(::Type{T}, shape::Tuple{}) where {T} = Array{T}(undef)
 new_array(::Type{T}, shape::Dims{N}) where {T,N} = Array{T,N}(undef, shape)
 new_array(::Type{T}, shape::Unsupported(ArrayAxes{N})) where {T,N} =
     error("package `OffsetArrays` must be loaded for such array index ranges")
-
 
 """
     return_type(f, argtypes...) -> T

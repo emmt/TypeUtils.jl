@@ -284,6 +284,8 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     end
 
     @testset "new_array()" begin
+        A = @inferred new_array(Int)
+        @test A isa Array{Int,0}
         A = @inferred new_array(Float32, 2,3,4)
         @test A isa Array{Float32,3}
         @test size(A) === (2,3,4)
