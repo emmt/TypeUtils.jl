@@ -775,7 +775,7 @@ yields a callable object `f` such that `f(x)` yields `convert_bare_type(T, x)` f
 `x`.
 
 """
-convert_bare_type(::Type{T}) where {T} = Converter(convert_bare_type, T)
+convert_bare_type(::Type{T}) where {T} = Converter(convert_bare_type, bare_type(T))
 
 """
     convert_real_type(T, x)
@@ -812,7 +812,7 @@ yields a callable object `f` such that `f(x)` yields `convert_real_type(T, x)` f
 `x`.
 
 """
-convert_real_type(::Type{T}) where {T} = Converter(convert_real_type, T)
+convert_real_type(::Type{T}) where {T} = Converter(convert_real_type, real_type(T))
 
 # Special values/types.
 const Special = Union{Missing,Nothing,typeof(undef)}
@@ -875,7 +875,8 @@ yields a callable object `f` such that `f(x)` yields `convert_floating_point_typ
 for any `x`.
 
 """
-convert_floating_point_type(::Type{T}) where {T} = Converter(convert_floating_point_type, T)
+convert_floating_point_type(::Type{T}) where {T} =
+    Converter(convert_floating_point_type, floating_point_type(T))
 
 """
     promote_eltype(args...)
