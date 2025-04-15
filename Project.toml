@@ -1,7 +1,7 @@
 name = "TypeUtils"
 uuid = "c3b1956e-8857-4d84-9b79-890df85b1e67"
 authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
-version = "1.5.1"
+version = "1.6.0"
 
 [deps]
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
