@@ -52,9 +52,12 @@ tools.
 
 """
 macro public(args::Union{Symbol,Expr}...)
-    VERSION ≥ v"1.11.0-DEV.469" ? esc(Expr(:public, args...)) : nothing
+    VERSION ≥ v"1.11.0-DEV.469" ? esc(Expr(:public, map(
+        x -> x isa Symbol ? x :
+            x isa Expr && x.head == :macrocall ? x.args[1] :
+            error("unexpected argument `$x` to `@public`"), args)...)) : nothing
 end
-VERSION ≥ v"1.11.0-DEV.469" && eval(Expr(:public, Symbol("@public")))
+VERSION ≥ v"1.11.0-DEV.469" && @public @public
 
 """
     @assert_floating_point A B ...

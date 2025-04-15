@@ -15,6 +15,10 @@ This page describes the most important changes in `TypeUtils`. The format is bas
   for storing its value(s). This method is a *trait*: its result only depend on the type
   of its argument and this type may be directly specified.
 
+## Fixed
+
+- `@public` can take macro names (prefixed by `@`) as argument.
+
 
 ## Version 1.5.1 (2025-04-12)
 
