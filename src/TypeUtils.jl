@@ -1040,43 +1040,36 @@ as_eltype(::Type{T}, A::AbstractArray) where {T} = AsEltype{T}(A)
 
 struct AsEltype{T,N,L,A<:AbstractArray} <: AbstractArray{T,N}
     parent::A
+    AsEltype{T}(arr::A) where {T,N,A<:AbstractArray{<:Any,N}} =
+        new{T,N,IndexStyle(A)===IndexLinear(),A}(arr)
 end
 
-AsEltype{T}(arr::A) where {T,N,A<:AbstractArray{<:Any,N}} =
-    AsEltype{T,N,IndexStyle(A)===IndexLinear(),A}(arr)
-
-Base.parent(A::AsEltype) = A.parent
+Base.parent(A::AsEltype) = getfield(A, :parent)
 
 # Implement abstract array API for `AsEltype` objects.
 for func in (:axes, :length, :size)
     @eval Base.$func(A::AsEltype) = $func(parent(A))
 end
-Base.IndexStyle(::Type{<:AsEltype{<:Any,<:Any,true}}) = IndexLinear()
-Base.IndexStyle(::Type{<:AsEltype{<:Any,<:Any,false}}) = IndexCartesian()
-
-@inline function Base.getindex(A::AsEltype{T,N,true}, i::Int) where {T,N}
-    @boundscheck checkbounds(A, i)
-    @inbounds r = getindex(parent(A), i)
-    return as(T, r)
+for (L, S, Idecl, Icall) in ((false, :IndexCartesian, :(I::Vararg{Int,N}), :(I...)),
+                             (true,  :IndexLinear,    :(i::Int),           :(i)))
+    @eval begin
+        Base.IndexStyle(::Type{<:AsEltype{T,N,$L}}) where {T,N} = $S()
+        @inline function Base.getindex(A::AsEltype{T,N,$L}, $Idecl) where {T,N}
+            @boundscheck checkbounds(A, $Icall)
+            r = @inbounds getindex(parent(A), $Icall)
+            return as(T, r)
+        end
+        @inline function Base.setindex!(A::AsEltype{T,N,$L}, x, $Idecl) where {T,N}
+            @boundscheck checkbounds(A, $Icall)
+            @inbounds setindex!(parent(A), x, $Icall)
+            return A
+        end
+    end
 end
 
-@inline function Base.getindex(A::AsEltype{T,N,false}, I::Vararg{Int,N}) where {T,N}
-    @boundscheck checkbounds(A, I...)
-    @inbounds r = getindex(parent(A), I...)
-    return as(T, r)
-end
-
-@inline function Base.setindex!(A::AsEltype{T,N,true}, x, i::Int) where {T,N}
-    @boundscheck checkbounds(A, i)
-    @inbounds setindex!(parent(A), x, i)
-    return A
-end
-
-@inline function Base.setindex!(A::AsEltype{T,N,false}, x, I::Vararg{Int,N}) where {T,N}
-    @boundscheck checkbounds(A, I...)
-    @inbounds setindex!(parent(A), x, I...)
-    return A
-end
+Base.similar(A::AsEltype, ::Type{T}) where {T} = similar(parent(A), T)
+Base.similar(A::AsEltype, ::Type{T}, shape::Union{Dims,ArrayAxes}) where {T} =
+    similar(parent(A), T, shape)
 
 """
     destructure(obj) -> vals::Tuple
