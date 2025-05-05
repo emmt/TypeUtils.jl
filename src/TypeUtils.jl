@@ -963,8 +963,8 @@ converts the element type of object/type `A` to type `T`. The returned object/ty
 similar to `A` except maybe for the element type. For example, if `A` is a range, then `B`
 is also a range. If `T` is the element type of `A`, then `A` may be returned.
 
-Consider using [`as_eltype(T, A)`](@ref) to build an object that lazily performs the
-conversion.
+Consider using [`as_eltype(T, A)`](@ref as_eltype) to build an object that lazily performs
+the conversion.
 
 To simplify extending `convert_eltype` for objects `A` of given type, the default behavior
 is:
@@ -1028,11 +1028,11 @@ convert_eltype(::Type{T}) where {T} = Converter(convert_eltype, T)
 """
     as_eltype(T, A) -> B
 
-yields an array which lazily converts its entries to type `T`. More
-specifically, a call like `B[i]` yields `as(T,A[i])`.
+yields an array which lazily converts its entries to type `T`. More specifically, a call
+like `B[i]` yields `as(T,A[i])`.
 
-Consider using [`convert_eltype(T, A)`](@ref) to perform the conversion once
-and immediately.
+Consider using [`convert_eltype(T, A)`](@ref convert_eltype) to perform the conversion
+once and immediately.
 
 """
 as_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A

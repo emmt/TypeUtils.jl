@@ -6,7 +6,7 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ## Version 1.6.0 (2025-04-15)
 
-## Added
+### Added
 
 - Macro `@assert_floating_point` to assert whether arguments or variables of a function
   do use floating-point for storing their value(s).
@@ -15,7 +15,7 @@ This page describes the most important changes in `TypeUtils`. The format is bas
   for storing its value(s). This method is a *trait*: its result only depend on the type
   of its argument and this type may be directly specified.
 
-## Fixed
+### Fixed
 
 - `@public` can take macro names (prefixed by `@`) as argument.
 
