@@ -8,6 +8,9 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ### Added
 
+- New `is_signed` method to infer whether a value of a given numeric type can be negated
+  while retaining the same type.
+
 - Extend `similar` for the type of arrays returned by `as_eltype`.
 
 ## Version 1.6.0 (2025-04-15)

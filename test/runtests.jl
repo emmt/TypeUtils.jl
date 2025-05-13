@@ -825,6 +825,20 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test_throws InexactError scale!(Val(1), copyto!(B, A), alpha)
         @test_throws InexactError scale!(Val(2), copyto!(B, A), alpha)
         @test_throws InexactError scale!(Val(3), copyto!(B, A), alpha)
+
+        @testset "`is_signed(x::$(typeof(x))`" for (x,r) in ((true, false), (false, false),
+                                                             (Int8(0), true), (UInt8(1), false),
+                                                             (Int16(0), true), (UInt16(1), false),
+                                                             (Int32(0), true), (UInt32(1), false),
+                                                             (Int64(0), true), (UInt64(1), false),
+                                                             (0.0, true), (1.0f0, true),
+                                                             (big(3), true), (big(1.0), true),
+                                                             (false//true, false), (complex(true,false), false),
+                                                             (0x2//0x3, false), (2//3, true),
+                                                             (1.3u"m/s", true), (0x0007*u"kg", false))
+            @test is_signed(typeof(x)) == r
+            @test is_signed(x) === r
+        end
     end
 
     @testset "Destructure and restructure" begin

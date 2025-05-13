@@ -25,6 +25,7 @@ export
     destructure!,
     destructure,
     floating_point_type,
+    is_signed,
     nearest,
     new_array,
     parameterless,
@@ -1070,6 +1071,22 @@ end
 Base.similar(A::AsEltype, ::Type{T}) where {T} = similar(parent(A), T)
 Base.similar(A::AsEltype, ::Type{T}, shape::Union{Dims,ArrayAxes}) where {T} =
     similar(parent(A), T, shape)
+
+"""
+    is_signed(::T)
+    is_signed(T::Type)
+
+yield whether a number of type `T` can be negated while retaining the same type. `false`
+is returned for `T <: Union{U,Rational{U},Complex{U}} where {U<:Union{Bool,Unsigned}}` as
+well as quantities based on these bare numeric types.
+
+"""
+is_signed(x::Number) = is_signed(typeof(x))
+is_signed(::Type{T}) where {T} = _is_signed(bare_type(T))
+_is_signed(::Type{<:Number}) = true
+_is_signed(::Type{<:Union{Bool,Unsigned}}) = false
+_is_signed(::Type{<:Rational{<:Union{Bool,Unsigned}}}) = false
+_is_signed(::Type{<:Complex{<:Union{Bool,Unsigned}}}) = false
 
 """
     destructure(obj) -> vals::Tuple
