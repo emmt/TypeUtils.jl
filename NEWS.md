@@ -4,6 +4,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec).
 
+## Unreleased
+
+### Fixed
+
+- `is_signed(x)` is false if `x` is a complex number with unsigned rational parts.
+
+
 ## Version 1.7.0 (2025-05-13)
 
 ### Added

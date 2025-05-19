@@ -1085,8 +1085,8 @@ is_signed(x::Number) = is_signed(typeof(x))
 is_signed(::Type{T}) where {T} = _is_signed(bare_type(T))
 _is_signed(::Type{<:Number}) = true
 _is_signed(::Type{<:Union{Bool,Unsigned}}) = false
-_is_signed(::Type{<:Rational{<:Union{Bool,Unsigned}}}) = false
-_is_signed(::Type{<:Complex{<:Union{Bool,Unsigned}}}) = false
+_is_signed(::Type{<:Rational{T}}) where {T} = is_signed(T)
+_is_signed(::Type{<:Complex{T}}) where {T} = is_signed(T)
 
 """
     destructure(obj) -> vals::Tuple
