@@ -169,18 +169,28 @@ all ranges have a unit step.
 const RelaxedArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
 
 """
-    TypeUtils.Unsupported(T::DataType...)
+    using TypeUtils: Unsupported
 
-yields an union of types `T...` and of type `Unsupported`. Such an union can be used to
-mark unsupported argument type(s) and yet define a method applicable with that type(s)
-(presumably a method that throws an instructive error) and which can be extended later
-with the same signature except that with `Unsupported(T...)` replaced by `T...`. This
-trick avoids conflicts that prevent pre-compilation with package extensions.
+    Unsupported(T)
+    Union{Unsupported, T}
+    Unsupported(T1, T2, ...)
+    Union{Unsupported, T1, T2, ...}
+
+yield an union that can be used to define a method applicable with unsupported argument
+type(s) `T` or `T1`, `T2`, and `...` (presumably a method that throws an instructive
+error) and which can be extended later with the same signature except that with
+`Union{Unsupported, T}` or `Unsupported(T)` replaced by `T` and
+`Union{Unsupported,T1,T2,...}` or `Unsupported(T1,T2,...)` replaced by `Union{T1,T2,...}`.
+This trick avoids conflicts that prevent pre-compilation with package extensions.
+
+If `T` or any of `T1`, `T2`, and `...` have unspecified type parameters, the
+`Union{Unsupported,...}` syntax may have to be used.
 
 For example, in the main package:
 
 ```julia
-some_method(some_arg::Unsupported{SomeType}) =
+using TypeUtils: Unsupported
+some_method(some_arg::Union{Unsupported,SomeType}) =
     error("package `SomeOtherPackage` has not yet been loaded")
 ```
 
@@ -194,7 +204,7 @@ some_method(some_arg::SomeType) = do_something_with(some_arg)
 struct Unsupported
     Unsupported() = error("it is not possible to instantiate this type")
 end
-Unsupported(T::DataType...) = Union{T...,Unsupported}
+Unsupported(T::DataType...) = Union{Unsupported,T...}
 @public Unsupported
 
 # Lists of machine integer types.
@@ -512,7 +522,7 @@ new_array(::Type{T}, shape::RelaxedArrayShape) where {T} = new_array(T, as_array
 new_array(::Type{T}, shape::RegularArrayShape) where {T} = new_array(T, as_array_size(shape))
 new_array(::Type{T}, shape::Tuple{}) where {T} = Array{T}(undef)
 new_array(::Type{T}, shape::Dims{N}) where {T,N} = Array{T,N}(undef, shape)
-new_array(::Type{T}, shape::Unsupported(ArrayAxes{N})) where {T,N} =
+new_array(::Type,    shape::Union{Unsupported,ArrayAxes}) =
     error("package `OffsetArrays` must be loaded for such array index ranges")
 
 """
