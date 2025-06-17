@@ -7,12 +7,12 @@
 Package `TypeUtils` provides useful methods to deal with types in
 [Julia](https://www.julialang.org) and facilitate coding with numbers whether they have
 units or not. The package provides methods to strip units from numbers or numeric types,
-convert the numeric type of quantities (not their units), determine appropriate numeric
-type to carry computations mixing numbers with different types and/or units. These methods
-make it easy to write code that works consistently for numbers with any units (including
-none). The intention is that the `TypeUtils` package automatically extends its exported
-methods when packages such as [`Unitful`](https://github.com/PainterQubits/Unitful.jl) are
-loaded.
+convert the numeric type of quantities (preserving their units if any), determine
+appropriate numeric type to carry computations mixing numbers with different types and/or
+units. These methods make it easy to write code that works consistently for numbers with
+any units (including none). The intention is that the `TypeUtils` package automatically
+extends its exported methods when packages such as
+[`Unitful`](https://github.com/PainterQubits/Unitful.jl) are loaded.
 
 
 ## Cast value to type
@@ -27,9 +27,9 @@ A first usage is:
 as(T, x)
 ```
 
-which yields `x` converted to type `T`. This behaves like a lazy version of
-`convert(T,x)::T` doing nothing if `x` is already of type `T` and performing the
-conversion and the type assertion otherwise.
+which yields `x` converted to type `T`. This behaves like `convert(T,x)::T` doing nothing
+if `x` is already of type `T` and performing the conversion and the type assertion
+otherwise.
 
 By default, the `as` method calls `convert` only if needed but also implements a number of
 conversions not supported by `convert`. The `as` method is therefore a bit more versatile
@@ -160,7 +160,7 @@ The `TypeUtils` package provides the following types for array shape, size, and 
 Note that `Dims{N}` is the same as `NTuple{N,Int}` in Julia and represents the result of
 `size(A)` for the `N`-dimensional array `A`, so `eltype(Dims) = Int`.
 
-Given a list `inds...` of array dimension lenghts (integers) and/or index ranges
+Given a list `inds...` of array dimension lengths (integers) and/or index ranges
 (integer-valued unit ranges), the following methods from `TypeUtils` are applicable:
 
 - `as_array_shape(inds...)` yields canonical array axes (if `inds...` contains any index
@@ -173,8 +173,8 @@ Given a list `inds...` of array dimension lenghts (integers) and/or index ranges
 - `as_array_size(inds...)` yields canonical array size, that is a `N`-tuple of type
   `Dims{N}`.
 
-Of course, these methods also accept that their arguments be sopecified by a tuple of
-array dimension lenghts and/or index ranges, that is `(inds...,)` instead of `inds...` in
+Of course, these methods also accept that their arguments be specified by a tuple of
+array dimension lengths and/or index ranges, that is `(inds...,)` instead of `inds...` in
 the above example.
 
 To deal with individual array dimension length and/or index range:
@@ -315,7 +315,7 @@ julia> map(real_type, (u"3.2km/s", u"5GHz", typeof((0+1im)*u"Hz")))
 
 The following example shows a first attempt to use `bare_type` to implement efficient
 in-place multiplication of an array (whose element may have units) by a real factor (which
-must be unitless in this context):
+must be dimensionless in this context):
 
 ```julia
 function scale!(A::AbstractArray, α::Number)
@@ -365,11 +365,11 @@ end
 ```
 
 The restriction `α::Union{Real,Complex}` accounts for the fact that in-place
-multiplication imposes a unitless multiplier. Since the test leading to the expression
-used for `alpha` is based on the types of the arguments, the branch is eliminated at
-compile time and the type of `alpha` is known by the compiler. The `InexactConversion`
-exception may then only be thrown by the call to `convert` in the first branch of the
-test.
+multiplication imposes a dimensionless multiplier. Since the test leading to the
+expression used for `alpha` is based on the types of the arguments, the branch is
+eliminated at compile time and the type of `alpha` is known by the compiler. The
+`InexactConversion` exception may then only be thrown by the call to `convert` in the
+first branch of the test.
 
 This seemingly very specific case was in fact the key point to allow for packages such as
 [LazyAlgebra](https://github.com/emmt/LazyAlgebra.jl) or
