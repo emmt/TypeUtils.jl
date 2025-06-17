@@ -7,8 +7,10 @@ version = "1.7.1"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
+Aqua = "0.8"
 OffsetArrays = "1"
 Requires = "1"
+Test = "<0.0.1, 1"
 Unitful = "≥ 1"
 julia = "0.7, 1"
 
@@ -17,12 +19,13 @@ TypeUtilsOffsetArraysExt = "OffsetArrays"
 TypeUtilsUnitfulExt = "Unitful"
 
 [extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
-test = ["Test", "OffsetArrays", "Unitful"]
+test = ["Aqua", "Test", "OffsetArrays", "Unitful"]
 
 [weakdeps]
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"

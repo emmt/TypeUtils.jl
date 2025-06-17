@@ -920,11 +920,8 @@ floating-point type must be used for all values.
 assert_floating_point(::Type{Bool}, x) =
     assert_floating_point(Bool, typeof(x))
 
-assert_floating_point(::Type{Bool}, ::Type{<:AbstractArray{T}}) where {T} =
-    assert_floating_point(Bool, T)
-
-assert_floating_point(::Type{Bool}, ::Type{<:NTuple{N,T}}) where {N,T} =
-    assert_floating_point(Bool, T)
+assert_floating_point(::Type{Bool}, ::Type{T}) where {T<:Union{Tuple,AbstractArray}} =
+    assert_floating_point(Bool, eltype(T))
 
 assert_floating_point(::Type{Bool}, ::DataType) = false
 
@@ -1079,8 +1076,13 @@ for (L, S, Idecl, Icall) in ((false, :IndexCartesian, :(I::Vararg{Int,N}), :(I..
 end
 
 Base.similar(A::AsEltype, ::Type{T}) where {T} = similar(parent(A), T)
-Base.similar(A::AsEltype, ::Type{T}, shape::Union{Dims,ArrayAxes}) where {T} =
-    similar(parent(A), T, shape)
+for shape in (:Dims,
+              :(Tuple{Integer,Vararg{Integer}}),
+              :(Tuple{Union{Integer,UnitRange{<:Integer}},
+                      Vararg{Union{Integer,UnitRange{<:Integer}}}}))
+    @eval Base.similar(A::AsEltype, ::Type{T}, shape::$shape) where {T} =
+        similar(parent(A), T, shape)
+end
 
 """
     is_signed(::T)

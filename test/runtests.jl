@@ -868,7 +868,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test struct_length(a) == 7
         let vals = @inferred destructure(a)
             if VERSION < v"1.0" || v"1.5" < VERSION < v"1.10"
-                # FIXME: not all versions of Julia corectly infer the result.
+                # FIXME Not all versions of Julia correctly infer the result.
                 @test a === restructure(typeof(a), vals)
             else
                 @test a === @inferred restructure(typeof(a), vals)
@@ -879,7 +879,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test struct_length(b) == 4 + struct_length(obj)
         let vals = @inferred destructure(b)
             if VERSION < v"1.0" || v"1.5" < VERSION < v"1.10"
-                # FIXME: not all versions of Julia corectly infer the result.
+                # FIXME Not all versions of Julia correctly infer the result.
                 @test b === restructure(typeof(b), vals)
             else
                 @test b === @inferred restructure(typeof(b), vals)
@@ -890,6 +890,9 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         let vals = @inferred destructure(c)
             @test c === @inferred restructure(typeof(c), vals)
         end
+    end
+    if VERSION ≥ v"1.6"
+        include("aqua.jl")
     end
 end
 
