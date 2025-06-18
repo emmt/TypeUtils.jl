@@ -176,10 +176,11 @@ if VERSION < v"1.7.0-beta1"
     # For old Julia versions, the above is not sufficient for SVD.
     convert_eltype(::Type{T}, A::SVD{T}) where {T} = A
     convert_eltype(::Type{T}, A::SVD) where {T} =
-        SVD(convert(AbstractMatrix{T}, A.U),
-            convert(AbstractVector{real(T)}, A.S),
-            convert(AbstractMatrix{T}, A.Vt))
+        SVD(convert_eltype(T, A.U), convert_eltype(real(T), A.S), convert_eltype(T, A.Vt))
 end
+convert_eltype(::Type{T}, A::Hessenberg{T}) where {T} = A
+convert_eltype(::Type{T}, A::Hessenberg) where {T} = throw(ArgumentError(
+    "changing element type of Hessenberg decomposition is not supported, consider re-computing the decomposition"))
 
 # For `Adjoint` and `Transpose`, we want to preserve this structure.
 for S in (:Adjoint, :Transpose)

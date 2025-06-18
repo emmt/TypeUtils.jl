@@ -859,6 +859,11 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test C.U == B.U
         @test C.P == B.P
         @test C.p == B.p
+
+        B = hessenberg(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        @test_throws Exception convert_eltype(T, B)
     end
 
     @testset "Unitful quantities" begin
