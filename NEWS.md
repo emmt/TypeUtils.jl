@@ -8,6 +8,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ### Added
 
+- Extend `convert_eltype(T,A)` for `A <: LinearAgebra.Factorization`.
+
 - Tests with [`Aqua.jl`](https://github.com/JuliaTesting/Aqua.jl).
 
 ### Fixed

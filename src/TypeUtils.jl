@@ -38,18 +38,18 @@ export
     to_same_concrete_type,
     unitless
 
-using Base: OneTo
-
-if !isdefined(Base, :get_extension)
-    using Requires
-end
-
 include("macros.jl")
 
 @public BareNumber
 @public Converter
 @public Dim
 @public Unsupported
+
+using Base: OneTo
+using LinearAlgebra
+if !isdefined(Base, :get_extension)
+    using Requires
+end
 
 include("types.jl")
 include("methods.jl")

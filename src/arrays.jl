@@ -157,10 +157,37 @@ convert_eltype(::Type{T}, x::X) where {T,X} = as(convert_eltype(T, X), x)
 convert_eltype(::Type{T}, ::Type{X}) where {T,X} =
     error("don't know how to convert the element type of type `$X` to `$T`")
 
+# As of Julia 1.11 `AbstractMatrix{T}(A)` or `AbstractArray{T}(A)` can be used to convert
+# element type of `A` for Adjoint, Bidiagonal, Diagonal, Hermitian,
+# LinearAlgebra.LQPackedQ, LowerTriangular, SymTridiagonal, Symmetric, Transpose,
+# Tridiagonal, UnitLowerTriangular, UnitUpperTriangular, UpperHessenberg, UpperTriangular,
+# etc.
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
-convert_eltype(::Type{T}, A::AbstractArray) where {T} = as(AbstractArray{T}, A)
+convert_eltype(::Type{T}, A::AbstractArray) where {T} = AbstractArray{T}(A)
 convert_eltype(::Type{T}, ::Type{<:Array{<:Any,N}}) where {T,N} = Array{T,N}
 convert_eltype(::Type{T}, ::Type{<:AbstractArray{<:Any,N}}) where {T,N} = AbstractArray{T,N}
+
+# `LinearAlgebra.Factorization{T}(A)` can be used to convert element type of `A` for QR,
+# LinearAlgebra.QRCompactWY, QRPivoted, LQ, Cholesky, CholeskyPivoted, LU, LDLt,
+# BunchKaufman, SVD, etc.
+convert_eltype(::Type{T}, A::Factorization{T}) where {T} = A
+convert_eltype(::Type{T}, A::Factorization) where {T} = Factorization{T}(A)
+if VERSION < v"1.7.0-beta1"
+    # For old Julia versions, the above is not sufficient for SVD.
+    convert_eltype(::Type{T}, A::SVD{T}) where {T} = A
+    convert_eltype(::Type{T}, A::SVD) where {T} =
+        SVD(convert(AbstractMatrix{T}, A.U),
+            convert(AbstractVector{real(T)}, A.S),
+            convert(AbstractMatrix{T}, A.Vt))
+end
+
+# For `Adjoint` and `Transpose`, we want to preserve this structure.
+for S in (:Adjoint, :Transpose)
+    @eval begin
+        convert_eltype(::Type{T}, A::$S{T}) where {T} = A
+        convert_eltype(::Type{T}, A::$S) where {T} = $S(convert_eltype(T, parent(A)))
+    end
+end
 
 # Convert element type for numbers.
 convert_eltype(::Type{T}, ::Type{<:Number}) where {T} = T

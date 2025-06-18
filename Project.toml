@@ -4,10 +4,12 @@ authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
 version = "1.7.1"
 
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 Aqua = "0.8"
+LinearAlgebra = "<0.0.1, 1"
 OffsetArrays = "1"
 Requires = "1"
 Test = "<0.0.1, 1"

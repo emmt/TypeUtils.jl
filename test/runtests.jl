@@ -1,4 +1,5 @@
 module TestingTypeUtilsWithoutExtensions
+
 using TypeUtils
 using Test
 
@@ -16,6 +17,7 @@ module TestingTypeUtils
 
 using TypeUtils
 using TypeUtils: BareNumber, BIT_INTEGERS, Unsupported
+using LinearAlgebra
 using Unitful
 using OffsetArrays
 using Test
@@ -730,6 +732,133 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test_throws InexactError scale!(Val(2), copyto!(B, A), alpha)
         @test_throws InexactError scale!(Val(3), copyto!(B, A), alpha)
 
+    end
+
+    @testset "LinearAlgebra" begin
+        A = ComplexF32.([9+1im 2-3im 1; 0 7 1; 0 0 4])
+        AAt = A*A'
+        T = ComplexF64 # a wider type than eltype(A) for exact conversion
+
+        B = transpose(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Transpose{T}
+        @test C == B
+
+        B = adjoint(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Adjoint{T}
+        @test C == B
+
+        B = Diagonal(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Diagonal{T}
+        @test C == B
+
+        B = Bidiagonal(A, :U)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Bidiagonal{T}
+        @test C == B
+
+        B = Bidiagonal(A, :L)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Bidiagonal{T}
+        @test C == B
+
+        B = Tridiagonal(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Tridiagonal{T}
+        @test C == B
+
+        B = Hermitian(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Hermitian{T}
+        @test C == B
+
+        B = Symmetric(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Symmetric{T}
+        @test C == B
+
+        B = cholesky(AAt)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Cholesky{T}
+        @test C.factors == B.factors
+
+        pivot = VERSION < v"1.8.0-beta1" ? Val(true) : RowMaximum()
+        B = cholesky(AAt, pivot)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: CholeskyPivoted{T}
+        @test C.factors == B.factors
+
+        B = svd(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: SVD{T}
+        @test C.U == B.U
+        @test C.S == B.S
+        @test C.Vt == B.Vt
+
+        B = qr(A)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: Factorization{T}
+        @test C.Q == B.Q
+        @test C.R == B.R
+
+        pivot = isdefined(LinearAlgebra, :PivotingStrategy) ? ColumnNorm() : Val(true)
+        B = qr(A, pivot)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: QRPivoted{T}
+        @test C.P == B.P
+        @test C.Q == B.Q
+        @test C.R == B.R
+        @test C.p == B.p
+
+        pivot = isdefined(LinearAlgebra, :PivotingStrategy) ? NoPivot() : Val(false)
+        B = lu(A, pivot)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: LU{T}
+        @test C.L == B.L
+        @test C.U == B.U
+        @test C.P == B.P
+        @test C.p == B.p
+
+        pivot = isdefined(LinearAlgebra, :PivotingStrategy) ? RowMaximum() : Val(true)
+        B = lu(A, pivot)
+        @test eltype(B) == eltype(A) != T
+        @test @inferred(convert_eltype(eltype(B), B)) === B
+        C = @inferred convert_eltype(T, B)
+        @test typeof(C) <: LU{T}
+        @test C.L == B.L
+        @test C.U == B.U
+        @test C.P == B.P
+        @test C.p == B.p
     end
 
     @testset "Unitful quantities" begin
