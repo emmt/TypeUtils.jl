@@ -19,6 +19,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 - Better rule for element type conversion of `AbstractUnitRange` instances.
 
+- Fix specialization of `Base.return_types` which shall return a vector of types.
+
 
 ## Version 1.7.1 (2025-05-19)
 

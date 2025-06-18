@@ -544,8 +544,8 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test return_type(g) === BigFloat
         @test return_type(typeof(f)) === Float32
         @test return_type(typeof(g)) === BigFloat
-        @test Base.return_types(f) === (return_type(f),)
-        @test Base.return_types(g) === (return_type(g),)
+        @test Base.return_types(f) == [return_type(f)]
+        @test Base.return_types(g, Tuple) == [return_type(g)]
         @test Base.promote_op(f, Int8) === return_type(f)
         @test Base.promote_op(f, Int8, Int16) === return_type(f)
         @test Base.promote_op(g, Float32) === return_type(g)

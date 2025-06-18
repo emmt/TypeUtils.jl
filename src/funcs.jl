@@ -66,8 +66,7 @@ AbstractTypeStableFunction{T}(f) where {T} = TypeStableFunction{T}(f)
 # Extend base methods.
 Base.parent(obj::TypeStableFunction) = getfield(obj, :callable)
 
-Base.return_types(::AbstractTypeStableFunction{T}; kwds...) where {T} = (T,)
-Base.return_types(::AbstractTypeStableFunction{T}, ::DataType; kwds...) where {T} = (T,)
+Base.return_types(::AbstractTypeStableFunction{T}, ::Any=Tuple) where {T} = [T]
 
 Base.promote_op(::AbstractTypeStableFunction{T}, ::DataType...) where {T} = T
 
