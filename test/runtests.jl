@@ -23,6 +23,26 @@ using OffsetArrays
 using Test
 using Base: OneTo
 
+struct TestUnitRange{T<:Real} <: AbstractUnitRange{T}
+    length::Int
+    start::T
+    function TestUnitRange{T}(; start::Real, length::Integer) where {T<:Real}
+        length ≥ 0 || error("length must be ≥ 0")
+        return new{T}(length, start)
+    end
+end
+TestUnitRange(; start::Real, length::Integer) =
+    TestUnitRange{typeof(start)}(;start=start, length=length)
+Base.length(r::TestUnitRange) = r.length
+Base.first(r::TestUnitRange) = r.start
+Base.last(r::TestUnitRange) = @inbounds r[length(r)]
+Base.show(io::IO, r::TestUnitRange) =
+    print(io, "TestUnitRange{",eltype(r),"}(start=",r.start,", length=",r.length,")")
+@inline function Base.getindex(r::TestUnitRange{T}, i::Int) where {T}
+    @boundscheck checkbounds(Bool, r, i)
+    return T(i - 1)::T + r.start
+end
+
 struct Foo{T1,T2}
     z::Complex{T1}
     r::T2
@@ -377,6 +397,13 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         end
         # UnitRange
         let A = 2:8, B = @inferred convert_eltype(Float32, A)
+            @test A === @inferred convert_eltype(eltype(A), A)
+            @test B isa AbstractRange{Float32}
+            @test B == Float32.(A)
+            @test typeof(B) === @inferred convert_eltype(eltype(B), typeof(A))
+        end
+        # TestUnitRange
+        let A = TestUnitRange(;start=0.25, length=8), B = @inferred convert_eltype(Float32, A)
             @test A === @inferred convert_eltype(eltype(A), A)
             @test B isa AbstractRange{Float32}
             @test B == Float32.(A)

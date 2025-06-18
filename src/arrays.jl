@@ -204,25 +204,24 @@ convert_eltype(::Type{T}, A::Tuple) where {T} = map(as(T), A)
 convert_eltype(::Type{T}, ::Type{<:OneTo}) where {T<:Integer} = OneTo{T}
 convert_eltype(::Type{T}, ::Type{<:OneTo}) where {T} = UnitRange{T}
 convert_eltype(::Type{T}, ::Type{<:UnitRange}) where {T} = UnitRange{T}
-convert_eltype(::Type{T}, A::Union{OneTo,UnitRange}) where {T} =
-    as(convert_eltype(T, typeof(A)), A)
+convert_eltype(::Type{T}, r::Union{OneTo,UnitRange}) where {T} =
+    as(convert_eltype(T, typeof(r)), r)
 
 # Convert element type for AbstractUnitRange{T} <: OrdinalRange{T,T}.
-convert_eltype(::Type{T}, ::Type{<:AbstractUnitRange}) where {T} = AbstractUnitRange{T}
-convert_eltype(::Type{T}, A::AbstractUnitRange{T}) where {T} = A
-convert_eltype(::Type{T}, A::AbstractUnitRange) where {T} =
-    as(T, first(A)):as(T, last(A))
+convert_eltype(::Type{T}, ::Type{<:AbstractUnitRange}) where {T} = typeof(zero(T):oneunit(T))
+convert_eltype(::Type{T}, r::AbstractUnitRange{T}) where {T} = r
+convert_eltype(::Type{T}, r::AbstractUnitRange) where {T} = as(T, first(r)):as(T, last(r))
 
 # Convert element type for other range types.
 convert_eltype(::Type{T}, ::Type{<:AbstractRange}) where {T} = AbstractRange{T}
-convert_eltype(::Type{T}, A::AbstractRange{T}) where {T} = A
-convert_eltype(::Type{T}, A::AbstractRange) where {T} =
-    as(T, first(A)):as(T, step(A)):as(T, last(A))
+convert_eltype(::Type{T}, r::AbstractRange{T}) where {T} = r
+convert_eltype(::Type{T}, r::AbstractRange) where {T} =
+    as(T, first(r)):as(T, step(r)):as(T, last(r))
 
 # Convert element type for LinRange{T,L<:Integer} <: AbstractRange{T}.
-convert_eltype(::Type{T}, A::LinRange{T}) where {T} = A
-convert_eltype(::Type{T}, A::LinRange) where {T} =
-    LinRange(as(T, first(A)), as(T, last(A)), length(A))
+convert_eltype(::Type{T}, r::LinRange{T}) where {T} = r
+convert_eltype(::Type{T}, r::LinRange) where {T} =
+    LinRange(as(T, first(r)), as(T, last(r)), length(r))
 
 """
     convert_eltype(T) -> f

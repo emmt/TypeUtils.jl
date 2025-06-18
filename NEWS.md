@@ -17,6 +17,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 - A few minor things detected by [`Aqua.jl`](https://github.com/JuliaTesting/Aqua.jl) have
   been fixed.
 
+- Better rule for element type conversion of `AbstractUnitRange` instances.
+
 
 ## Version 1.7.1 (2025-05-19)
 
