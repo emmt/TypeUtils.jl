@@ -447,39 +447,82 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
     @testset "as_eltype()" begin
         let A = rand(Float64, 3, 4, 5), B = @inferred as_eltype(Float32, A)
-            @test B == Float32.(A)
+            @test A === @inferred as_eltype(eltype(A), A)
             @test eltype(B) === Float32
             @test length(B) === length(A)
             @test size(B) === size(A)
             @test axes(B) === axes(A)
             @test IndexStyle(B) === IndexStyle(A)
             @test parent(B) === A
+            @test B == Float32.(A)
             A[1,2,3] = -7
             @test B[1,2,3] === Float32(-7)
             B[1,2,3] = 19
             @test A[1,2,3] == 19
+            C = copyto!(@inferred(similar(B)), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), size(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), axes(B))), B)
+            @test C == B
         end
         let A = view(rand(Float64, 3, 4, 5), :, 2, :), B = @inferred as_eltype(Float32, A)
             @test A === @inferred as_eltype(eltype(A), A)
-            @test B == Float32.(A)
-            @test eltype(B) === Float32
+            @test eltype(B) == Float32
             @test length(B) === length(A)
             @test size(B) === size(A)
             @test axes(B) === axes(A)
             @test IndexStyle(B) === IndexStyle(A)
             @test parent(B) === A
+            @test B == Float32.(A)
             A[2,3] = -7
             @test B[2,3] === Float32(-7)
             B[2,3] = 19
             @test A[2,3] == 19
+            C = copyto!(@inferred(similar(B)), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), size(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), axes(B))), B)
+            @test C == B
         end
-        let A = 1:5
+        let A = 1:5, B = @inferred as_eltype(Float32, A)
             @test A === @inferred as_eltype(eltype(A), A)
-            @test as_eltype(Float32, A) == Float32.(A)
+            @test length(B) === length(A)
+            @test size(B) === size(A)
+            @test axes(B) === axes(A)
+            @test IndexStyle(B) === IndexStyle(A)
+            @test parent(B) === A
+            @test B == Float32.(A)
+            C = copyto!(@inferred(similar(B)), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), size(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), axes(B))), B)
+            @test C == B
         end
-        let A = 2.0:3.0:11.0
+        let A = 2.0:3.0:11.0, B = @inferred as_eltype(Float32, A)
             @test A === @inferred as_eltype(eltype(A), A)
-            @test as_eltype(Float32, A) == Float32.(A)
+            @test length(B) === length(A)
+            @test size(B) === size(A)
+            @test axes(B) === axes(A)
+            @test IndexStyle(B) === IndexStyle(A)
+            @test parent(B) === A
+            @test B == Float32.(A)
+            C = copyto!(@inferred(similar(B)), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), size(B))), B)
+            @test C == B
+            C = copyto!(@inferred(similar(B, eltype(B), axes(B))), B)
+            @test C == B
         end
     end
 
