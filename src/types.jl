@@ -150,6 +150,13 @@ with [`adapt_precision`](@ref).
 """
 const Precision = Union{Float16,Float32,Float64,BigFloat}
 
+"""
+    TypeUtils.default_precision
+
+is the default precision for [`adapt_precision`](@ref) when `AbstractFloat` is specified
+as a precision. It is currently set to `Float64`.
+
+"""
 const default_precision = Float64
 
 """

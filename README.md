@@ -164,11 +164,11 @@ and (named) tuples. It can be specialized for other object types defined in fore
 packages by specializing:
 
 ```julia
-adapt_precision(::Type{T}, x::ForeignType) where {T<:Precision} = ...
+TypeUtils.adapt_precision(::Type{T}, x::SomeType) where {T<:TypeUtils.Precision} = ...
 ```
 
-where `ForeignType` is the object type and `Precision` is a symbol exported by `TypeUtils`
-and defined as the union of the concrete floating-point types of Julia:
+where `SomeType` is the object type and `TypeUtils.Precision` is a public but non-exported
+symbol defined in `TypeUtils` as the union of the concrete floating-point types of Julia:
 
 ```julia
 const Precision = Union{Float16,Float32,Float64,BigFloat}

@@ -11,11 +11,13 @@ For type-stability, the precision shall be a *trait* which does only depend of t
 
 Basically, `get_precision` supports numbers, and arrays or tuples of numbers. It can be
 specialized for other object types defined in foreign packages. For objects of type, say
-`ForeignType`, it is sufficient to extend the method:
+`SomeType`, it is only needed to extend the method:
 
-    get_precision(::Type{T}) where {T<:ForeignType} = ...
+```julia
+TypeUtils.get_precision(::Type{T}) where {T<:SomeType} = ...
+```
 
-See also [`adapt_precision`](@ref) and [`Precision`](@ref).
+See also [`adapt_precision`](@ref) and [`TypeUtils.Precision`](@ref).
 
 """
 get_precision(x::T) where {T} = get_precision(T)
@@ -48,7 +50,8 @@ yields an object `y` similar to `x` but with numerical precision specified by th
 floating-point type `T`. If `x` has already the required precision or if setting its
 precision is irrelevant or not implemented, `x` is returned unchanged. Setting the
 precision shall not change the dimensions of dimensionful numbers. If `T` is
-`AbstractFloat`, the default floating-point type `$default_precision` is assumed.
+`AbstractFloat`, the default floating-point type [`TypeUtils.default_precision`](@ref) is
+assumed.
 
 For a number `x`, `adapt_precision(T, x)` behaves as [`convert_real_type(T, x)`](@ref
 convert_real_type) and `adapt_precision(T, typeof(x))` may be used to infer the
@@ -56,7 +59,7 @@ corresponding type with precision `T`.
 
 Example:
 
-```julia
+```jldoctest; setup=:(using TypeUtils)
 julia> adapt_precision(Float32, (1, 0x07, ("hello", 1.0, 3.0 - 2.0im, π)))
 (1.0f0, 7.0f0, ("hello", 1.0f0, 3.0f0 - 2.0f0im, 3.1415927f0))
 ```
@@ -66,12 +69,15 @@ As can be seen, all numerical values are converted.
 Basically, `adapt_precision` supports numbers, and arrays or tuples of numbers. It can be
 specialized for other object types defined in foreign packages by specializing:
 
-    adapt_precision(::Type{T}, x::ForeignType) where {T<:Precision} = ...
+```julia
+TypeUtils.adapt_precision(::Type{T}, x::SomeType) where {T<:TypeUtils.Precision} = ...
+```
 
-where `ForeignType` is the object type and where the restriction `T<:Precision` is to make
-sure the above method is only called with a concrete floating-point type `T`.
+where `SomeType` is the object type and where the restriction `T<:TypeUtils.Precision` is
+to make sure the above method is only called with a concrete floating-point type `T`.
 
-See also [`get_precision`](@ref), [`Precision`](@ref), and [`convert_real_type`](@ref).
+See also [`get_precision`](@ref), [`convert_real_type`](@ref),
+[`TypeUtils.Precision`](@ref), and [`TypeUtils.default_precision`](@ref).
 
 """
 adapt_precision(::Type{AbstractFloat}, x::Any) = adapt_precision(default_precision, x)
@@ -124,7 +130,8 @@ unroll_map(f, x::Tuple{Any}) = (f(first(x)),)
     f = adapt_precision(T)
 
 builds a callable object `f` such that `f(x)` is equivalent to `adapt_precision(T, x)`. If
-`T` is `AbstractFloat`, the default floating-point type `$default_precision` is assumed.
+`T` is `AbstractFloat`, the default floating-point type
+[`TypeUtils.default_precision`](@ref) is assumed.
 
 """
 adapt_precision(::Type{AbstractFloat}) = adapt_precision(default_precision)

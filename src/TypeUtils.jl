@@ -5,7 +5,6 @@ export
     ArrayAxes,
     ArrayAxis,
     ArrayShape,
-    Precision,
     RelaxedArrayShape,
     AbstractTypeStableFunction,
     TypeStableFunction,
@@ -46,7 +45,9 @@ include("macros.jl")
 @public BareNumber
 @public Converter
 @public Dim
+@public Precision
 @public Unsupported
+@public default_precision
 
 using Base: OneTo
 using LinearAlgebra

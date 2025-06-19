@@ -1,11 +1,11 @@
 module TypeUtilsUnitfulExt
 if isdefined(Base, :get_extension)
     using TypeUtils, Unitful
-    using TypeUtils: BareNumber
+    using TypeUtils: BareNumber, Precision
     using Unitful: AbstractQuantity, Quantity, ustrip, unit
 else
     using ..TypeUtils, ..Unitful
-    using ..TypeUtils: BareNumber
+    using ..TypeUtils: BareNumber, Precision
     using ..Unitful: AbstractQuantity, Quantity, ustrip, unit
 end
 

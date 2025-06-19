@@ -928,7 +928,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
         @testset "adapt_precision($T, x)" for T in (AbstractFloat, Float16, Float32, Float64, BigFloat)
             if isconcretetype(T)
-                @test T <: Precision
+                @test T <: TypeUtils.Precision
             end
 
             S = isconcretetype(T) ? T : TypeUtils.default_precision
