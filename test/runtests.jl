@@ -924,7 +924,17 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     end
 
     @testset "adapt_precision" begin
+        # Precision converter.
         @test_throws Exception adapt_precision(String, (1,2,:x))
+        @test_throws Exception adapt_precision(Symbol)
+        @test TypeUtils.default_precision == Float64
+        f = @inferred adapt_precision(AbstractFloat)
+        @test f === @inferred adapt_precision(TypeUtils.default_precision)
+        @test 7.0 === @inferred f(7)
+        @test 7.0 === @inferred f(7.0f0)
+        @test 7.0 === @inferred f(big(7))
+        @test 7.0 === @inferred f(big(7.0))
+        @test -3.0u"kg/s" === @inferred f(-3u"kg/s")
 
         @testset "adapt_precision($T, x)" for T in (AbstractFloat, Float16, Float32, Float64, BigFloat)
             if isconcretetype(T)
@@ -971,12 +981,19 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test eltype(B) === S
             @test axes(B) == axes(A)
             @test B == A
+            @test typeof(B) <: @inferred adapt_precision(T, typeof(A))
+            @test typeof(B) === @inferred adapt_precision(T, typeof(B))
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+
 
             A = [9+1im 2-3im 1; 0 7 1; 0 0 4] # eltype(A) = Complex{Int}
             B = @inferred adapt_precision(T, A)
             @test eltype(B) === (eltype(A) <: Complex ? Complex{S} : S)
             @test axes(B) == axes(A)
             @test B == A
+            @test typeof(B) <: @inferred adapt_precision(T, typeof(A))
+            @test typeof(B) === @inferred adapt_precision(T, typeof(B))
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
 
             C = adjoint(A)
             B = @inferred adapt_precision(T, C)
@@ -988,6 +1005,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test axes(B) == axes(C)
                 @test B == C
             end
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
 
             C = transpose(A)
             B = @inferred adapt_precision(T, C)
@@ -999,6 +1017,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test axes(B) == axes(C)
                 @test B == C
             end
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
 
             C = Diagonal(A)
             B = @inferred adapt_precision(T, C)
@@ -1010,6 +1029,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test axes(B) == axes(C)
                 @test B == C
             end
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
 
             C = Hermitian(A)
             B = @inferred adapt_precision(T, C)
@@ -1021,6 +1041,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test axes(B) == axes(C)
                 @test B == C
             end
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
 
             C = qr(A)
             B = @inferred adapt_precision(T, C)
@@ -1034,6 +1055,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                     @test B ≃ C
                 end
             end
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
 
             C = svd(A)
             B = @inferred adapt_precision(T, C)
@@ -1045,6 +1067,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test axes(B) == axes(C)
                 @test B ≃ C
             end
+            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
         end
 
         @testset "adapt_precision(T, x::Tuple)" begin
