@@ -136,8 +136,8 @@ convert_real_type(::Type{T}, x) where {T} = convert_real_type(real_type(T), x)
 # NOTE: All other specializations of `convert_real_type(T,x)` are for `T<:Real`.
 convert_real_type(::Type{T}, x::T) where {T<:Real} = x
 convert_real_type(::Type{T}, x::Complex{T}) where {T<:Real} = x
-convert_real_type(::Type{T}, x::Real) where {T<:Real} = convert(T, x)
-convert_real_type(::Type{T}, x::Complex) where {T<:Real} = convert(Complex{T}, x)
+convert_real_type(::Type{T}, x::Real) where {T<:Real} = as(T, x)
+convert_real_type(::Type{T}, x::Complex) where {T<:Real} = as(Complex{T}, x)
 @noinline convert_real_type(::Type{T}, x) where {T<:Real} = error(
     "unsupported conversion of bare real type of object of type `",
     typeof(x), "` to `", T, "`")
