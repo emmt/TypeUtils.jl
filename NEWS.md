@@ -12,6 +12,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 - `adapt_precision(T, x)` yields a version of `x` with numerical precision `T`.
 
+- `destructure(Vector, x)` and `destructure(Vector{T}, x)` to yield a vector instead of a
+  tuple.
 
 ## Version 1.8.0 (2025-06-19)
 

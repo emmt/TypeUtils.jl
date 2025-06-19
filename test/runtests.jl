@@ -1382,6 +1382,13 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test obj === @inferred restructure(typeof(obj), vals)
         @test obj === restructure(parameterless(typeof(obj)), vals)
         @test obj === @inferred restructure(typeof(obj), (0, 1, vals...); offset=2)
+        vec = destructure(Vector, obj)
+        @test vec == collect(vals)
+        @test (vec...,) === vals
+        vec = destructure(Vector{Float32}, obj)
+        @test eltype(vec) == Float32
+        @test length(vec) == length(vals)
+        @test vec ≈ collect(vals)
         vec = Vector{Float64}(undef, 6)
         @test destructure!(vec, obj)[1:4] ≈ collect(vals)
         @test destructure!(vec, obj; offset=1)[2:5] ≈ collect(vals)

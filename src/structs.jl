@@ -1,13 +1,19 @@
 """
     destructure(obj) -> vals::Tuple
+    destructure(Vector, obj) -> vals::Vector
+    destructure(Vector{T}, obj) -> vals::Vector{T}
 
-destructures object `obj` as a tuple of field values. Any structures in `obj` are
-recursively destructured.
+destructure object `obj` as a tuple or a vector of field values. Any structures in `obj`
+are recursively destructured. For example, a complex is destructured as two reals.
 
-See also [`destructure!`](@ref), [`restructure`](@ref), and
-[`struct_length`](@ref).
+See also [`destructure!`](@ref), [`restructure`](@ref), and [`struct_length`](@ref).
 
 """
+destructure(::Type{Vector{T}}, obj) where {T} =
+    destructure!(Vector{T}(undef, struct_length(obj)), obj)
+
+destructure(::Type{Vector}, obj) = collect(destructure(obj))
+
 @generated destructure(obj::T) where {T} = encode(destructure, :obj, T)
 
 function encode(::typeof(destructure), base::Union{Symbol,Expr,QuoteNode}, ::Type{T}) where {T}
@@ -75,7 +81,7 @@ end
 restructures values `vals[offset+1:offset+n]` into an object `obj` of type `T`. Here `n =
 struct_length(T)` is the total number of values stored by an object of type `T`.
 
-The default constructors must exist for type `T` and, recursively, for any structured
+The default constructor must exist for type `T` and, recursively, for any structured
 fields of `T`.
 
 See also [`destructure`](@ref), [`destructure!`](@ref), and [`struct_length`](@ref).
