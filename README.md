@@ -128,6 +128,56 @@ one of `missing`, `nothing`, `undef`, or the type of one of these singletons, `x
 returned. You may consider `convert_floating_point_type(T,x)` as an equivalent to to
 `convert_real_type(float(real_type(T)),x)`.
 
+## Numerical precision
+
+`get_precision(x)` or `get_precision(typeof(x))` yield the numerical precision of `x`. The
+precision is a dimensionless floating-point type. If `x` is a floating-point value, the
+precision of `x` is its floating-point type; if `x` stores floating-point values, the
+precision is their promoted floating-point type; otherwise, the precision is
+`AbstractFloat`.
+
+To adapt the numerical precision of an object `x`, call:
+
+``` julia
+adapt_precision(T::Type{<:AbstractFloat}, x)
+```
+
+which yields an object similar to `x` but with numerical precision specified by the
+floating-point type `T`. If `x` has already the required precision or if setting its
+precision is irrelevant or not implemented, `x` is returned unchanged. Setting the
+precision shall not change the dimensions of dimensionful numbers. If `T` is
+`AbstractFloat`, the default floating-point type `Float64` is assumed.
+
+For a number `x`, `adapt_precision(T, x)` behaves as `convert_real_type(T, x)` and
+`adapt_precision(T, typeof(x))` may be used to infer the corresponding type with precision
+`T`.
+
+Example:
+
+```julia
+julia> adapt_precision(Float32, (1, 0x07, ("hello", 1.0, 3.0 - 2.0im, π)))
+(1.0f0, 7.0f0, ("hello", 1.0f0, 3.0f0 - 2.0f0im, 3.1415927f0))
+```
+
+Basically, `adapt_precision` supports numbers, arrays of numbers, matrix factorizations,
+and (named) tuples. It can be specialized for other object types defined in foreign
+packages by specializing:
+
+```julia
+adapt_precision(::Type{T}, x::ForeignType) where {T<:Precision} = ...
+```
+
+where `ForeignType` is the object type and `Precision` is a symbol exported by `TypeUtils`
+and defined as the union of the concrete floating-point types of Julia:
+
+```julia
+const Precision = Union{Float16,Float32,Float64,BigFloat}
+```
+
+The restriction `T<:Precision` in the function signature is to make sure that this version
+of `adapt_precision` is only called with a concrete floating-point type `T`.
+
+
 ## Parameter-less type
 
 The call:

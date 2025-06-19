@@ -69,7 +69,7 @@ specialized for other object types defined in foreign packages by specializing:
     adapt_precision(::Type{T}, x::ForeignType) where {T<:Precision} = ...
 
 where `ForeignType` is the object type and where the restriction `T<:Precision` is to make
-sure it is only called with a concrete floating-point type `T`.
+sure the above method is only called with a concrete floating-point type `T`.
 
 See also [`get_precision`](@ref), [`Precision`](@ref), and [`convert_real_type`](@ref).
 
