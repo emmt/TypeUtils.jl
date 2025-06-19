@@ -150,6 +150,8 @@ with [`adapt_precision`](@ref).
 """
 const Precision = Union{Float16,Float32,Float64,BigFloat}
 
+const default_precision = Float64
+
 """
     c = TypeUtils.Converter(f, T::Type)
 

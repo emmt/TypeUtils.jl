@@ -26,4 +26,12 @@ end
 # Extend unitless (only needed for values).
 TypeUtils.unitless(x::AbstractQuantity) = ustrip(x)
 
+TypeUtils.get_precision(::Type{<:AbstractQuantity{T}}) where {T} = get_precision(T)
+
+TypeUtils.adapt_precision(::Type{T}, x::Quantity{T,D,U}) where {T<:Precision,D,U} = x
+TypeUtils.adapt_precision(::Type{T}, x::Quantity{S,D,U}) where {T<:Precision,D,U,S} =
+    Quantity{adapt_precision(T, S), D, U}(x)
+TypeUtils.adapt_precision(::Type{T}, ::Type{Quantity{S,D,U}}) where {T<:Precision,S,D,U} =
+    Quantity{adapt_precision(T, S), D, U}
+
 end # module

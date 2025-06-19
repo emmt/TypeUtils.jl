@@ -4,6 +4,15 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+## Added
+
+- `get_precision(x)` yields the numerical precision of `x`.
+
+- `adapt_precision(T, x)` yields a version of `x` with numerical precision `T`.
+
+
 ## Version 1.8.0 (2025-06-19)
 
 ### Added

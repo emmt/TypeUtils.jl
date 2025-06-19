@@ -5,9 +5,11 @@ export
     ArrayAxes,
     ArrayAxis,
     ArrayShape,
+    Precision,
     RelaxedArrayShape,
     AbstractTypeStableFunction,
     TypeStableFunction,
+    adapt_precision,
     as,
     as_array_axes,
     as_array_axis,
@@ -25,6 +27,7 @@ export
     destructure!,
     destructure,
     floating_point_type,
+    get_precision,
     is_signed,
     nearest,
     new_array,
@@ -56,6 +59,7 @@ include("methods.jl")
 include("numbers.jl")
 include("arrays.jl")
 include("funcs.jl")
+include("precision.jl")
 include("structs.jl")
 
 function __init__()
