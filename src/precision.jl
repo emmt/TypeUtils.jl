@@ -29,7 +29,7 @@ get_precision(::Type{<:Factorization{T}}) where {T} = get_precision(T)
     # NOTE Using a `Ref` for `r` or `t` here is significantly slower.
     r = AbstractFloat
     for s in T.types
-        t = get_precision(s)::AbstractFloat
+        t = get_precision(s)::Type{<:AbstractFloat}
         if isconcretetype(t)
             if r == AbstractFloat
                 r = t
