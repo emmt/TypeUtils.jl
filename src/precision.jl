@@ -114,17 +114,8 @@ adapt_precision(::Type{T}, A::Factorization{S}) where {T<:Precision,S} =
     convert_eltype(adapt_precision(T, S), A)
 
 # Set precision for tuples.
-adapt_precision(::Type{T}, x::NamedTuple) where {T<:Precision} =
+adapt_precision(::Type{T}, x::Union{Tuple,NamedTuple}) where {T<:Precision} =
     map(adapt_precision(T), x)
-adapt_precision(::Type{T}, x::Tuple) where {T<:Precision} =
-    maybe_unroll_map(adapt_precision(T), x)
-
-maybe_unroll_map(f, x::Any) = map(f, x)
-@inline maybe_unroll_map(f, x::Tuple) = length(x) ≤ 20 ? unroll_map(f, x) : map(f, x)
-
-unroll_map(f, x::Tuple{}) = ()
-unroll_map(f, x::Tuple{Any}) = (f(first(x)),)
-@inline unroll_map(f, x::Tuple) = (f(first(x)), unroll_map(f, Base.tail(x))...)
 
 """
     f = adapt_precision(T)
