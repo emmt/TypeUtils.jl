@@ -976,6 +976,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test @inferred(adapt_precision(T, 3.0       )) ≗ S(3)
             @test @inferred(adapt_precision(T, big(3.0)  )) ≗ S(3)
 
+            # Tests with an array.
             A = reshape(-3:20, 2,3,4)
             B = @inferred adapt_precision(T, A)
             @test eltype(B) === S
@@ -983,17 +984,19 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test B == A
             @test typeof(B) <: @inferred adapt_precision(T, typeof(A))
             @test typeof(B) === @inferred adapt_precision(T, typeof(B))
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
-
-            A = [9+1im 2-3im 1; 0 7 1; 0 0 4] # eltype(A) = Complex{Int}
+            # Tests with a real rectangular matrix.
+            A = [4 -1 0; 2 3 -1]
+            AAt = A*A'
+            @test S == @inferred adapt_precision(T, eltype(A))
             B = @inferred adapt_precision(T, A)
-            @test eltype(B) === (eltype(A) <: Complex ? Complex{S} : S)
+            @test eltype(B) == S
             @test axes(B) == axes(A)
             @test B == A
             @test typeof(B) <: @inferred adapt_precision(T, typeof(A))
-            @test typeof(B) === @inferred adapt_precision(T, typeof(B))
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test typeof(B) == @inferred adapt_precision(T, typeof(B))
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
             C = adjoint(A)
             B = @inferred adapt_precision(T, C)
@@ -1001,11 +1004,11 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test B === C # must be same object
             else
                 @test typeof(B) <: Adjoint
-                @test eltype(B) === (eltype(C) <: Complex ? Complex{S} : S)
+                @test eltype(B) == S
                 @test axes(B) == axes(C)
                 @test B == C
             end
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
             C = transpose(A)
             B = @inferred adapt_precision(T, C)
@@ -1013,35 +1016,71 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test B === C # must be same object
             else
                 @test typeof(B) <: Transpose
-                @test eltype(B) === (eltype(C) <: Complex ? Complex{S} : S)
+                @test eltype(B) == S
                 @test axes(B) == axes(C)
                 @test B == C
             end
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
-            C = Diagonal(A)
+            C = Symmetric(AAt)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Symmetric
+                @test eltype(B) == S
+                @test axes(B) == axes(C)
+                @test B == C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = Diagonal(AAt)
             B = @inferred adapt_precision(T, C)
             if real(eltype(C)) == T
                 @test B === C # must be same object
             else
                 @test typeof(B) <: Diagonal
-                @test eltype(B) === (eltype(C) <: Complex ? Complex{S} : S)
+                @test eltype(B) == S
                 @test axes(B) == axes(C)
                 @test B == C
             end
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
-            C = Hermitian(A)
+            C = Bidiagonal(AAt, :U)
             B = @inferred adapt_precision(T, C)
             if real(eltype(C)) == T
                 @test B === C # must be same object
             else
-                @test typeof(B) <: Hermitian
-                @test eltype(B) === (eltype(C) <: Complex ? Complex{S} : S)
+                @test typeof(B) <: Bidiagonal
+                @test eltype(B) == S
                 @test axes(B) == axes(C)
                 @test B == C
             end
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = Tridiagonal(AAt)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Tridiagonal
+                @test eltype(B) == S
+                @test axes(B) == axes(C)
+                @test B == C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = cholesky(AAt)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Cholesky
+                @test eltype(B) == S
+                @test axes(B) == axes(C)
+                @test B ≃ C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
             C = qr(A)
             B = @inferred adapt_precision(T, C)
@@ -1049,13 +1088,13 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test B === C # must be same object
             else
                 @test typeof(B) <: Factorization
-                @test eltype(B) === (eltype(C) <: Complex ? Complex{S} : S)
+                @test eltype(B) == S
                 @test axes(B) == axes(C)
                 if T != Float16 && T != BigFloat
                     @test B ≃ C
                 end
             end
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
             C = svd(A)
             B = @inferred adapt_precision(T, C)
@@ -1063,11 +1102,96 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
                 @test B === C # must be same object
             else
                 @test typeof(B) <: Factorization
-                @test eltype(B) === (eltype(C) <: Complex ? Complex{S} : S)
+                @test eltype(B) == S
                 @test axes(B) == axes(C)
                 @test B ≃ C
             end
-            @test B === @inferred adapt_precision(T, B) # array is unchanged if precision is the same
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            # Tests with a complex matrix.
+            A = [9+1im 2-3im 1; 0 7 1; 0 0 4] # eltype(A) = Complex{Int}
+            @test Complex{S} == @inferred adapt_precision(T, eltype(A))
+            B = @inferred adapt_precision(T, A)
+            @test eltype(B) == Complex{S}
+            @test axes(B) == axes(A)
+            @test B == A
+            @test typeof(B) <: @inferred adapt_precision(T, typeof(A))
+            @test typeof(B) == @inferred adapt_precision(T, typeof(B))
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = adjoint(A)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Adjoint
+                @test eltype(B) == Complex{S}
+                @test axes(B) == axes(C)
+                @test B == C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = transpose(A)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Transpose
+                @test eltype(B) == Complex{S}
+                @test axes(B) == axes(C)
+                @test B == C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = Diagonal(A)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Diagonal
+                @test eltype(B) == Complex{S}
+                @test axes(B) == axes(C)
+                @test B == C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = Hermitian(A)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Hermitian
+                @test eltype(B) == Complex{S}
+                @test axes(B) == axes(C)
+                @test B == C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = qr(A)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Factorization
+                @test eltype(B) == Complex{S}
+                @test axes(B) == axes(C)
+                if T != Float16 && T != BigFloat
+                    @test B ≃ C
+                end
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
+
+            C = svd(A)
+            B = @inferred adapt_precision(T, C)
+            if real(eltype(C)) == T
+                @test B === C # must be same object
+            else
+                @test typeof(B) <: Factorization
+                @test eltype(B) == Complex{S}
+                @test axes(B) == axes(C)
+                @test B ≃ C
+            end
+            @test B === @inferred adapt_precision(T, B) # same precision yields identical object
         end
 
         @testset "adapt_precision(T, x::Tuple)" begin
