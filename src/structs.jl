@@ -1,5 +1,6 @@
 """
     destructure(obj) -> vals::Tuple
+    destructure(Tuple, obj) -> vals::Tuple
     destructure(Vector, obj) -> vals::Vector
     destructure(Vector{T}, obj) -> vals::Vector{T}
 
@@ -13,6 +14,8 @@ destructure(::Type{Vector{T}}, obj) where {T} =
     destructure!(Vector{T}(undef, struct_length(obj)), obj)
 
 destructure(::Type{Vector}, obj) = collect(destructure(obj))
+
+destructure(::Type{Tuple}, obj) = destructure(obj)
 
 @generated destructure(obj::T) where {T} = encode(destructure, :obj, T)
 

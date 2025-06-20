@@ -1506,6 +1506,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test obj === @inferred restructure(typeof(obj), vals)
         @test obj === restructure(parameterless(typeof(obj)), vals)
         @test obj === @inferred restructure(typeof(obj), (0, 1, vals...); offset=2)
+        @test vals === @inferred destructure(Tuple, obj)
         vec = destructure(Vector, obj)
         @test vec == collect(vals)
         @test (vec...,) === vals
