@@ -266,6 +266,12 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         let vals = (1.3, -2.7, pi, 42)
             @test map(nearest(Int), vals) === map(x -> nearest(Int, x), vals)
         end
+        # `nearest` with dimensionful numbers.
+        @test @inferred(nearest(typeof(1.0u"m"), -2.3u"m")) === -2.3u"m"
+        @test @inferred(nearest(typeof(1u"cm"), -2.3u"m")) === -230u"cm"
+        @test @inferred(nearest(typeof(1u"mm"), -2.3u"m")) === -2300u"mm"
+        @test_throws Unitful.DimensionError @inferred(nearest(typeof(1u"mm"), 81.0u"m/s"))
+        @test @inferred(nearest(typeof(1u"mm/s"), 871.0u"m/hr")) === 242u"mm/s"
     end
 
     @testset "Array axes and size" begin

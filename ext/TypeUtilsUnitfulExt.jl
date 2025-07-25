@@ -33,4 +33,10 @@ TypeUtils.adapt_precision(::Type{T}, x::Quantity{S,D,U}) where {T<:Precision,D,U
 TypeUtils.adapt_precision(::Type{T}, ::Type{Quantity{S,D,U}}) where {T<:Precision,S,D,U} =
     Quantity{adapt_precision(T, S), D, U}
 
+TypeUtils.nearest(::Type{Q}, x::Q) where {T,D,U,Q<:AbstractQuantity{T,D,U}} = x
+TypeUtils.nearest(::Type{Q}, x::AbstractQuantity{<:Any,D,U}) where {T,D,U,Q<:AbstractQuantity{T,D,U}} =
+    nearest(T, ustrip(x))*unit(x)
+TypeUtils.nearest(::Type{Q}, x::Number) where {T,D,U,Q<:AbstractQuantity{T,D,U}} =
+    nearest(Q, uconvert(unit(Q), x))
+
 end # module

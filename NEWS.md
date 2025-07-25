@@ -11,6 +11,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 - With multiple arguments, `get_precision(x, y...)` yields the best precision of all the
   given arguments.
 
+- `nearest(T, x)` can deal with dimensionful numbers and types.
+
 
 ## Version 1.9.0 (2025-06-20)
 
