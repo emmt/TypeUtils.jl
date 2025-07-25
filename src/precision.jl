@@ -44,6 +44,23 @@ get_precision(::Type{<:Factorization{T}}) where {T} = get_precision(T)
 end
 
 """
+    get_precision(x, y, z...) -> T<:AbstractFloat
+
+yields the best precision of all given arguments `x`, `y`, and `z...`.
+
+"""
+@inline get_precision(x, y, z...) = get_precision(get_precision(x, y), z...)
+get_precision(x, y) =
+    get_precision(get_precision(x)::Type{<:AbstractFloat},
+                  get_precision(y)::Type{<:AbstractFloat})::Type{<:AbstractFloat}
+
+get_precision(::Type{AbstractFloat}, ::Type{AbstractFloat}) = AbstractFloat
+get_precision(::Type{T}, ::Type{AbstractFloat}) where {T<:AbstractFloat} = T
+get_precision(::Type{AbstractFloat}, ::Type{T}) where {T<:AbstractFloat} = T
+get_precision(::Type{S}, ::Type{T}) where {S<:AbstractFloat,T<:AbstractFloat} =
+    promote_type(S, T)::Type{<:AbstractFloat}
+
+"""
     adapt_precision(T::Type{<:AbstractFloat}, x) -> y
 
 yields an object `y` similar to `x` but with numerical precision specified by the

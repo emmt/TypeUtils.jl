@@ -921,6 +921,22 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test @inferred(get_precision(B)) == Float32
         @test @inferred(get_precision(typeof(B))) == Float32
 
+        # Multiple arguments.
+        @test @inferred(get_precision(Int8, Int)) == AbstractFloat
+        @test @inferred(get_precision(Int8, Int, BigFloat)) == BigFloat
+        @test @inferred(get_precision(String, Float16)) == Float16
+        @test @inferred(get_precision(:hello, Float16)) == Float16
+        @test @inferred(get_precision(:hello, zero(Float16))) == Float16
+        @test @inferred(get_precision(Symbol, zero(Float16))) == Float16
+        @test @inferred(get_precision(Float16, String)) == Float16
+        @test @inferred(get_precision(Float16, :hello)) == Float16
+        @test @inferred(get_precision(zero(Float16), :hello)) == Float16
+        @test @inferred(get_precision(zero(Float16), Symbol)) == Float16
+        @test @inferred(get_precision(Float32, Int)) == Float32
+        @test @inferred(get_precision(Float32, Int, pi)) == Float32
+        @test @inferred(get_precision(Float32, Int, pi, 1.0)) == Float64
+        @test @inferred(get_precision(Float32, Int, pi, 1.0)) == Float64
+        @test @inferred(get_precision(Float32, Int, pi, big(1.0))) == BigFloat
     end
 
     @testset "adapt_precision" begin

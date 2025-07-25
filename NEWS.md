@@ -4,6 +4,14 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Added
+
+- With multiple arguments, `get_precision(x, y...)` yields the best precision of all the
+  given arguments.
+
+
 ## Version 1.9.0 (2025-06-20)
 
 This new minor version adds methods to deal with the numerical precision of numbers and
