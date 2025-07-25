@@ -4,8 +4,8 @@
     destructure(Vector, obj) -> vals::Vector
     destructure(Vector{T}, obj) -> vals::Vector{T}
 
-destructure object `obj` as a tuple or a vector of field values. Any structures in `obj`
-are recursively destructured. For example, a complex is destructured as two reals.
+destructure object `obj` as a tuple or a vector of field values. Any structures in `obj` are
+recursively destructured. For example, a complex is destructured as two reals.
 
 See also [`destructure!`](@ref), [`restructure`](@ref), and [`struct_length`](@ref).
 
@@ -84,8 +84,8 @@ end
 restructures values `vals[offset+1:offset+n]` into an object `obj` of type `T`. Here `n =
 struct_length(T)` is the total number of values stored by an object of type `T`.
 
-The default constructor must exist for type `T` and, recursively, for any structured
-fields of `T`.
+The default constructor must exist for type `T` and, recursively, for any structured fields
+of `T`.
 
 See also [`destructure`](@ref), [`destructure!`](@ref), and [`struct_length`](@ref).
 
@@ -133,8 +133,8 @@ end
     struct_length(x) -> n
     struct_length(typeof(x)) -> n
 
-yield the total number of values stored by the fields of a structured object `x`. The
-result only depends on the type of `x`.
+yield the total number of values stored by the fields of a structured object `x`. The result
+only depends on the type of `x`.
 
 """
 struct_length(x) = struct_length(typeof(x))

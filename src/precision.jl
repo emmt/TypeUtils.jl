@@ -65,10 +65,9 @@ get_precision(::Type{S}, ::Type{T}) where {S<:AbstractFloat,T<:AbstractFloat} =
 
 yields an object `y` similar to `x` but with numerical precision specified by the
 floating-point type `T`. If `x` has already the required precision or if setting its
-precision is irrelevant or not implemented, `x` is returned unchanged. Setting the
-precision shall not change the dimensions of dimensionful numbers. If `T` is
-`AbstractFloat`, the default floating-point type [`TypeUtils.default_precision`](@ref) is
-assumed.
+precision is irrelevant or not implemented, `x` is returned unchanged. Setting the precision
+shall not change the dimensions of dimensionful numbers. If `T` is `AbstractFloat`, the
+default floating-point type [`TypeUtils.default_precision`](@ref) is assumed.
 
 For a number `x`, `adapt_precision(T, x)` behaves as [`convert_real_type(T, x)`](@ref
 convert_real_type) and `adapt_precision(T, typeof(x))` may be used to infer the
@@ -90,8 +89,8 @@ specialized for other object types defined in foreign packages by specializing:
 TypeUtils.adapt_precision(::Type{T}, x::SomeType) where {T<:TypeUtils.Precision} = ...
 ```
 
-where `SomeType` is the object type and where the restriction `T<:TypeUtils.Precision` is
-to make sure the above method is only called with a concrete floating-point type `T`.
+where `SomeType` is the object type and where the restriction `T<:TypeUtils.Precision` is to
+make sure the above method is only called with a concrete floating-point type `T`.
 
 See also [`get_precision`](@ref), [`convert_real_type`](@ref),
 [`TypeUtils.Precision`](@ref), and [`TypeUtils.default_precision`](@ref).

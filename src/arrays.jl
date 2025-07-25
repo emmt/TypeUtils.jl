@@ -8,8 +8,8 @@ tuple of `AbstractUnitRange{eltype(Dims)}`s. Any integer in `args...` is replace
 instance of `Base.OneTo{eltype(Dims)}`.
 
 The array dimensions or ranges may also be provided as a tuple.
-[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
-`as_array_axes` is applicable.
+[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which `as_array_axes`
+is applicable.
 
 Also see [`as_array_shape`](@ref), [`as_array_size`](@ref), [`as_array_axis`](@ref),
 [`ArrayAxes`](@ref), `Dims`, and [`new_array`](@ref).
@@ -25,8 +25,8 @@ as_array_axes(args::RelaxedArrayShape) = map(as_array_axis, args)
 
 converts array dimension or range `arg` to a canonical array axis, that is an instance of
 `AbstractUnitRange{eltype(Dims)}`. If `arg` is an integer, `Base.OneTo{eltype(Dims)}(arg)`
-is returned. [`eltype(RelaxedArrayShape)`](@ref RelaxedArrayShape) is the union of types
-to which `as_array_axis` is applicable.
+is returned. [`eltype(RelaxedArrayShape)`](@ref RelaxedArrayShape) is the union of types to
+which `as_array_axis` is applicable.
 
 Also see [`as_array_axes`](@ref), [`as_array_dim`](@ref), and `Dims`.
 
@@ -62,20 +62,19 @@ as_array_dim(rng::AbstractRange{<:Integer}) =
 
 converts array dimensions or ranges `args...` to a canonical form of array shape, one of:
 
-* array size, that is a tuple of `Int`s. This is the result if all of `args...` are
-  integers or instances of `Base.OneTo`, the latter, if any, being replaced by their
-  lengths.
+* array size, that is a tuple of `Int`s. This is the result if all of `args...` are integers
+  or instances of `Base.OneTo`, the latter, if any, being replaced by their lengths.
 
 * array axes, that is a tuple of `AbstractUnitRange{Int}`s. This is the result if any of
   `args...` are non-`Base.OneTo` ranges, the integers being converted to instances of
   `Base.OneTo{eltype(Dims)}`.
 
 The array dimensions or ranges may also be provided as a tuple.
-[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
-`as_array_shape` is applicable.
+[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which `as_array_shape`
+is applicable.
 
-Also see [`as_array_size`](@ref), [`as_array_axes`](@ref), [`ArrayAxes`](@ref), `Dims`,
-and [`new_array`](@ref).
+Also see [`as_array_size`](@ref), [`as_array_axes`](@ref), [`ArrayAxes`](@ref), `Dims`, and
+[`new_array`](@ref).
 
 """
 as_array_shape(::Tuple{}) = ()
@@ -90,11 +89,11 @@ converts array dimensions or ranges `args...` to a canonical form of array size,
 tuple of `eltype(Dims)`s. Any range in `args...` is replaced by its length.
 
 The array dimensions or ranges may also be provided as a tuple.
-[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which
-`as_array_size` is applicable.
+[`RelaxedArrayShape{N}`](@ref) is the union of types of `N`-tuples to which `as_array_size`
+is applicable.
 
-Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), [`as_array_dim`](@ref),
-`Dims`, and [`new_array`](@ref).
+Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), [`as_array_dim`](@ref), `Dims`,
+and [`new_array`](@ref).
 
 """
 as_array_size(::Tuple{}) = ()
@@ -110,8 +109,8 @@ create a new array with element type `T` and shape defined by `inds...`, a list 
 dimension lengths and/or index ranges. The shape may also be specified as a tuple.
 
 If `inds...` contains any index range other than `Base.OneTo`, an `OffsetArray{T}` is
-returned; otherwise an `Array{T}` is returned. In the former case, an exception is thrown
-if the package `OffsetArrays` has not been loaded.
+returned; otherwise an `Array{T}` is returned. In the former case, an exception is thrown if
+the package `OffsetArrays` has not been loaded.
 
 Also see [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref).
 
@@ -158,10 +157,9 @@ convert_eltype(::Type{T}, ::Type{X}) where {T,X} =
     error("don't know how to convert the element type of type `$X` to `$T`")
 
 # As of Julia 1.11 `AbstractMatrix{T}(A)` or `AbstractArray{T}(A)` can be used to convert
-# element type of `A` for Adjoint, Bidiagonal, Diagonal, Hermitian,
-# LinearAlgebra.LQPackedQ, LowerTriangular, SymTridiagonal, Symmetric, Transpose,
-# Tridiagonal, UnitLowerTriangular, UnitUpperTriangular, UpperHessenberg, UpperTriangular,
-# etc.
+# element type of `A` for Adjoint, Bidiagonal, Diagonal, Hermitian, LinearAlgebra.LQPackedQ,
+# LowerTriangular, SymTridiagonal, Symmetric, Transpose, Tridiagonal, UnitLowerTriangular,
+# UnitUpperTriangular, UpperHessenberg, UpperTriangular, etc.
 convert_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
 convert_eltype(::Type{T}, A::AbstractArray) where {T} = AbstractArray{T}(A)
 convert_eltype(::Type{T}, ::Type{<:Array{<:Any,N}}) where {T,N} = Array{T,N}
@@ -193,8 +191,8 @@ end
 # Convert element type for numbers.
 convert_eltype(::Type{T}, ::Type{<:Number}) where {T} = T
 
-# Convert element type for tuples. See `_countuple` in `base/tuple.jl` for the best
-# way to extract the number of elements in a tuple given its type.
+# Convert element type for tuples. See `_countuple` in `base/tuple.jl` for the best way to
+# extract the number of elements in a tuple given its type.
 convert_eltype(::Type{T}, ::Type{<:NTuple{N,Any}}) where {N,T} = NTuple{N,T}
 convert_eltype(::Type{T}, A::NTuple{N,T}) where {N,T} = A
 convert_eltype(::Type{T}, A::Tuple) where {T} = map(as(T), A)
@@ -237,8 +235,8 @@ convert_eltype(::Type{T}) where {T} = Converter(convert_eltype, T)
 yields an array which lazily converts its entries to type `T`. More specifically, a call
 like `B[i]` yields `as(T,A[i])`.
 
-Consider using [`convert_eltype(T, A)`](@ref convert_eltype) to perform the conversion
-once and immediately.
+Consider using [`convert_eltype(T, A)`](@ref convert_eltype) to perform the conversion once
+and immediately.
 
 """
 as_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A

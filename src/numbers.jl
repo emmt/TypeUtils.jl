@@ -4,8 +4,8 @@
     bare_type(x) -> T <: Union{Real,Complex}
 
 yields the bare numeric type `T` backing the storage of `x` which may be a number or a
-numeric type. If `x` has units, they are discarded. Hence `T` is always a dimensionless
-real or complex type.
+numeric type. If `x` has units, they are discarded. Hence `T` is always a dimensionless real
+or complex type.
 
 Examples:
 
@@ -27,8 +27,8 @@ yields the promoted bare numeric type of `args...`.
 ---
     bare_type() -> TypeUtils.BareNumber
 
-yields the union of bare numeric types that may be returned by `bare_type` when called
-with no arguments.
+yields the union of bare numeric types that may be returned by `bare_type` when called with
+no arguments.
 
 """
 bare_type() = BareNumber
@@ -43,8 +43,8 @@ bare_type(::Type{T}) where {T<:Number} = typeof(one(T))
 
 yields the bare numeric type `T` backing the storage of `x` which may be a number of a
 numeric type. If `x` is a complex, `T` is the bare numeric type of the real and imaginary
-parts of `x`. If `x` has units, they are discarded. Hence `T` is always a dimensionless
-real type.
+parts of `x`. If `x` has units, they are discarded. Hence `T` is always a dimensionless real
+type.
 
 Examples:
 
@@ -89,12 +89,12 @@ end
 """
     convert_bare_type(T, x)
 
-converts `x` so that its bare numeric type is that of `T`. Argument `x` may be a number or
-a numeric type, while argument `T` must be a numeric type. If `x` is one of `missing`,
+converts `x` so that its bare numeric type is that of `T`. Argument `x` may be a number or a
+numeric type, while argument `T` must be a numeric type. If `x` is one of `missing`,
 `nothing`, `undef`, or the type of one of these singletons, `x` is returned.
 
-This method may be extended with `T<:TypeUtils.BareNumber` and for `x` of
-non-standard numeric type.
+This method may be extended with `T<:TypeUtils.BareNumber` and for `x` of non-standard
+numeric type.
 
 """
 convert_bare_type(::Type{T}, x) where {T} = convert_bare_type(bare_type(T), x)
@@ -197,10 +197,9 @@ floating_point_type() = AbstractFloat
 """
     convert_floating_point_type(T, x)
 
-converts `x` so that its bare real type is the floating-point type of `T`. Argument `x`
-may be a number or a numeric type, while argument `T` must be a numeric type. If `x` is
-one of `missing`, `nothing`, `undef`, or the type of one of these singletons, `x` is
-returned.
+converts `x` so that its bare real type is the floating-point type of `T`. Argument `x` may
+be a number or a numeric type, while argument `T` must be a numeric type. If `x` is one of
+`missing`, `nothing`, `undef`, or the type of one of these singletons, `x` is returned.
 
 This method may be extended with `T<:AbstractFloat` and for `x` of non-standard numeric
 type.
@@ -212,8 +211,8 @@ convert_floating_point_type(::Type{T}, x) where {T} =
 """
     convert_floating_point_type(T) -> f
 
-yields a callable object `f` such that `f(x)` yields `convert_floating_point_type(T, x)`
-for any `x`.
+yields a callable object `f` such that `f(x)` yields `convert_floating_point_type(T, x)` for
+any `x`.
 
 """
 convert_floating_point_type(::Type{T}) where {T} =
@@ -265,8 +264,8 @@ assert_floating_point(name::Union{Symbol,AbstractString}, ::Type{T}) where {T} =
 """
     nearest(T::Type, x) -> y::T
 
-yields the value or instance of type `T` that is the nearest to `x`. For `T` integer and
-`x` real, it can be seen as rounding with clamping.
+yields the value or instance of type `T` that is the nearest to `x`. For `T` integer and `x`
+real, it can be seen as rounding with clamping.
 
 """
 nearest(::Type{T}, x::T) where {T} = x
@@ -293,8 +292,8 @@ end
 
 # Non-integer real to nearest integer.
 function nearest(::Type{T}, x::Real) where {T<:Integer}
-    # We cannot use `ifelse` here because conversion may throw an `InexactError`. This
-    # will occur anyway for `NaN`s.
+    # We cannot use `ifelse` here because conversion may throw an `InexactError`. This will
+    # occur anyway for `NaN`s.
     r = round(x)
     if r ≤ (lo = typemin(T))
         return lo

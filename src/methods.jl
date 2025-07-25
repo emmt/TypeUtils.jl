@@ -14,8 +14,8 @@ as(::Type{Tuple}, x::CartesianIndex) = Tuple(x)
 as(::Type{Tuple}, x::CartesianIndices) = x.indices
 for X in (:CartesianIndex, :CartesianIndices)
     @eval begin
-        # For more specific tuple types, first extract tuple contents, then
-        # convert to the requested tuple type.
+        # For more specific tuple types, first extract tuple contents, then convert to the
+        # requested tuple type.
         as(::Type{T}, x::$X) where {T<:Tuple} = as(T, as(Tuple, x))
 
         # Use the constructors to convert tuples to Cartesian index/indices.
@@ -149,13 +149,13 @@ Array
 #
 # - https://stackoverflow.com/questions/42229901/getting-the-parameter-less-type
 #
-# The latter leads to define the method as (in old versions of Julia, the field
-# name was `:primary`, but since Julia 0.7, it should be `:wrapper`):
+# The latter leads to define the method as (in old versions of Julia, the field name was
+# `:primary`, but since Julia 0.7, it should be `:wrapper`):
 #
 #     @inline parameterless(::Type{T}) where {T} = getfield(Base.typename(T), :wrapper)
 #
-# The actual implementation is borrowed from `ConstructionBase` and should be
-# less likely to be broken by internal changes in Julia:
+# The actual implementation is borrowed from `ConstructionBase` and should be less likely to
+# be broken by internal changes in Julia:
 #
 parameterless(::Type{T}) where {T} = getfield(parentmodule(T), nameof(T))
 
@@ -165,8 +165,8 @@ parameterless(::Type{T}) where {T} = getfield(parentmodule(T), nameof(T))
 
 yield whether number `x` can be negated while retaining the same type. The result only
 depends on the type of `x`. The result is `false` for `typeof(x) <:
-Union{U,Rational{U},Complex{U}} where {U<:Union{Bool,Unsigned}}` as well as quantities
-based on these bare numeric types.
+Union{U,Rational{U},Complex{U}} where {U<:Union{Bool,Unsigned}}` as well as quantities based
+on these bare numeric types.
 
 """
 is_signed(x::Number) = is_signed(typeof(x))

@@ -1,8 +1,8 @@
 """
     TypeUtils.Dim
 
-is an alias to `eltype(Dims)`, the canonical integer type for an array dimension length.
-In principle, `eltype(Dims) === Int` holds.
+is an alias to `eltype(Dims)`, the canonical integer type for an array dimension length. In
+principle, `eltype(Dims) === Int` holds.
 
 """
 const Dim = eltype(Dims)
@@ -21,9 +21,9 @@ const ArrayAxis = AbstractUnitRange{Dim}
 """
     ArrayAxes{N}
 
-is the canonical type of array axes as returned by the base method
-`axes(A::AbstractArray)`. It is an `N`-tuple of [`ArrayAxis`](@ref) instances. Method
-[`as_array_axes`](@ref) may be called to convert arguments to array axes.
+is the canonical type of array axes as returned by the base method `axes(A::AbstractArray)`.
+It is an `N`-tuple of [`ArrayAxis`](@ref) instances. Method [`as_array_axes`](@ref) may be
+called to convert arguments to array axes.
 
 See also [`ArrayShape`](@ref), `Dims`.
 
@@ -37,8 +37,8 @@ is the type of eligible argument to represent an `N`-dimensional array shape as 
 accepted in Julia: it is an `N`-tuple of integers and/or integer-valued unit ranges.
 
 Methods [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref) may
-be called on any `ArrayShape{N}` instance to convert it to a canonical form of array axes
-or size.
+be called on any `ArrayShape{N}` instance to convert it to a canonical form of array axes or
+size.
 
 Expression `eltype(ArrayShape)` yields the union of possible types for each entry of an
 array shape. This may be used to specify a variable number of arguments possibly
@@ -60,10 +60,10 @@ is like [`ArrayShape{N}`](@ref) but also includes `AbstractRange{<:Integer}}}`s 
 
 Methods [`as_array_shape`](@ref), [`as_array_axes`](@ref), and [`as_array_size`](@ref) may
 be called on any argument of type `RelaxedArrayShape{N}` to convert it to a canonical form
-of array axes or size. Likewise, methods [`as_array_dim`](@ref) and
-[`as_array_axis`](@ref) may be called on any argument of type `eltype(RelaxedArrayShape)`
-to convert it to a canonical array dimension length or axis. All these methods assert that
-all ranges have a unit step.
+of array axes or size. Likewise, methods [`as_array_dim`](@ref) and [`as_array_axis`](@ref)
+may be called on any argument of type `eltype(RelaxedArrayShape)` to convert it to a
+canonical array dimension length or axis. All these methods assert that all ranges have a
+unit step.
 
 !!! warning
     It is preferable to use [`ArrayShape{N}`](@ref) which better reflects Julia style.
@@ -80,11 +80,11 @@ const RelaxedArrayShape{N} = NTuple{N,Union{Integer,AbstractRange{<:Integer}}}
     Union{Unsupported, T1, T2, ...}
 
 yield an union that can be used to define a method applicable with unsupported argument
-type(s) `T` or `T1`, `T2`, and `...` (presumably a method that throws an instructive
-error) and which can be extended later with the same signature except that with
-`Union{Unsupported, T}` or `Unsupported(T)` replaced by `T` and
-`Union{Unsupported,T1,T2,...}` or `Unsupported(T1,T2,...)` replaced by `Union{T1,T2,...}`.
-This trick avoids conflicts that prevent pre-compilation with package extensions.
+type(s) `T` or `T1`, `T2`, and `...` (presumably a method that throws an instructive error)
+and which can be extended later with the same signature except that with `Union{Unsupported,
+T}` or `Unsupported(T)` replaced by `T` and `Union{Unsupported,T1,T2,...}` or
+`Unsupported(T1,T2,...)` replaced by `Union{T1,T2,...}`. This trick avoids conflicts that
+prevent pre-compilation with package extensions.
 
 If `T` or any of `T1`, `T2`, and `...` have unspecified type parameters, the
 `Union{Unsupported,...}` syntax may have to be used.
@@ -144,8 +144,8 @@ const BareNumber = Union{Real,Complex}
 """
     Precision
 
-is the union of concrete floating-point types that can be used to specify the precision
-with [`adapt_precision`](@ref).
+is the union of concrete floating-point types that can be used to specify the precision with
+[`adapt_precision`](@ref).
 
 """
 const Precision = Union{Float16,Float32,Float64,BigFloat}
@@ -153,8 +153,8 @@ const Precision = Union{Float16,Float32,Float64,BigFloat}
 """
     TypeUtils.default_precision
 
-is the default precision for [`adapt_precision`](@ref) when `AbstractFloat` is specified
-as a precision. It is currently set to `Float64`.
+is the default precision for [`adapt_precision`](@ref) when `AbstractFloat` is specified as
+a precision. It is currently set to `Float64`.
 
 """
 const default_precision = Float64
@@ -163,11 +163,10 @@ const default_precision = Float64
     c = TypeUtils.Converter(f, T::Type)
 
 builds a lightweight callable object `c` such that `c(x)` yields `f(T, x)` for any `x`.
-Converter objects are suitable to map conversion to type `T` by function `f` to
-collections.
+Converter objects are suitable to map conversion to type `T` by function `f` to collections.
 
-This is similar to `Base.Fix1(f,T)` except that `sizeof(Base.Fix1(f,T)) = sizeof(Int)`
-while `sizeof(TypeUtils.Converter(f,T)) = 0`.
+This is similar to `Base.Fix1(f,T)` except that `sizeof(Base.Fix1(f,T)) = sizeof(Int)` while
+`sizeof(TypeUtils.Converter(f,T)) = 0`.
 
 """
 struct Converter{F,T} <: Function
