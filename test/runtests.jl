@@ -1519,15 +1519,18 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
     @testset "Destructure and restructure" begin
         # Test with structures.
-        obj = Foo(2.0f0 - 3.0f0im, π, 42) # NOTE π is special
+        vals = (2.0f0, -3.0f0, π, 42) # NOTE π is special
+        obj = Foo(complex(vals[1:2]...), vals[3:end]...)
         @test obj isa Foo{Float32,typeof(π)}
         @test isconcretetype(typeof(obj))
         @test struct_length(obj) == 4
-        vals = @inferred destructure(obj)
-        @test vals === (2.0f0, -3.0f0, π, 42)
+        @test vals === @inferred destructure(obj)
         @test obj === @inferred restructure(typeof(obj), vals)
-        @test obj === restructure(parameterless(typeof(obj)), vals)
         @test obj === @inferred restructure(typeof(obj), (0, 1, vals...); offset=2)
+        @test parameterless(typeof(obj)) === Foo
+        if VERSION < v"1.12.0-alpha"
+            @test obj === @inferred restructure(Foo, vals)
+        end
         @test vals === @inferred destructure(Tuple, obj)
         vec = destructure(Vector, obj)
         @test vec == collect(vals)

@@ -4,6 +4,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Fixed
+
+- Fix tests for Julia 1.12 and above.
+
+
 ## Version 1.10.0 (2025-07-25)
 
 ### Added
