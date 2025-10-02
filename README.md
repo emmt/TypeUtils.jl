@@ -1,17 +1,21 @@
 # Dealing with types in Julia
 
-[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](./LICENSE.md)  [![Build Status](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/TypeUtils.jl?svg=true)](https://ci.appveyor.com/project/emmt/TypeUtils-jl) [![Coverage](https://codecov.io/gh/emmt/TypeUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/TypeUtils.jl)
+[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](./LICENSE.md)
+[![Build Status](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/emmt/TypeUtils.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/emmt/TypeUtils.jl?svg=true)](https://ci.appveyor.com/project/emmt/TypeUtils-jl)
+[![version](https://juliahub.com/docs/General/TypeUtils/stable/version.svg)](https://juliahub.com/ui/Packages/General/TypeUtils)
+[![Coverage](https://codecov.io/gh/emmt/TypeUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/emmt/TypeUtils.jl)
+[![deps](https://juliahub.com/docs/General/TypeUtils/stable/deps.svg)](https://juliahub.com/ui/Packages/General/TypeUtils?t=2)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
-
 
 Package `TypeUtils` provides useful methods to deal with types in
 [Julia](https://www.julialang.org) and facilitate coding with numbers whether they have
 units or not. The package provides methods to strip units from numbers or numeric types,
 convert the numeric type of quantities (preserving their units if any), determine
 appropriate numeric type to carry computations mixing numbers with different types and/or
-units. These methods make it easy to write code that works consistently for numbers with
-any units (including none). The intention is that the `TypeUtils` package automatically
-extends its exported methods when packages such as
+units. These methods make it easy to write code that works consistently for numbers with any
+units (including none). The intention is that the `TypeUtils` package automatically extends
+its exported methods when packages such as
 [`Unitful`](https://github.com/PainterQubits/Unitful.jl) are loaded.
 
 
