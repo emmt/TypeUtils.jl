@@ -10,6 +10,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 - Fix tests for Julia 1.12 and above.
 
+- Syntax `@public a, b, c` is allowed.
+
 
 ## Version 1.10.0 (2025-07-25)
 

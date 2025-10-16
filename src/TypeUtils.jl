@@ -42,12 +42,13 @@ export
 
 include("macros.jl")
 
-@public BareNumber
-@public Converter
-@public Dim
-@public Precision
-@public Unsupported
-@public default_precision
+@public @public,
+        BareNumber,
+        Converter,
+        Dim,
+        Precision,
+        Unsupported,
+        default_precision
 
 using Base: OneTo
 using LinearAlgebra

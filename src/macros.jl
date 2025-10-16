@@ -1,18 +1,21 @@
 """
-    TypeUtils.@public args...
+    TypeUtils.@public a b c ...
+    TypeUtils.@public a, b, c, ...
 
-declares `args...` as being `public` even though they are not exported. For Julia version <
-1.11, this macro does nothing. Using this macro also avoid errors with CI and coverage
-tools.
+Declare symbols `a`, `b`, `c`, etc. as being `public` even though they are not exported. For
+Julia version < 1.11, this macro does nothing. Using this macro also avoid errors with CI
+and coverage tools.
 
 """
-macro public(args::Union{Symbol,Expr}...)
-    VERSION ≥ v"1.11.0-DEV.469" ? esc(Expr(:public, map(
-        x -> x isa Symbol ? x :
-            x isa Expr && x.head == :macrocall ? x.args[1] :
-            error("unexpected argument `$x` to `@public`"), args)...)) : nothing
+macro public(args...)
+    VERSION ≥ v"1.11.0-DEV.469" || return nothing
+    # `@public a b c` and `@public(a, b, c)` are the same, but `@public a, b, c` is
+    # different. Make `xs` a tuple or a vector of public symbols in these different cases.
+    xs = args isa Tuple{Expr} && args[1].head === :tuple ? args[1].args : args
+    return esc(Expr(:public, map(
+        x -> x isa Symbol ? x : x isa Expr && x.head == :macrocall ? x.args[1] :
+            error("unexpected argument `$x` to `@public`"), xs)...))
 end
-VERSION ≥ v"1.11.0-DEV.469" && @public @public
 
 """
     @assert_floating_point A B ...
