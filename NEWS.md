@@ -4,6 +4,17 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Fixed
+
+- `get_precision` on n-tuples yields a correct result and is inferable.
+
+### Added
+
+- `get_precision()` yields `AbtractFloat` instead of throwing a `MethodError`.
+
+
 ## Version 1.11.0 (2025-10-16)
 
 ### Fixed

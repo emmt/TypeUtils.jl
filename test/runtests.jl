@@ -85,6 +85,13 @@ Base.show(io::IO, r::TestUnitRange) =
     return T(i - 1)::T + r.start
 end
 
+struct Point{T}
+    x::T
+    y::T
+end
+Point(x, y) = Point(promote(x, y)...)
+TypeUtils.get_precision(::Type{<:Point{T}}) where {T} = get_precision(T)
+
 struct Foo{T1,T2}
     z::Complex{T1}
     r::T2
@@ -943,6 +950,24 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test @inferred(get_precision(Float32, Int, pi, 1.0)) == Float64
         @test @inferred(get_precision(Float32, Int, pi, 1.0)) == Float64
         @test @inferred(get_precision(Float32, Int, pi, big(1.0))) == BigFloat
+
+        # Tuples of points.
+        x = Point(2.3f0,-1.0f0)
+        y = Point(2, -1)
+        z = Point(-3.1, 1.7)
+        @test get_precision(x) == Float32
+        @test get_precision(y) == AbstractFloat
+        @test get_precision(z) == Float64
+        @test get_precision(x,y) == Float32
+        @test get_precision(x,x) == Float32
+        @test get_precision(y,y) == AbstractFloat
+        @test get_precision(x,y,z) == Float64
+        @test get_precision(z,z) == Float64
+        @test get_precision((x,y)) == Float32
+        @test get_precision((x,x)) == Float32
+        @test get_precision((y,y)) == AbstractFloat
+        @test get_precision((x,y,z)) == Float64
+        @test get_precision((z,z)) == Float64
     end
 
     @testset "adapt_precision" begin

@@ -20,6 +20,7 @@ TypeUtils.get_precision(::Type{T}) where {T<:SomeType} = ...
 See also [`adapt_precision`](@ref) and [`TypeUtils.Precision`](@ref).
 
 """
+get_precision() = AbstractFloat
 get_precision(x::T) where {T} = get_precision(T)
 get_precision(::Type) = AbstractFloat # pass-through
 get_precision(::Type{T}) where {T<:Precision} = T
@@ -27,21 +28,14 @@ get_precision(::Type{<:Complex{T}}) where {T} = get_precision(T)
 get_precision(::Type{<:AbstractArray{T}}) where {T} = get_precision(T)
 get_precision(::Type{<:Factorization{T}}) where {T} = get_precision(T)
 
-@generated function get_precision(::Type{T}) where {T<:Union{Tuple,NamedTuple}}
-    # NOTE Using a `Ref` for `r` or `t` here is significantly slower.
-    r = AbstractFloat
-    for s in T.types
-        t = get_precision(s)::Type{<:AbstractFloat}
-        if isconcretetype(t)
-            if r == AbstractFloat
-                r = t
-            else
-                r = promote_type(r, t)
-            end
-        end
-    end
-    return r
-end
+# Second type parameter of a named tuple is a tuple of types.
+get_precision(::Type{NamedTuple{S,T}}) where {S,T} = get_precision(T)
+
+# Deal with types of n-tuple for moderate values of n. These have the form `Type{A,B,C,...}`.
+@inline get_precision(::Type{T}) where {T<:Tuple} = get_precision(unpack(T)...)
+
+# See https://discourse.julialang.org/t/inferable-unpacking-of-tuple-type-to-tuple-of-types/66329
+@generated unpack(::Type{T}) where {T<:Tuple} = Tuple(T.parameters)
 
 """
     get_precision(x, y, z...) -> T<:AbstractFloat
