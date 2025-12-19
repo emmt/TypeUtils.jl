@@ -1,14 +1,11 @@
 module TypeUtilsUnitfulExt
 if isdefined(Base, :get_extension)
     using TypeUtils, Unitful
-    using TypeUtils: BareNumber, Precision
-    using Unitful: AbstractQuantity, Quantity, ustrip, unit
 else
     using ..TypeUtils, ..Unitful
-    using ..TypeUtils: BareNumber, Precision
-    using ..Unitful: AbstractQuantity, Quantity, ustrip, unit
 end
-
+using .TypeUtils: BareNumber, Precision
+using .Unitful: AbstractQuantity, Quantity, Units, ustrip, unit
 
 # Extend bare_type, real_type, convert_bare_type, and convert_real_type.
 for (f, g, S) in ((:(TypeUtils.bare_type), :(TypeUtils.convert_bare_type), :BareNumber),
@@ -22,8 +19,13 @@ for (f, g, S) in ((:(TypeUtils.bare_type), :(TypeUtils.convert_bare_type), :Bare
     end
 end
 
-# Extend unitless (only needed for values).
+# Extend `unitless` (only needed for values).
 TypeUtils.unitless(x::AbstractQuantity) = ustrip(x)
+
+# Extend `units_of`.
+TypeUtils.units_of(::Type{T}) where {T<:AbstractQuantity} = unit(T)
+TypeUtils.units_of(u::Units) = u
+TypeUtils.units_of(::Type{U}) where {U<:Units} = U()
 
 TypeUtils.get_precision(::Type{<:AbstractQuantity{T}}) where {T} = get_precision(T)
 

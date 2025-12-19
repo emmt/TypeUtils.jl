@@ -633,6 +633,20 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
     end
 
     @testset "Numeric types" begin
+        # units_of
+        @test @inferred(units_of(3.1)) === TypeUtils.NoUnits()
+        @test @inferred(units_of(pi)) === TypeUtils.NoUnits()
+        @test @inferred(units_of(typeof(1//2))) === TypeUtils.NoUnits()
+        @test @inferred(units_of(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
+        @test @inferred(units_of(TypeUtils.NoUnits)) === TypeUtils.NoUnits()
+        @test @inferred(pi*units_of(42)) === pi
+        @test @inferred(units_of(big(1.0))*pi) === pi
+        @test @inferred(units_of(0x01)*units_of(typeof(pi))) === TypeUtils.NoUnits()
+        @test @inferred(units_of(3u"km/s")) === u"km/s"
+        @test @inferred(units_of(typeof(3u"μm/s"))) === u"μm/s"
+        @test @inferred(units_of(u"mm/s")) === u"mm/s"
+        @test @inferred(units_of(typeof(u"cm/s"))) === u"cm/s"
+
         # bare_type with no argument
         @test BareNumber === @inferred bare_type()
 

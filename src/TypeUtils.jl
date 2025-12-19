@@ -38,7 +38,8 @@ export
     struct_length,
     to_same_type,
     to_same_concrete_type,
-    unitless
+    unitless,
+    units_of
 
 include("macros.jl")
 
@@ -47,6 +48,7 @@ include("macros.jl")
         Converter,
         Dim,
         Precision,
+        NoUnits,
         Unsupported,
         default_precision
 

@@ -160,6 +160,14 @@ a precision. It is currently set to `Float64`.
 const default_precision = Float64
 
 """
+    TypeUtils.NoUnits()
+
+Singleton representing dimensionless units.
+
+"""
+struct NoUnits end
+
+"""
     c = TypeUtils.Converter(f, T::Type)
 
 builds a lightweight callable object `c` such that `c(x)` yields `f(T, x)` for any `x`.

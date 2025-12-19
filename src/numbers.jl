@@ -1,6 +1,23 @@
 # Methods related to numbers.
 
 """
+    units_of(x)
+    units_of(typeof(x))
+
+Return the units of `x`. The units of `x` are a *trait* that only depends on the type of
+`x`. `x` may be a number of an object representing units. This function is a replacement for
+`Unitful.unit` when this package is not yet loaded.
+
+"""
+@inline units_of(x::Union{Number,NoUnits}) = units_of(typeof(x))
+@inline units_of(::Type{<:Union{Number,NoUnits}}) = NoUnits()
+
+# Multiplying any number by `NoUnits()` yields the number.
+@inline Base.:(*)(x::NoUnits, y::NoUnits) = NoUnits()
+@inline Base.:(*)(x::Number, y::NoUnits) = x
+@inline Base.:(*)(x::NoUnits, y::Number) = y*x
+
+"""
     bare_type(x) -> T <: Union{Real,Complex}
 
 yields the bare numeric type `T` backing the storage of `x` which may be a number or a

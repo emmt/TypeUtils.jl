@@ -4,6 +4,14 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Added
+
+- `units_of(x)` and `units_of(typeof(x))` yield the units of the number `x`. The units are
+  a *trait* which only depends on the type of the argument. This function is a replacement
+  for `Unitful.unit` when this package is not yet loaded.
+
 ## Version 1.12.0 (2025-10-21)
 
 ### Fixed
