@@ -14,6 +14,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
   provided to specify the inverse of `f`. Related type alias `LazyMap{T,N,F,typeof(A)}` can
   be used to specialize on the type `B` with `N = ndims(A)` and `F = typeof(f)`.
 
+### Change
+
+- The former function `as_eltype(T,A)` is now a shortcut for `lazymap(T,identity,A)` unless
+  `T == eltype(A)` holds in which case `A` is returned.
+
+- Private type `TypeUtils.AsEltype` (formerly used by `as_eltytpe`) no longer exists.
+
 
 ## Version 1.13.0 (2025-12-19)
 

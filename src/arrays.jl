@@ -235,41 +235,12 @@ convert_eltype(::Type{T}) where {T} = Converter(convert_eltype, T)
 Return an array which lazily converts its entries to type `T`. More specifically, a call
 like `B[i]` yields `as(T,A[i])`.
 
+If `T === eltype(A)` holds, then `A` is returned; otherwise, [`lazymap(T,identity,A)`](@ref
+lazymap) is returned.
+
 Consider using [`convert_eltype(T, A)`](@ref convert_eltype) to perform the conversion once
 and immediately.
 
 """
 as_eltype(::Type{T}, A::AbstractArray{T}) where {T} = A
-as_eltype(::Type{T}, A::AbstractArray) where {T} = AsEltype{T}(A)
-
-Base.parent(A::AsEltype) = getfield(A, :parent)
-
-# Implement abstract array API for `AsEltype` objects.
-for func in (:axes, :length, :size)
-    @eval Base.$func(A::AsEltype) = $func(parent(A))
-end
-for (L, S, Idecl, Icall) in ((false, :IndexCartesian, :(I::Vararg{Int,N}), :(I...)),
-                             (true,  :IndexLinear,    :(i::Int),           :(i)))
-    @eval begin
-        Base.IndexStyle(::Type{<:AsEltype{T,N,$L}}) where {T,N} = $S()
-        @inline function Base.getindex(A::AsEltype{T,N,$L}, $Idecl) where {T,N}
-            @boundscheck checkbounds(A, $Icall)
-            r = @inbounds getindex(parent(A), $Icall)
-            return as(T, r)
-        end
-        @inline function Base.setindex!(A::AsEltype{T,N,$L}, x, $Idecl) where {T,N}
-            @boundscheck checkbounds(A, $Icall)
-            @inbounds setindex!(parent(A), x, $Icall)
-            return A
-        end
-    end
-end
-
-Base.similar(A::AsEltype, ::Type{T}) where {T} = similar(parent(A), T)
-for shape in (:Dims,
-              :(Tuple{Integer,Vararg{Integer}}),
-              :(Tuple{Union{Integer,UnitRange{<:Integer}},
-                      Vararg{Union{Integer,UnitRange{<:Integer}}}}))
-    @eval Base.similar(A::AsEltype, ::Type{T}, shape::$shape) where {T} =
-        similar(parent(A), T, shape)
-end
+as_eltype(::Type{T}, A::AbstractArray) where {T} = lazymap(T, identity, A)

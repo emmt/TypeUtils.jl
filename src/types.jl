@@ -184,12 +184,6 @@ struct Converter{F,T} <: Function
 end
 (c::Converter{F,T})(x) where {F,T} = c.func(T, x)
 
-struct AsEltype{T,N,L,A<:AbstractArray} <: AbstractArray{T,N}
-    parent::A
-    AsEltype{T}(arr::A) where {T,N,A<:AbstractArray{<:Any,N}} =
-        new{T,N,IndexStyle(A)===IndexLinear(),A}(arr)
-end
-
 """
     AbstractTypeStableFunction{T}
 
