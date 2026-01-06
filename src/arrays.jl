@@ -3,7 +3,7 @@
 """
     as_array_axes(args...) -> rngs::ArrayAxes
 
-converts array dimensions or ranges `args...` to a canonical form of array axes, that is a
+Convert array dimensions or ranges `args...` to a canonical form of array axes, that is a
 tuple of `AbstractUnitRange{eltype(Dims)}`s. Any integer in `args...` is replaced by an
 instance of `Base.OneTo{eltype(Dims)}`.
 
@@ -23,7 +23,7 @@ as_array_axes(args::RelaxedArrayShape) = map(as_array_axis, args)
 """
     as_array_axis(arg) -> rng::ArrayAxis
 
-converts array dimension or range `arg` to a canonical array axis, that is an instance of
+Convert array dimension or range `arg` to a canonical array axis, that is an instance of
 `AbstractUnitRange{eltype(Dims)}`. If `arg` is an integer, `Base.OneTo{eltype(Dims)}(arg)`
 is returned. [`eltype(RelaxedArrayShape)`](@ref RelaxedArrayShape) is the union of types to
 which `as_array_axis` is applicable.
@@ -40,7 +40,7 @@ as_array_axis(rng::AbstractRange{<:Integer}) =
 """
     as_array_dim(arg) -> dim::eltype(Dims)
 
-converts array dimension or range `arg` to a canonical array dimension, that is an
+Convert array dimension or range `arg` to a canonical array dimension, that is an
 `eltype(Dims)`. If `arg` is a unit-step range, its length is returned.
 [`eltype(RelaxedArrayShape)`](@ref RelaxedArrayShape) is the union of types to which
 `as_array_dim` is applicable.
@@ -60,7 +60,7 @@ as_array_dim(rng::AbstractRange{<:Integer}) =
 """
     as_array_shape(args...) -> r::Union{Dims,ArraysAxes}
 
-converts array dimensions or ranges `args...` to a canonical form of array shape, one of:
+Convert array dimensions or ranges `args...` to a canonical form of array shape, one of:
 
 * array size, that is a tuple of `Int`s. This is the result if all of `args...` are integers
   or instances of `Base.OneTo`, the latter, if any, being replaced by their lengths.
@@ -85,7 +85,7 @@ as_array_shape(args::RelaxedArrayShape) = as_array_axes(args)
 """
     as_array_size(args...) -> dims::Dims
 
-converts array dimensions or ranges `args...` to a canonical form of array size, that is a
+Convert array dimensions or ranges `args...` to a canonical form of array size, that is a
 tuple of `eltype(Dims)`s. Any range in `args...` is replaced by its length.
 
 The array dimensions or ranges may also be provided as a tuple.
@@ -105,7 +105,7 @@ as_array_size(args::RelaxedArrayShape) = map(as_array_dim, args)
     new_array(T, inds...) -> A
     new_array(T, (inds...,)) -> A
 
-create a new array with element type `T` and shape defined by `inds...`, a list of array
+Create a new array with element type `T` and shape defined by `inds...`, a list of array
 dimension lengths and/or index ranges. The shape may also be specified as a tuple.
 
 If `inds...` contains any index range other than `Base.OneTo`, an `OffsetArray{T}` is
@@ -126,8 +126,8 @@ new_array(::Type,    shape::Union{Unsupported,ArrayAxes}) =
 """
     promote_eltype(args...)
 
-yields the promoted element type of its arguments. Arguments `args...` may be
-anything implementing the `eltype` method.
+Return the promoted element type of its arguments. Arguments `args...` may be anything
+implementing the `eltype` method.
 
 """
 promote_eltype() = promote_type()
@@ -137,9 +137,9 @@ promote_eltype(arg) = eltype(arg)
 """
     convert_eltype(T, A) -> B
 
-converts the element type of object/type `A` to type `T`. The returned object/type is
-similar to `A` except maybe for the element type. For example, if `A` is a range, then `B`
-is also a range. If `T` is the element type of `A`, then `A` may be returned.
+Convert the element type of object/type `A` to type `T`. The returned object/type is similar
+to `A` except maybe for the element type. For example, if `A` is a range, then `B` is also a
+range. If `T` is the element type of `A`, then `A` may be returned.
 
 Consider using [`as_eltype(T, A)`](@ref as_eltype) to build an object that lazily performs
 the conversion.
@@ -224,7 +224,7 @@ convert_eltype(::Type{T}, r::LinRange) where {T} =
 """
     convert_eltype(T) -> f
 
-yields a callable object `f` such that `f(x)` yields `convert_eltype(T, x)` for any `x`.
+Return a callable object `f` such that `f(x)` yields `convert_eltype(T, x)` for any `x`.
 
 """
 convert_eltype(::Type{T}) where {T} = Converter(convert_eltype, T)
@@ -232,7 +232,7 @@ convert_eltype(::Type{T}) where {T} = Converter(convert_eltype, T)
 """
     as_eltype(T, A) -> B
 
-yields an array which lazily converts its entries to type `T`. More specifically, a call
+Return an array which lazily converts its entries to type `T`. More specifically, a call
 like `B[i]` yields `as(T,A[i])`.
 
 Consider using [`convert_eltype(T, A)`](@ref convert_eltype) to perform the conversion once
