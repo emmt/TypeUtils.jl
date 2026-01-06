@@ -503,12 +503,11 @@ There exist objects or packages with functionalities similar to those provided b
   - the element type of a mapped array is inferred and cannot be specified as for a lazy map
     which is type-stable with respect to its `eltype`.
 
-* `lazymap(T, A)` is the analogue of `of_eltype(T, A)` and `as_eltype(T, A)` respectively
-  using [`MappedArrays`](https://github.com/JuliaArrays/MappedArrays.jl) and
-  [`TypeUtils`](https://github.com/emmt/TypeUtils.jl).
+* `as_eltype(T, A)`, a shortcut for `lazymap(T, identity, A)`, is the analogue of
+  `of_eltype(T, A)` in [`MappedArrays`](https://github.com/JuliaArrays/MappedArrays.jl).
 
-* `LazyMaps` does not implement lazily mapping multiple arrays, a possibility offered by
-  `MappedArrays`, but this may be emulated by combining `LazyMaps` and
+* `TypeUtils.LazyMaps` does not implement lazily mapping multiple arrays, a possibility
+  offered by `MappedArrays`, but this may be emulated by combining `TypeUtils.LazyMaps` and
   [`ZippedArrays`](https://github.com/emmt/ZippedArrays.jl).
 
 * `BroadcastArray(f, A)` and `BroadcastArray{T}(f, A)` using
@@ -517,12 +516,12 @@ There exist objects or packages with functionalities similar to those provided b
   lazy maps are writable if inverse function is known or specified and can be used over
   other collections than arrays.
 
-As shown by [benchmark tests](./test/benchmarks.jl) for `LazyMaps` and these different
-packages, evaluating `B[i]` for an object `B` lazily representing `f.(A)` is as fast as
-calling `f(A[i])`. Also any of these objects can be used with no allocations and, except
-`BroadcastArray`, no construction overheads compared to `f(A[i])`. A `BroadcastArray` using
-[`LazyArrays`](https://github.com/JuliaArrays/LazyArrays.jl) is as fast as `mapreduce` for
-reductions (like a `sum`) of the broadcast array which provides some speedup for large
+As shown by [benchmark tests](./test/benchmarks.jl) for `TypeUtils.LazyMaps` and these
+different packages, evaluating `B[i]` for an object `B` lazily representing `f.(A)` is as
+fast as calling `f(A[i])`. Also any of these objects can be used with no allocations and,
+except `BroadcastArray`, no construction overheads compared to `f(A[i])`. A `BroadcastArray`
+using [`LazyArrays`](https://github.com/JuliaArrays/LazyArrays.jl) is as fast as `mapreduce`
+for reductions (like a `sum`) of the broadcast array which provides some speedup for large
 arrays.
 
 Direct dependencies:
