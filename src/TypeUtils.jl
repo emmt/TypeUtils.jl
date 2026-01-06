@@ -8,6 +8,7 @@ export
     RelaxedArrayShape,
     AbstractTypeStableFunction,
     TypeStableFunction,
+    LazyMap,
     adapt_precision,
     as,
     as_array_axes,
@@ -28,6 +29,7 @@ export
     floating_point_type,
     get_precision,
     is_signed,
+    lazymap,
     nearest,
     new_array,
     parameterless,
@@ -65,6 +67,8 @@ include("arrays.jl")
 include("funcs.jl")
 include("precision.jl")
 include("structs.jl")
+include("LazyMaps.jl")
+import .LazyMaps: LazyMap, lazymap
 
 function __init__()
     @static if !isdefined(Base, :get_extension)
