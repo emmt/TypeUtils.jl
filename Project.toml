@@ -1,11 +1,19 @@
 name = "TypeUtils"
 uuid = "c3b1956e-8857-4d84-9b79-890df85b1e67"
-authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
 version = "1.13.0"
+authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr> and contributors"]
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
+[weakdeps]
+OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+
+[extensions]
+TypeUtilsOffsetArraysExt = "OffsetArrays"
+TypeUtilsUnitfulExt = "Unitful"
 
 [compat]
 Aqua = "0.8"
@@ -16,10 +24,6 @@ Test = "<0.0.1, 1"
 Unitful = "≥ 1"
 julia = "0.7, 1"
 
-[extensions]
-TypeUtilsOffsetArraysExt = "OffsetArrays"
-TypeUtilsUnitfulExt = "Unitful"
-
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
@@ -28,7 +32,3 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [targets]
 test = ["Aqua", "Test", "OffsetArrays", "Unitful"]
-
-[weakdeps]
-OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
