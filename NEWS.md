@@ -11,8 +11,8 @@ This new minor version essentially provides `lazymap` (see below).
 ### Added
 
 - `B = lazymap([T::Type,], f, A[, f_inv])` yields an object `B` that lazily maps function
-  `f` to array or iterator `A`. Optional argument `T` is the element-type of `B` which ia
-  automatically inferred if not specified. If `A` is an (abstract) array, `f_inv` my be
+  `f` to array or iterator `A`. Optional argument `T` is the element-type of `B` which is
+  automatically inferred if not specified. If `A` is an (abstract) array, `f_inv` may be
   provided to specify the inverse of `f`. Related type alias `LazyMap{T,N,F,typeof(A)}` can
   be used to specialize on the type `B` with `N = ndims(A)` and `F = typeof(f)`.
 
