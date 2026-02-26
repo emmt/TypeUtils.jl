@@ -2,7 +2,7 @@
     get_precision(x) -> T<:AbstractFloat
     get_precision(typeof(x)) -> T<:AbstractFloat
 
-yield the numerical precision of number/object `x`. If `x` is a floating-point value, its
+Return the numerical precision of number/object `x`. If `x` is a floating-point value, its
 floating-point type is returned; if `x` stores floating-point values, their promoted
 floating-point type is returned; otherwise, `AbstractFloat` is returned.
 
@@ -40,7 +40,7 @@ get_precision(::Type{NamedTuple{S,T}}) where {S,T} = get_precision(T)
 """
     get_precision(x, y, z...) -> T<:AbstractFloat
 
-yields the best precision of all given arguments `x`, `y`, and `z...`.
+Return the promoted precision of all given arguments `x`, `y`, and `z...`.
 
 """
 @inline get_precision(x, y, z...) = get_precision(get_precision(x, y), z...)
@@ -57,11 +57,11 @@ get_precision(::Type{S}, ::Type{T}) where {S<:AbstractFloat,T<:AbstractFloat} =
 """
     adapt_precision(T::Type{<:AbstractFloat}, x) -> y
 
-yields an object `y` similar to `x` but with numerical precision specified by the
+Return an object `y` similar to `x` but with numerical precision specified by the
 floating-point type `T`. If `x` has already the required precision or if setting its
 precision is irrelevant or not implemented, `x` is returned unchanged. Setting the precision
-shall not change the dimensions of dimensionful numbers. If `T` is `AbstractFloat`, the
-default floating-point type [`TypeUtils.default_precision`](@ref) is assumed.
+shall not change the units of dimensionful numbers. If `T` is `AbstractFloat`, the default
+floating-point type [`TypeUtils.default_precision`](@ref) is assumed.
 
 For a number `x`, `adapt_precision(T, x)` behaves as [`convert_real_type(T, x)`](@ref
 convert_real_type) and `adapt_precision(T, typeof(x))` may be used to infer the
@@ -130,7 +130,7 @@ adapt_precision(::Type{T}, x::Union{Tuple,NamedTuple}) where {T<:Precision} =
 """
     f = adapt_precision(T)
 
-builds a callable object `f` such that `f(x)` is equivalent to `adapt_precision(T, x)`. If
+Return a callable object `f` such that `f(x)` is equivalent to `adapt_precision(T, x)`. If
 `T` is `AbstractFloat`, the default floating-point type
 [`TypeUtils.default_precision`](@ref) is assumed.
 
