@@ -4,6 +4,12 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Changed
+
+- Minimal Julia version is 1.0. This bound is imposed by the `InverseFunctions` package.
+
 ## Version 1.14.0 (2026-01-06)
 
 This new minor version essentially provides `lazymap` (see below).
