@@ -165,29 +165,6 @@ convert_eltype(::Type{T}, A::AbstractArray) where {T} = AbstractArray{T}(A)
 convert_eltype(::Type{T}, ::Type{<:Array{<:Any,N}}) where {T,N} = Array{T,N}
 convert_eltype(::Type{T}, ::Type{<:AbstractArray{<:Any,N}}) where {T,N} = AbstractArray{T,N}
 
-# `LinearAlgebra.Factorization{T}(A)` can be used to convert element type of `A` for QR,
-# LinearAlgebra.QRCompactWY, QRPivoted, LQ, Cholesky, CholeskyPivoted, LU, LDLt,
-# BunchKaufman, SVD, etc.
-convert_eltype(::Type{T}, A::Factorization{T}) where {T} = A
-convert_eltype(::Type{T}, A::Factorization) where {T} = Factorization{T}(A)
-if VERSION < v"1.7.0-beta1"
-    # For old Julia versions, the above is not sufficient for SVD.
-    convert_eltype(::Type{T}, A::SVD{T}) where {T} = A
-    convert_eltype(::Type{T}, A::SVD) where {T} =
-        SVD(convert_eltype(T, A.U), convert_eltype(real(T), A.S), convert_eltype(T, A.Vt))
-end
-convert_eltype(::Type{T}, A::Hessenberg{T}) where {T} = A
-convert_eltype(::Type{T}, A::Hessenberg) where {T} = throw(ArgumentError(
-    "changing element type of Hessenberg decomposition is not supported, consider re-computing the decomposition"))
-
-# For `Adjoint` and `Transpose`, we want to preserve this structure.
-for S in (:Adjoint, :Transpose)
-    @eval begin
-        convert_eltype(::Type{T}, A::$S{T}) where {T} = A
-        convert_eltype(::Type{T}, A::$S) where {T} = $S(convert_eltype(T, parent(A)))
-    end
-end
-
 # Convert element type for numbers.
 convert_eltype(::Type{T}, ::Type{<:Number}) where {T} = T
 
