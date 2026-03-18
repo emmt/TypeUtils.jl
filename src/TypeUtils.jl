@@ -55,7 +55,6 @@ include("macros.jl")
         default_precision
 
 using Base: OneTo
-using LinearAlgebra
 if !isdefined(Base, :get_extension)
     using Requires
 end
@@ -73,6 +72,8 @@ import .LazyMaps: LazyMap, lazymap
 function __init__()
     @static if !isdefined(Base, :get_extension)
         # Extend methods when other packages are loaded.
+        @require LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e" include(
+            "../ext/TypeUtilsLinearAlgebraExt.jl")
         @require Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d" include(
             "../ext/TypeUtilsUnitfulExt.jl")
         @require OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881" include(

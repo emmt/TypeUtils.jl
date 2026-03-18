@@ -26,7 +26,6 @@ get_precision(::Type) = AbstractFloat # pass-through
 get_precision(::Type{T}) where {T<:Precision} = T
 get_precision(::Type{<:Complex{T}}) where {T} = get_precision(T)
 get_precision(::Type{<:AbstractArray{T}}) where {T} = get_precision(T)
-get_precision(::Type{<:Factorization{T}}) where {T} = get_precision(T)
 
 # Second type parameter of a named tuple is a tuple of types.
 get_precision(::Type{NamedTuple{S,T}}) where {S,T} = get_precision(T)
@@ -116,11 +115,6 @@ adapt_precision(::Type{T}, ::Type{A}) where {T<:Precision,A<:AbstractArray} =
 # Adapt precision of numerical arrays.
 adapt_precision(::Type{T}, A::AbstractArray{T}) where {T<:Precision} = A
 adapt_precision(::Type{T}, A::AbstractArray{S}) where {T<:Precision,S} =
-    convert_eltype(adapt_precision(T, S), A)
-
-# Adapt precision of factorizations.
-adapt_precision(::Type{T}, A::Factorization{T}) where {T<:Precision} = A
-adapt_precision(::Type{T}, A::Factorization{S}) where {T<:Precision,S} =
     convert_eltype(adapt_precision(T, S), A)
 
 # Set precision for tuples.
