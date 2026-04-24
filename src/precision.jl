@@ -6,53 +6,69 @@ Return the numerical precision of number/object `x`. If `x` is a floating-point 
 floating-point type is returned; if `x` stores floating-point values, their promoted
 floating-point type is returned; otherwise, `AbstractFloat` is returned.
 
-For type-stability, the precision shall be a *trait* which does only depend of the type of
-`x`.
-
-Basically, `get_precision` supports numbers, and arrays or tuples of numbers. It can be
-specialized for other object types defined in foreign packages. For objects of type, say
+By default, `get_precision` is applicable to any object or type and assuming that the
+precision is a *trait*, hence, which only depends on the type of `x`. This ensures
+*type-stability*. However, if a specific behavior must be implemented to a type, say,
 `SomeType`, it is only needed to extend the method:
 
 ```julia
 TypeUtils.get_precision(::Type{T}) where {T<:SomeType} = ...
 ```
 
+which shall return one of the floating-point types of union `TypeUtils.Precision` or
+`AbstractFloat`.
+
+If 0, 2 or more arguments are specified, `get_precision` returns the promoted precision of
+all given arguments.
+
 See also [`adapt_precision`](@ref) and [`TypeUtils.Precision`](@ref).
 
 """
-get_precision() = AbstractFloat
-get_precision(x::T) where {T} = get_precision(T)
-get_precision(::Type) = AbstractFloat # pass-through
+get_precision(x::Any) = get_precision(typeof(x)) # precision is a trait
 get_precision(::Type{T}) where {T<:Precision} = T
-get_precision(::Type{<:Complex{T}}) where {T} = get_precision(T)
+get_precision(::Type{T}) where {T<:Real} = AbstractFloat
+get_precision(::Type{T}) where {T<:TypeVar} = AbstractFloat
+
+# The following specialization is needed for abstract arrays like `StepRangeLen` which have
+# fields of higher precision to avoid rounding errors.
 get_precision(::Type{<:AbstractArray{T}}) where {T} = get_precision(T)
-get_precision(::Type{<:Factorization{T}}) where {T} = get_precision(T)
 
-# Second type parameter of a named tuple is a tuple of types.
-get_precision(::Type{NamedTuple{S,T}}) where {S,T} = get_precision(T)
-
-# Deal with types of n-tuple for moderate values of n. These have the form `Type{A,B,C,...}`.
-@inline get_precision(::Type{T}) where {T<:Tuple} = get_precision(unpack(T)...)
-
-# See https://discourse.julialang.org/t/inferable-unpacking-of-tuple-type-to-tuple-of-types/66329
-@generated unpack(::Type{T}) where {T<:Tuple} = Tuple(T.parameters)
-
-"""
-    get_precision(x, y, z...) -> T<:AbstractFloat
-
-Return the promoted precision of all given arguments `x`, `y`, and `z...`.
-
-"""
+# Get precision for 0 or more than 2 arguments.
+get_precision() = AbstractFloat
 @inline get_precision(x, y, z...) = get_precision(get_precision(x, y), z...)
-get_precision(x, y) =
-    get_precision(get_precision(x)::Type{<:AbstractFloat},
-                  get_precision(y)::Type{<:AbstractFloat})::Type{<:AbstractFloat}
 
+# Get precision of exactly 2 types. Type assertion in the most generic method is to avoid
+# stack-overflow for an invalid specialization.
 get_precision(::Type{AbstractFloat}, ::Type{AbstractFloat}) = AbstractFloat
-get_precision(::Type{T}, ::Type{AbstractFloat}) where {T<:AbstractFloat} = T
-get_precision(::Type{AbstractFloat}, ::Type{T}) where {T<:AbstractFloat} = T
+get_precision(::Type{T}, ::Type{AbstractFloat}) where {T<:AbstractFloat} = get_precision(T)
+get_precision(::Type{AbstractFloat}, ::Type{T}) where {T<:AbstractFloat} = get_precision(T)
 get_precision(::Type{S}, ::Type{T}) where {S<:AbstractFloat,T<:AbstractFloat} =
-    promote_type(S, T)::Type{<:AbstractFloat}
+    get_precision(promote_type(S, T))
+get_precision(x, y) = get_precision(get_precision(x)::Type{<:AbstractFloat},
+                                    get_precision(y)::Type{<:AbstractFloat})
+
+# Return a simple vector of type parameters. (Must be defined before any generated function
+# that may use it.)
+function type_parameters(::Type{T}) where {T}
+    try
+        getfield(T, :parameters)
+    catch
+        try
+            getfield(getfield(T, :body), :parameters)
+        catch
+            Base.Core.svec()
+        end
+    end
+end
+
+# Default method for structure, tuple, and named tuple types.
+@generated function get_precision(::Type{S}) where {S}
+    T = AbstractFloat
+    for p in type_parameters(S)
+        T = get_precision(T, p)
+    end
+    return T
+end
 
 """
     adapt_precision(T::Type{<:AbstractFloat}, x) -> y

@@ -8,7 +8,9 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ### Changed
 
-- Minimal Julia version is 1.0. This bound is imposed by the `InverseFunctions` package.
+- `get_precision` can work on any types and instances.
+
+- Minimal Julia version is 1.0, this bound is imposed by the `InverseFunctions` package.
 
 ## Version 1.14.0 (2026-01-06)
 
@@ -22,7 +24,7 @@ This new minor version essentially provides `lazymap` (see below).
   provided to specify the inverse of `f`. Related type alias `LazyMap{T,N,F,typeof(A)}` can
   be used to specialize on the type `B` with `N = ndims(A)` and `F = typeof(f)`.
 
-### Change
+### Changed
 
 - The former function `as_eltype(T,A)` is now a shortcut for `lazymap(T,identity,A)` unless
   `T == eltype(A)` holds in which case `A` is returned.
