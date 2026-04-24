@@ -6,6 +6,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ## Unreleased
 
+### Breaking changes
+
+- ``adapt_precision` converts all non-integer numbers. The new behavior is that an integer
+  or complex number with integer real and imaginary parts is left unchanged while a rational
+  number is converted to floating-point. It is still possible to overcome this behavior for
+  a custom type by specializing these methods.
+
 ### Changed
 
 - `get_precision` can work on any types and instances.

@@ -1022,11 +1022,13 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test TypeUtils.default_precision == Float64
         f = @inferred adapt_precision(AbstractFloat)
         @test f === @inferred adapt_precision(TypeUtils.default_precision)
-        @test 7.0 === @inferred f(7)
+        @test 7 === @inferred f(7)
+        @test 0x07 === @inferred f(0x07)
         @test 7.0 === @inferred f(7.0f0)
-        @test 7.0 === @inferred f(big(7))
+        let x = big(7); @test @inferred(f(x)) === x; end
         @test 7.0 === @inferred f(big(7.0))
-        @test -3.0u"kg/s" === @inferred f(-3u"kg/s")
+        @test -3.0u"kg/s" === @inferred f(-3f0u"kg/s")
+        @test -3u"kg/s" === @inferred f(-3u"kg/s")
 
         @testset "adapt_precision($T, x)" for T in (AbstractFloat, Float16, Float32, Float64, BigFloat)
             if isconcretetype(T)
@@ -1037,18 +1039,18 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
             @test @inferred(adapt_precision(T, Symbol    )) === Symbol
             @test @inferred(adapt_precision(T, String    )) === String
-            @test @inferred(adapt_precision(T, Bool      )) === S
-            @test @inferred(adapt_precision(T, UInt8     )) === S
-            @test @inferred(adapt_precision(T, UInt16    )) === S
-            @test @inferred(adapt_precision(T, UInt32    )) === S
-            @test @inferred(adapt_precision(T, UInt64    )) === S
-            @test @inferred(adapt_precision(T, UInt128   )) === S
-            @test @inferred(adapt_precision(T, Int8      )) === S
-            @test @inferred(adapt_precision(T, Int16     )) === S
-            @test @inferred(adapt_precision(T, Int32     )) === S
-            @test @inferred(adapt_precision(T, Int64     )) === S
-            @test @inferred(adapt_precision(T, Int128    )) === S
-            @test @inferred(adapt_precision(T, BigInt    )) === S
+            @test @inferred(adapt_precision(T, Bool      )) === Bool
+            @test @inferred(adapt_precision(T, UInt8     )) === UInt8
+            @test @inferred(adapt_precision(T, UInt16    )) === UInt16
+            @test @inferred(adapt_precision(T, UInt32    )) === UInt32
+            @test @inferred(adapt_precision(T, UInt64    )) === UInt64
+            @test @inferred(adapt_precision(T, UInt128   )) === UInt128
+            @test @inferred(adapt_precision(T, Int8      )) === Int8
+            @test @inferred(adapt_precision(T, Int16     )) === Int16
+            @test @inferred(adapt_precision(T, Int32     )) === Int32
+            @test @inferred(adapt_precision(T, Int64     )) === Int64
+            @test @inferred(adapt_precision(T, Int128    )) === Int128
+            @test @inferred(adapt_precision(T, BigInt    )) === BigInt
             @test @inferred(adapt_precision(T, Float16   )) === S
             @test @inferred(adapt_precision(T, Float32   )) === S
             @test @inferred(adapt_precision(T, Float64   )) === S
@@ -1056,11 +1058,11 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             str = "string"
             @test @inferred(adapt_precision(T, :symbol   )) === :symbol
             @test @inferred(adapt_precision(T, str       )) === str # same object
-            @test @inferred(adapt_precision(T, true      )) ≗ one(S)
-            @test @inferred(adapt_precision(T, false     )) ≗ zero(S)
-            @test @inferred(adapt_precision(T, 0x03      )) ≗ S(3)
-            @test @inferred(adapt_precision(T, 3         )) ≗ S(3)
-            @test @inferred(adapt_precision(T, big(3)    )) ≗ S(3)
+            @test @inferred(adapt_precision(T, true      )) === true
+            @test @inferred(adapt_precision(T, false     )) === false
+            @test @inferred(adapt_precision(T, 0x03      )) === 0x03
+            @test @inferred(adapt_precision(T, 3         )) === 3
+            let x = big(3); @test @inferred(adapt_precision(T, x)) === x; end
             @test @inferred(adapt_precision(T, 3//2      )) ≗ S(3//2)
             @test @inferred(adapt_precision(T, π         )) ≗ S(π)
             @test @inferred(adapt_precision(T, Float16(3))) ≗ S(3)
@@ -1068,8 +1070,11 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test @inferred(adapt_precision(T, 3.0       )) ≗ S(3)
             @test @inferred(adapt_precision(T, big(3.0)  )) ≗ S(3)
 
-            # Tests with an array.
+            # Tests with an abstract (reshaped) array.
             A = reshape(-3:20, 2,3,4)
+            @test @inferred(adapt_precision(T, A)) === A
+            A =  reshape(-3.0:20.0, 2,3,4)
+            @test S === @inferred adapt_precision(T, eltype(A))
             B = @inferred adapt_precision(T, A)
             @test eltype(B) === S
             @test axes(B) == axes(A)
@@ -1079,9 +1084,11 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             @test B === @inferred adapt_precision(T, B) # same precision yields identical object
 
             # Tests with a real rectangular matrix.
-            A = [4 -1 0; 2 3 -1]
+            A = [4 -1 0; 2 3 -1] # integer type
+            @test @inferred(adapt_precision(T, A)) === A
+            A = map(x -> x//1, A)
             AAt = A*A'
-            @test S == @inferred adapt_precision(T, eltype(A))
+            @test S === @inferred adapt_precision(T, eltype(A))
             B = @inferred adapt_precision(T, A)
             @test eltype(B) == S
             @test axes(B) == axes(A)
@@ -1287,22 +1294,29 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         end
 
         @testset "adapt_precision(T, x::Tuple)" begin
-            @test adapt_precision(
-                Float32, (
-                    true,  1,     0x07,  ("hello", 1.0,   3.0   - 2.0im,           π))) === (
-                        1.0f0, 1.0f0, 7.0f0, ("hello", 1.0f0, 3.0f0 - 2.0f0im, Float32(π)))
+            @test adapt_precision(Float32, (true,  1, 0x07, ("hello", 1.0, 3.0 - 2.0im, π))) === (
+                true,  1, 0x07, ("hello", 1.0f0, 3.0f0 - 2.0f0im, Float32(π)))
             x = (; a = false, b = :symbol, d = [-1,   2])
-            y = (; a = 0.0,   b = :symbol, d = [-1.0, 2.0])
-            z = @inferred adapt_precision(Float64, x)
-            @test z == y
-            @test typeof(z.d) == typeof(y.d)
-            # a very long tuple
-            x = ([(isodd(x) ? Int8(   x) : string(x)) for x in -20:30]...,)
-            y = ([(isodd(x) ? Float32(x) : string(x)) for x in -20:30]...,)
-            z = adapt_precision(Float32, x)
-            @test z == y
             @test get_precision(x) === AbstractFloat
-            @test get_precision(y) === get_precision(z) === Float32
+            @test @inferred(adapt_precision(Float32, x)) === x
+            y = (; a = 0.0,   b = :symbol, d = [-1.0, 2.0])
+            @test y == x
+            @test get_precision(y) === Float64
+            z = @inferred adapt_precision(Float32, y)
+            @test get_precision(z) === Float32
+            @test z == y
+            @test typeof(z.a) == Float32
+            @test typeof(z.b) == Symbol
+            @test eltype(z.d) == Float32
+            # a very long tuple (likely too long for inference)
+            x = ([(isodd(x) ? Int8(x) : string(x)) for x in -20:30]...,)
+            @test get_precision(x) === AbstractFloat
+            @test adapt_precision(Float32, x) === x
+            y = ([(isodd(x) ? Float64(x) : string(x)) for x in -20:30]...,)
+            @test get_precision(y) === Float64
+            z = adapt_precision(Float32, y)
+            @test get_precision(z) === Float32
+            @test z == y
         end
     end
 
@@ -1534,23 +1548,22 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test BigFloat      === @inferred get_precision(       BigFloat(35) * u"GHz" )
 
         @testset "adapt_precision($T, x::Quantity)" for T in (AbstractFloat, Float16, Float32, Float64, BigFloat)
-            S = isconcretetype(T) ? T : TypeUtils.default_precision
             u = u"GHz"
             v = -35
-            r = S(v)*u
-            @test typeof(r) === @inferred adapt_precision(T, typeof(         v  * u))
-            @test typeof(r) === @inferred adapt_precision(T, typeof(Float16( v) * u))
-            @test typeof(r) === @inferred adapt_precision(T, typeof(Float32( v) * u))
-            @test typeof(r) === @inferred adapt_precision(T, typeof(Float64( v) * u))
-            @test typeof(r) === @inferred adapt_precision(T, typeof(BigInt(  v) * u))
-            @test typeof(r) === @inferred adapt_precision(T, typeof(BigFloat(v) * u))
+            f = adapt_precision(T)
+            let x =          v ; @test typeof(@inferred(f(x*u))) === @inferred(f(typeof(x*u))); end
+            let x = Float16( v); @test typeof(@inferred(f(x*u))) === @inferred(f(typeof(x*u))); end
+            let x = Float32( v); @test typeof(@inferred(f(x*u))) === @inferred(f(typeof(x*u))); end
+            let x = Float64( v); @test typeof(@inferred(f(x*u))) === @inferred(f(typeof(x*u))); end
+            let x = BigInt(  v); @test typeof(@inferred(f(x*u))) === @inferred(f(typeof(x*u))); end
+            let x = BigFloat(v); @test typeof(@inferred(f(x*u))) === @inferred(f(typeof(x*u))); end
             #
-            @test r ≗ @inferred adapt_precision(T,          v  * u)
-            @test r ≗ @inferred adapt_precision(T, Float16( v) * u)
-            @test r ≗ @inferred adapt_precision(T, Float32( v) * u)
-            @test r ≗ @inferred adapt_precision(T, Float64( v) * u)
-            @test r ≗ @inferred adapt_precision(T, BigInt(  v) * u)
-            @test r ≗ @inferred adapt_precision(T, BigFloat(v) * u)
+            let x =          v ; @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
+            let x = Float16( v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
+            let x = Float32( v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
+            let x = Float64( v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
+            let x = BigInt(  v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
+            let x = BigFloat(v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
         end
 
         # unitless

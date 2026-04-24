@@ -86,11 +86,11 @@ corresponding type with precision `T`.
 Example:
 
 ```jldoctest; setup=:(using TypeUtils)
-julia> adapt_precision(Float32, (1, 0x07, ("hello", 1.0, 3.0 - 2.0im, π)))
-(1.0f0, 7.0f0, ("hello", 1.0f0, 3.0f0 - 2.0f0im, 3.1415927f0))
+julia> adapt_precision(Float32, (1, 3.0 - 2.0im, ("hello", 0x07, 1.0, π)))
+(1, 3.0f0 - 2.0f0im, ("hello", 0x07, 1.0f0, 3.1415927f0))
 ```
 
-As can be seen, all numerical values are converted.
+As can be seen, only non-integer numerical values are converted.
 
 Basically, `adapt_precision` supports numbers, and arrays or tuples of numbers. It can be
 specialized for other object types defined in foreign packages by specializing:
@@ -117,10 +117,12 @@ adapt_precision(::Type{T}, x::Any) where{T<:Precision} = x
 adapt_precision(::Type{T}, ::Type{S}) where {T<:Precision,S<:Any} = S
 
 # For bare numbers and bare numerical types, `adapt_precision` behaves like
-# `convert_real_type`.
+# `convert_real_type` but leaving integers unchanged.
 adapt_precision(::Type{T}, x::T) where {T<:Precision} = x
+adapt_precision(::Type{T}, x::Integer) where {T<:Precision} = x
 adapt_precision(::Type{T}, x::BareNumber) where {T<:Precision} = convert_real_type(T, x)
 adapt_precision(::Type{T}, ::Type{T}) where {T<:Precision} = T
+adapt_precision(::Type{T}, ::Type{S}) where {T<:Precision,S<:Integer} = S
 adapt_precision(::Type{T}, ::Type{S}) where {T<:Precision,S<:BareNumber} =
     convert_real_type(T, S)
 
