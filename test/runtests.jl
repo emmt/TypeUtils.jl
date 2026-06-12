@@ -1345,6 +1345,15 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         end
     end
 
+    @testset "Multipliers" begin
+        x = Float32[0,1,2]
+        @test @inferred(adapt_multiplier_precision(π, x)) === π
+        @test @inferred(adapt_multiplier_precision(3, x)) === convert(eltype(x), 3)
+        @test @inferred(adapt_multiplier_precision(π, typeof(x))) === π
+        @test @inferred(adapt_multiplier_precision(3, typeof(x))) === convert(eltype(x), 3)
+        @test @inferred(adapt_multiplier_precision(Float16, 3)) === convert(Float16, 3)
+    end
+
     @testset "LinearAlgebra" begin
         A = ComplexF32.([9+1im 2-3im 1; 0 7 1; 0 0 4])
         AAt = A*A'
@@ -1589,6 +1598,15 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
             let x = Float64( v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
             let x = BigInt(  v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
             let x = BigFloat(v); @test @inferred(f(x*u)) ≗ @inferred(f(x)*u); end
+        end
+
+        @testset "Multipliers" begin
+            x = Float32[0,1,2]
+            @test @inferred(adapt_multiplier_precision(π*u"mm", x)) === π*u"mm"
+            @test @inferred(adapt_multiplier_precision(3u"kg", x)) === convert(eltype(x), 3)*u"kg"
+            @test @inferred(adapt_multiplier_precision(π*u"Hz", typeof(x))) === π*u"Hz"
+            @test @inferred(adapt_multiplier_precision(-4u"km/s", typeof(x))) === convert(eltype(x), -4)*u"km/s"
+            @test @inferred(adapt_multiplier_precision(Float16, 5u"μm")) === convert(Float16, 5)*u"μm"
         end
 
         # unitless

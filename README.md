@@ -240,6 +240,10 @@ const Precision = Union{Float16,Float32,Float64,BigFloat}
 The restriction `T<:Precision` in the function signature is to make sure that this version
 of `adapt_precision` is only called with a concrete floating-point type `T`.
 
+When multiplying an array `A` by a scalar `α`, it may be desirable that the result has the
+numerical precision of `A`, not of `α`. The function `adapt_multiplier_precision(α, A)` can
+be called to adapt the precision of `α` to that of the elements of `A` so that this
+precision is preserved in the multiplication.
 
 ## Parameter-less type
 

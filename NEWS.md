@@ -21,6 +21,9 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ### Added
 
+- Function `adapt_multiplier_precision(α, x)` to adapt the precision of a scalar numerical
+  multiplier `α` to that of the other operand `x` (an array).
+
 - `is_unitless(x)` returns whether number `x` (a numeric value or type) is a unitless number.
 
 - `is_static_number(x)` returns whether number `x` (a numeric value or type) is a static

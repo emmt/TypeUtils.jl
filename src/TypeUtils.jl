@@ -10,6 +10,7 @@ export
     TypeStableFunction,
     LazyMap,
     adapt_precision,
+    adapt_multiplier_precision,
     as,
     as_array_axes,
     as_array_axis,
