@@ -30,15 +30,19 @@ struct LazyMapArray{T,N,F,A<:AbstractArray,L,I} <: AbstractArray{T,N}
     f::F     # callable
     arg::A   # input array
     f_inv::I # inverse function (callable or unknown)
-    LazyMapArray{T}(f::F, arg::A, f_inv::I) where {T,N,F,A<:AbstractArray{<:Any,N},I} =
-        new{T,N,F,A,IndexStyle(A) isa IndexLinear,I}(f, arg, f_inv)
+    function LazyMapArray{T}(f::F, arg::A,
+                             f_inv::I) where {T,N,F,A<:AbstractArray{<:Any,N},I}
+        L = IndexStyle(A) isa IndexLinear
+        return new{T,N,F,A,L,I}(f, arg, f_inv)
+    end
 end
 
 struct LazyMapAny{T,N,F,A}
     f::F   # callable
     arg::A # input collection
-    LazyMapAny{T}(f::F, arg::A) where {T,F,A} =
-        new{T,infer_ndims(Base.IteratorSize(A)),F,A}(f, arg)
+    function LazyMapAny{T}(f::F, arg::A) where {T,F,A}
+        return new{T,infer_ndims(Base.IteratorSize(A)),F,A}(f, arg)
+    end
 end
 
 """
