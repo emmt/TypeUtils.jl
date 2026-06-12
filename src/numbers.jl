@@ -22,12 +22,12 @@ julia> map(bare_type, (u"3km/s", u"3.2km/s", typeof(u"2.1GHz")))
 ---
     bare_type(args...) -> T <: Union{Real,Complex}
 
-yields the promoted bare numeric type of `args...`.
+Return the promoted bare numeric type of `args...`.
 
 ---
     bare_type() -> TypeUtils.BareNumber
 
-yields the union of bare numeric types that may be returned by `bare_type` when called with
+Return the union of bare numeric types that may be returned by `bare_type` when called with
 no arguments.
 
 """
@@ -41,9 +41,9 @@ bare_type(::Type{T}) where {T<:Number} = typeof(one(T))
 """
     real_type(x) -> T <: Real
 
-yields the bare numeric type `T` backing the storage of `x` which may be a number of a
+Return the bare numeric type `T` backing the storage of `x` which may be a number of a
 numeric type. If `x` is a complex, `T` is the bare numeric type of the real and imaginary
-parts of `x`. If `x` has units, they are discarded. Hence `T` is always a dimensionless real
+parts of `x`. If `x` has units, they are discarded. Hence `T` is always a unitless real
 type.
 
 Examples:
@@ -61,12 +61,12 @@ Int64
 ---
     real_type(args...)
 
-yields the promoted bare real type of `args...`.
+Return the promoted bare real type of `args...`.
 
 ---
     real_type() -> Real
 
-yields the supertype of the types that may be returned by `real_type` when called with no
+Return the supertype of the types that may be returned by `real_type` when called with no
 arguments.
 
 """
@@ -89,7 +89,7 @@ end
 """
     convert_bare_type(T, x)
 
-converts `x` so that its bare numeric type is that of `T`. Argument `x` may be a number or a
+Convert `x` so that its bare numeric type is that of `T`. Argument `x` may be a number or a
 numeric type, while argument `T` must be a numeric type. If `x` is one of `missing`,
 `nothing`, `undef`, or the type of one of these singletons, `x` is returned.
 
@@ -113,7 +113,7 @@ convert_bare_type(::Type{T}, ::Type{<:BareNumber}) where {T<:BareNumber} = T
 """
     convert_bare_type(T) -> f
 
-yields a callable object `f` such that `f(x)` yields `convert_bare_type(T, x)` for any
+Return a callable object `f` such that `f(x)` yields `convert_bare_type(T, x)` for any
 `x`.
 
 """
@@ -122,7 +122,7 @@ convert_bare_type(::Type{T}) where {T} = Converter(convert_bare_type, bare_type(
 """
     convert_real_type(T, x)
 
-converts `x` so that its bare real type is that of `T`. Argument `x` may be a number or a
+Convert `x` so that its bare real type is that of `T`. Argument `x` may be a number or a
 numeric type, while argument `T` must be a numeric type. If `x` is one of `missing`,
 `nothing`, `undef`, or the type of one of these singletons, `x` is returned.
 
@@ -148,7 +148,7 @@ convert_real_type(::Type{T}, ::Type{<:Complex}) where {T<:Real} = Complex{T}
 """
     convert_real_type(T) -> f
 
-yields a callable object `f` such that `f(x)` yields `convert_real_type(T, x)` for any
+Return a callable object `f` such that `f(x)` yields `convert_real_type(T, x)` for any
 `x`.
 
 """
@@ -168,7 +168,7 @@ end
 """
     floating_point_type(args...) -> T <: AbstractFloat
 
-yields an appropriate floating-point type to represent the promoted numeric type of
+Return an appropriate floating-point type to represent the promoted numeric type of
 arguments `args...` for storing their value(s). Any units of the arguments are ignored and
 the returned type is always unitless.
 
@@ -187,7 +187,7 @@ Also see [`real_type`](@ref) and [`convert_real_type`](@ref).
 ---
     floating_point_type() -> AbstractFloat
 
-yields the supertype of the types that may be returned by `floating_point_type` when
+Return the supertype of the types that may be returned by `floating_point_type` when
 called with no arguments.
 
 """
@@ -197,7 +197,7 @@ floating_point_type() = AbstractFloat
 """
     convert_floating_point_type(T, x)
 
-converts `x` so that its bare real type is the floating-point type of `T`. Argument `x` may
+Convert `x` so that its bare real type is the floating-point type of `T`. Argument `x` may
 be a number or a numeric type, while argument `T` must be a numeric type. If `x` is one of
 `missing`, `nothing`, `undef`, or the type of one of these singletons, `x` is returned.
 
@@ -211,7 +211,7 @@ convert_floating_point_type(::Type{T}, x) where {T} =
 """
     convert_floating_point_type(T) -> f
 
-yields a callable object `f` such that `f(x)` yields `convert_floating_point_type(T, x)` for
+Return a callable object `f` such that `f(x)` yields `convert_floating_point_type(T, x)` for
 any `x`.
 
 """
@@ -221,7 +221,7 @@ convert_floating_point_type(::Type{T}) where {T} =
 """
     assert_floating_point(Bool, x) -> bool
 
-yields whether `x` uses floating-point to store its value(s). For n-tuples, the same
+Return whether `x` uses floating-point to store its value(s). For n-tuples, the same
 floating-point type must be used for all values.
 
 """
@@ -242,8 +242,8 @@ _assert_floating_point(::Type{Bool}, ::Type{T}) where {T<:Number} = false
 """
     assert_floating_point([name,] x)
 
-throws an exception if `x` does not use floating-point to store its value(s). Optional
-`name` argument is to specify the name to use for the error message.
+Throw an exception if `x` does not use floating-point to store its value(s). Optional `name`
+argument is to specify the name to use for the error message.
 
 See also [`@assert_floating_point`](@ref).
 
@@ -264,7 +264,7 @@ assert_floating_point(name::Union{Symbol,AbstractString}, ::Type{T}) where {T} =
 """
     nearest(T::Type, x) -> y::T
 
-yields the value or instance of type `T` that is the nearest to `x`. For `T` integer and `x`
+Return the value or instance of type `T` that is the nearest to `x`. For `T` integer and `x`
 real, it can be seen as rounding with clamping.
 
 """
@@ -321,7 +321,7 @@ nearest(::Type{BigInt}, x::Irrational) = round(BigInt, round(x))
 """
     nearest(T::Type) -> f
 
-yields a callable object `f` such that `f(x)` yields `nearest(T, x)` for any `x`.
+Return a callable object `f` such that `f(x)` yields `nearest(T, x)` for any `x`.
 
 """
 nearest(::Type{T}) where {T} = Converter(nearest, T)
@@ -369,7 +369,7 @@ Return the units of `x`. The units of `x` are a *trait* that only depends on the
 """
     unitless(x)
 
-yields `x` without its units if any. `x` may be a number or a numeric type. In the latter
+Return `x` without its units if any. `x` may be a number or a numeric type. In the latter
 case, `unitless` behaves like `bare_type`.
 
 Compared to `ustrip` from the `Unitful` package, argument can be a numeric type and, of

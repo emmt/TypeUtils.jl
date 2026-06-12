@@ -8,10 +8,10 @@ B = lazymap([T::Type,] f, A)
 B = lazymap([T::Type,] f, A::AbstractArray, f_inv = inverse(f))
 ```
 
-yields a view of `A` such that the `i`-th element of `B` is given by `Bᵢ = as(T, f(Aᵢ))`
-with `Aᵢ` the `i`-th element of `A`. If `T` is unspecified, it is inferred from `f` and from
-the element type of `A`. If `A` is an array, then `f_inv` is assumed to be the inverse of
-`f` and `B[i] = x` amounts to do `A[i] = f_inv(x)`.
+Build a view of `A` whose `i`-th element is given by `as(T, f(Aᵢ))` with `Aᵢ` the `i`-th
+element of `A`. If `T` is unspecified, it is inferred from `f` and from the element type of
+`A`. If `A` is an array, then `f_inv` is assumed to be the inverse of `f` and `B[i] = x`
+amounts to do `A[i] = f_inv(x)`.
 
 """
 module LazyMaps
@@ -58,8 +58,8 @@ struct Unknown end
     B = lazymap([T::Type,] f, A)
     B = lazymap([T::Type,] f, A::AbstractArray, f_inv = inverse(f))
 
-Build a view of the array or iterator `A` such that the `i`-th element of `B` is given by
-`Bᵢ = as(T, f(Aᵢ))` with `Aᵢ` the `i`-th element of `A`.
+Build a view of the array or iterator `A` whose `i`-th element is given by `as(T, f(Aᵢ))`
+with `Aᵢ` the `i`-th element of `A`.
 
 Optional argument `T` is to explicitly specify the element type of `B`; otherwise, it is
 inferred from `f` and from the element type of `A`. The lazy map `B` has type-stable element

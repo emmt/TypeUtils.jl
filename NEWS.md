@@ -65,7 +65,7 @@ This new minor version essentially provides `lazymap` (see below).
 
 ### Added
 
-- `get_precision()` yields `AbtractFloat` instead of throwing a `MethodError`.
+- `get_precision()` yields `AbstractFloat` instead of throwing a `MethodError`.
 
 
 ## Version 1.11.0 (2025-10-16)
