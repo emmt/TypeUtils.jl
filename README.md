@@ -126,10 +126,13 @@ of `B` is given by `Bᵢ = as(T, Aᵢ)`. In both cases, it is asserted that `C�
 type `T`. The two are equivalent if `T` is a numeric type (a sub-type of `Number`).
 
 
-## Unitless value or type
+## Units
 
 `unitless(x)` yields `x` without its units, if any. `x` can be a number or a numeric type.
 In the latter case, `unitless` behaves like `bare_type` described below.
+
+`is_unitless(x)` and `is_unitless(typeof(x))` yields whether `x` is a unitless number. This
+is a trait which only depend on the type of `x`.
 
 
 ## Bare, real, and floating-point numerical types

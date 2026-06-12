@@ -29,6 +29,7 @@ export
     floating_point_type,
     get_precision,
     is_signed,
+    is_unitless,
     lazymap,
     nearest,
     new_array,

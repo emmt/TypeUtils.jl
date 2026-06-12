@@ -889,6 +889,24 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test π                       === @inferred unitless(π)
         @test 1.2f0                   === @inferred unitless(MyNumber(1.2f0))
         @test Int16                   === @inferred unitless(MyNumber{Int16})
+        @test is_unitless(Real)
+        @test is_unitless(Integer)
+        @test is_unitless(AbstractIrrational)
+        @test is_unitless(big(7))
+        @test is_unitless(BigInt)
+        @test is_unitless(big(-2.0))
+        @test is_unitless(BigFloat)
+        @test is_unitless(true)
+        @test is_unitless(false)
+        @test is_unitless(Bool)
+        @test is_unitless(3.125f0)
+        @test is_unitless(Float32)
+        @test is_unitless(1.25)
+        @test is_unitless(Float64)
+        @test is_unitless(π)
+        @test is_unitless(typeof(π))
+        @test is_unitless(1//2)
+        @test is_unitless(typeof(1//2))
 
         # in-place multiplication
         A = [1.1, 1.3, 2.7]
@@ -1569,6 +1587,10 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         # unitless
         @test 17      === @inferred unitless(u"17GHz")
         @test Float32 === @inferred unitless(typeof(u"2.0f0m/s"))
+        @test !is_unitless(u"2.0f0m/s")
+        @test !is_unitless(typeof(u"17GHz"))
+        @test is_unitless(3u"kg"/u"g")
+        @test is_unitless(typeof(1u"km"/u"cm"))
 
         # in-place multiplication
         A = [1.1u"m/s", 1.3u"m/s", 2.7u"m/s"]

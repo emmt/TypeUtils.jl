@@ -22,6 +22,10 @@ end
 # Extend `unitless` (only needed for values).
 TypeUtils.unitless(x::AbstractQuantity) = ustrip(x)
 
+# Extend `is_unitless` which is a trait, hence, only depends on type.
+TypeUtils.is_unitless(::Type{<:AbstractQuantity}) = false
+TypeUtils.is_unitless(::Type{<:AbstractQuantity{<:Any,NoDims}}) = true
+
 # Extend `units_of`.
 TypeUtils.units_of(::Type{T}) where {T<:AbstractQuantity} = unit(T)
 TypeUtils.units_of(u::Units) = u

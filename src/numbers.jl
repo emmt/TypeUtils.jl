@@ -8,6 +8,10 @@ Return the units of `x`. The units of `x` are a *trait* that only depends on the
 `x`. `x` may be a number of an object representing units. This function is a replacement for
 `Unitful.unit` when this package is not yet loaded.
 
+# See also
+
+[`unitless`](@ref), [`is_unitless`](@ref).
+
 """
 @inline units_of(x::Union{Number,NoUnits}) = units_of(typeof(x))
 @inline units_of(::Type{<:Union{Number,NoUnits}}) = NoUnits()
@@ -20,8 +24,8 @@ Return the units of `x`. The units of `x` are a *trait* that only depends on the
 """
     bare_type(x) -> T <: Union{Real,Complex}
 
-yields the bare numeric type `T` backing the storage of `x` which may be a number or a
-numeric type. If `x` has units, they are discarded. Hence `T` is always a dimensionless real
+Return the bare numeric type `T` backing the storage of `x` which may be a number or a
+numeric type. If `x` has units, they are discarded. Hence `T` is always a unitless real
 or complex type.
 
 Examples:
@@ -187,7 +191,7 @@ end
 
 yields an appropriate floating-point type to represent the promoted numeric type of
 arguments `args...` for storing their value(s). Any units of the arguments are ignored and
-the returned type is always dimensionless.
+the returned type is always unitless.
 
 For numerical computations, a typical usage is:
 
@@ -352,6 +356,28 @@ case, `unitless` behaves like `bare_type`.
 Compared to `ustrip` from the `Unitful` package, argument can be a numeric type and, of
 course, `unitless` only requires the lightweight `TypeUtils` package to be loaded.
 
+# See also
+
+[`units_of`](@ref), [`is_unitless`](@ref).
+
 """
 unitless(T::Type) = bare_type(T)
 unitless(x::BareNumber) = x
+
+"""
+    is_unitless(x)
+    is_unitless(typeof(x))
+
+Return whether number `x` is unitless. This is a trait which only depends on the type
+of `x`.
+
+By default, only sub-types of `Real` and `Complex` are considered as being unitless. This
+method must be extended for other numbers.
+
+# See also
+
+[`units_of`](@ref), [`unitless`](@ref).
+
+"""
+is_unitless(x::Number) = is_unitless(typeof(x))
+is_unitless(::Type{<:BareNumber}) = true
