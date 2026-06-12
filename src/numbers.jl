@@ -327,6 +327,25 @@ yields a callable object `f` such that `f(x)` yields `nearest(T, x)` for any `x`
 nearest(::Type{T}) where {T} = Converter(nearest, T)
 
 """
+    is_static_number(x)
+    is_static_number(typeof(x))
+
+Return whether `x` is a *static number*, that is a number whose value is known considering
+its type. Being a static number is a *trait* that only depends on the type of `x`. In base
+Julia, only irrational numbers like `π` can be considered as *static numbers*.
+
+!!! note
+    Being a *trait*, the result of `is_static_number` shall always only depend on the type
+    of `x`. Hence, the function may return `false` even though the value of `x` is known at
+    compile-time, e.g. when `x` is a literal number or a constant.
+
+"""
+is_static_number(x::Number) = is_static_number(typeof(x))
+is_static_number(::Type{T}) where {T<:Number} = is_static_number(real_type(T))
+is_static_number(::Type{<:Real}) = false
+is_static_number(::Type{<:Irrational}) = true
+
+"""
     units_of(x)
     units_of(typeof(x))
 

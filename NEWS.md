@@ -19,6 +19,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 - Minimal Julia version is 1.0, this bound is imposed by the `InverseFunctions` package.
 
+### Added
+
+- `is_unitless(x)` returns whether number `x` (a numeric value or type) is a unitless number.
+
+- `is_static_number(x)` returns whether number `x` (a numeric value or type) is a static
+  number, i.e. a number whose value is known considering its type.
+
 ## Version 1.14.0 (2026-01-06)
 
 This new minor version essentially provides `lazymap` (see below).

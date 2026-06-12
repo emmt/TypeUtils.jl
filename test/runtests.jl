@@ -908,6 +908,12 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test is_unitless(1//2)
         @test is_unitless(typeof(1//2))
 
+        # Static numbers.
+        @test is_static_number(pi) === true
+        @test is_static_number(typeof(π)) === true
+        @test is_static_number(3.14) === false
+        @test is_static_number(typeof(3.14)) === false
+
         # in-place multiplication
         A = [1.1, 1.3, 2.7]
         B = similar(A)
@@ -919,6 +925,7 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test_throws InexactError scale!(Val(1), copyto!(B, A), alpha)
         @test_throws InexactError scale!(Val(2), copyto!(B, A), alpha)
         @test_throws InexactError scale!(Val(3), copyto!(B, A), alpha)
+
     end
 
     @testset "get_precision" begin
@@ -1591,6 +1598,12 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test !is_unitless(typeof(u"17GHz"))
         @test is_unitless(3u"kg"/u"g")
         @test is_unitless(typeof(1u"km"/u"cm"))
+
+        # Static numbers.
+        @test is_static_number(pi*u"cm") === true
+        @test is_static_number(typeof(π*u"kg")) === true
+        @test is_static_number(3.14u"mm") === false
+        @test is_static_number(typeof(3.14u"mm")) === false
 
         # in-place multiplication
         A = [1.1u"m/s", 1.3u"m/s", 2.7u"m/s"]

@@ -182,6 +182,15 @@ one of `missing`, `nothing`, `undef`, or the type of one of these singletons, `x
 returned. You may consider `convert_floating_point_type(T,x)` as an equivalent to to
 `convert_real_type(float(real_type(T)),x)`.
 
+
+## Static numbers
+
+Static numbers are number like `π` whose value is known considering their type. The function
+`is_static_number(x)` returns whether `x` (a numeric value or type) has this *trait*. Since
+static numbers have a known value, code may be specialized and hence optimized for such
+numbers.
+
+
 ## Numerical precision
 
 `get_precision(x)` or `get_precision(typeof(x))` yield the numerical precision of `x`. The
