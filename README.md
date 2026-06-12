@@ -211,15 +211,15 @@ precision is irrelevant or not implemented, `x` is returned unchanged. Setting t
 precision shall not change the dimensions of dimensionful numbers. If `T` is
 `AbstractFloat`, the default floating-point type `Float64` is assumed.
 
-For a number `x`, `adapt_precision(T, x)` behaves as `convert_real_type(T, x)` and
-`adapt_precision(T, typeof(x))` may be used to infer the corresponding type with precision
-`T`.
+For a non-integer number `x`, `adapt_precision(T, x)` behaves as `convert_real_type(T, x)`
+and `adapt_precision(T, typeof(x))` may be used to infer the corresponding type with
+precision `T`.
 
 Example:
 
 ```julia
-julia> adapt_precision(Float32, (1, 0x07, ("hello", 1.0, 3.0 - 2.0im, π)))
-(1.0f0, 7.0f0, ("hello", 1.0f0, 3.0f0 - 2.0f0im, 3.1415927f0))
+julia> adapt_precision(Float32, (0.5, 1, 3//4, 0x07, ("hello", false, 1.0, 3.0 - 2.0im, π)))
+(0.5f0, 1, 0.75f0, 0x07, ("hello", false, 1.0f0, 3.0f0 - 2.0f0im, 3.1415927f0))
 ```
 
 Basically, `adapt_precision` supports numbers, arrays of numbers, matrix factorizations,

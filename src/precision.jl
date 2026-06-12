@@ -86,8 +86,8 @@ corresponding type with precision `T`.
 Example:
 
 ```jldoctest; setup=:(using TypeUtils)
-julia> adapt_precision(Float32, (1, 3.0 - 2.0im, ("hello", 0x07, 1.0, π)))
-(1, 3.0f0 - 2.0f0im, ("hello", 0x07, 1.0f0, 3.1415927f0))
+julia> adapt_precision(Float32, (1, 3//4, 3.0 - 2.0im, ("hello", false, 0x07, 1.0, π)))
+(1, 0.75f0, 3.0f0 - 2.0f0im, ("hello", false, 0x07, 1.0f0, 3.1415927f0))
 ```
 
 As can be seen, only non-integer numerical values are converted.

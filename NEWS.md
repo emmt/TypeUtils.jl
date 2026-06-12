@@ -4,14 +4,16 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
-## Unreleased
+## Version 2.0.0 (2026-06-12)
 
 ### Breaking changes
 
-- ``adapt_precision` converts all non-integer numbers. The new behavior is that an integer
-  or complex number with integer real and imaginary parts is left unchanged while a rational
-  number is converted to floating-point. It is still possible to overcome this behavior for
-  a custom type by specializing these methods.
+- By default, `adapt_precision` only converts non-integer numbers. The former behavior was
+  to convert all numbers which is not desirable as a general rule for integers (which
+  include Booleans). The fixed behavior is that an integer or complex number with integer
+  real and imaginary parts is left unchanged by `adapt_precision` while a rational number is
+  converted to floating-point. It is still possible to overcome this behavior for a custom
+  type by specializing `adapt_precision`.
 
 ### Changed
 
