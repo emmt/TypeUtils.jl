@@ -8,8 +8,8 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 
 ### Changed
 
-- `adapt_multiplier_precision(T, α)` and `adapt_multiplier_precision(α, T)` with `T<:Number`
-  yield the same result.
+- `adapt_multiplier_precision(T, α)` and `adapt_multiplier_precision(α, T)`, with
+  `T::Type{<:Number}` and `α::Number`, yield the same result.
 
 ## Version 2.0.0 (2026-06-12)
 
