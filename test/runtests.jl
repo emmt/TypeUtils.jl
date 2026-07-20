@@ -1347,11 +1347,23 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
 
     @testset "Multipliers" begin
         x = Float32[0,1,2]
-        @test @inferred(adapt_multiplier_precision(π, x)) === π
-        @test @inferred(adapt_multiplier_precision(3, x)) === convert(eltype(x), 3)
-        @test @inferred(adapt_multiplier_precision(π, typeof(x))) === π
-        @test @inferred(adapt_multiplier_precision(3, typeof(x))) === convert(eltype(x), 3)
-        @test @inferred(adapt_multiplier_precision(Float16, 3)) === convert(Float16, 3)
+        T = @inferred get_precision(eltype(x))
+        @test T === Float32
+        @test @inferred(adapt_multiplier_precision(π,   x)) === π
+        @test @inferred(adapt_multiplier_precision(2,   x)) === T(2)
+        @test @inferred(adapt_multiplier_precision(3.0, x)) === T(3)
+
+        @test @inferred(adapt_multiplier_precision(π,   typeof(x))) === π
+        @test @inferred(adapt_multiplier_precision(2,   typeof(x))) === T(2)
+        @test @inferred(adapt_multiplier_precision(3.0, typeof(x))) === T(3)
+
+        @test @inferred(adapt_multiplier_precision(π,   eltype(x))) === π
+        @test @inferred(adapt_multiplier_precision(2,   eltype(x))) === T(2)
+        @test @inferred(adapt_multiplier_precision(3.0, eltype(x))) === T(3)
+
+        @test @inferred(adapt_multiplier_precision(T, π)) === π
+        @test @inferred(adapt_multiplier_precision(T, 2)) === T(2)
+        @test @inferred(adapt_multiplier_precision(T, 3.0)) === T(3)
     end
 
     @testset "LinearAlgebra" begin

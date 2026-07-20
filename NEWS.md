@@ -4,6 +4,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Changed
+
+- `adapt_multiplier_precision(T, α)` and `adapt_multiplier_precision(α, T)` with `T<:Number`
+  yields the same result.
+
 ## Version 2.0.0 (2026-06-12)
 
 ### Breaking changes
