@@ -3,13 +3,14 @@
 """
     return_type(f, argtypes...) -> T
 
-yields the type of the result returned by the callable object `f` when called with arguments
+Yield the type of the result returned by the callable object `f` when called with arguments
 of types `argtypes...`.
 
-See the warning in the documentation of `Base.promote_op` for the fragility of such
-inference in some cases. There are no such issues if `f` is an instance of
-[`TypeStableFunction`](@ref), e.g. built by [`as_return`][@ref), however `argtypes...` are
-not checked for validity for such objects.
+!!! warning
+    See the caveats in the documentation of `Base.promote_op` regarding the fragility of
+    such inference in some cases. There are no such issues if `f` is an instance of
+    [`TypeStableFunction`](@ref), e.g. built by [`as_return`][@ref), however `argtypes...`
+    are not checked for validity for such objects.
 
 """
 return_type(::TypeStableFunction{T}, ::DataType...) where {T} = T
@@ -21,7 +22,7 @@ return_type(f, argtypes::DataType...) = Base.promote_op(f, argtypes...)
     TypeStableFunction{T}(f) -> g
     TypeStableFunction(f, argtypes...) -> g
 
-yield a callable object `g` that wraps callable `f` for guaranteed returned type `T`.
+Return a callable object `g` that wraps callable `f` for guaranteed returned type `T`.
 Alternatively, the type(s) `argtypes...` of the function argument(s) can be specified to
 infer the returned type `T`. Then the following holds:
 
