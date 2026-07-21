@@ -177,7 +177,7 @@ adapt_multiplier_precision(α::Number, ::Type{T}) where {T<:Number} =
     adapt_multiplier_precision(T, α)
 
 adapt_multiplier_precision(::Type{T}, α::Number) where {T<:Number} =
-    adapt_multiplier_precision(get_precision(T)::AbstractFloat, α)
+    adapt_multiplier_precision(get_precision(T)::Type{<:AbstractFloat}, α)
 
 adapt_multiplier_precision(::Type{T}, α::Number) where {T<:AbstractFloat} =
     (is_static_number(α) || !isconcretetype(T)) ? α : convert_floating_point_type(T, α)

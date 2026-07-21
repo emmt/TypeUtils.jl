@@ -1364,6 +1364,10 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test @inferred(adapt_multiplier_precision(T, π)) === π
         @test @inferred(adapt_multiplier_precision(T, 2)) === T(2)
         @test @inferred(adapt_multiplier_precision(T, 3.0)) === T(3)
+
+        @test @inferred(adapt_multiplier_precision(Complex{T}, π)) === π
+        @test @inferred(adapt_multiplier_precision(Complex{T}, 2)) === T(2)
+        @test @inferred(adapt_multiplier_precision(Complex{T}, 3.0)) === T(3)
     end
 
     @testset "LinearAlgebra" begin

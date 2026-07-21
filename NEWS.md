@@ -4,6 +4,13 @@ This page describes the most important changes in `TypeUtils`. The format is bas
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org).
 
+## Unreleased
+
+### Fixed
+
+- Fix type assertion in `adapt_multiplier_precision(T, α)` when `T` is a numerical type but
+  not that of an abstract float.
+
 ## Version 2.1.0 (2026-07-20)
 
 ### Changed
