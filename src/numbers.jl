@@ -365,6 +365,14 @@ Return the units of `x`. The units of `x` are a *trait* that only depends on the
 @inline Base.:(*)(x::NoUnits, y::NoUnits) = NoUnits()
 @inline Base.:(*)(x::Number, y::NoUnits) = x
 @inline Base.:(*)(x::NoUnits, y::Number) = y*x
+# Division involving `NoUnits()`.
+Base.:(/)(x::Union{Number,NoUnits}, y::NoUnits) = x
+
+# Power involving `NoUnits()`.
+Base.:(^)(x::NoUnits, y::Real) = NoUnits()
+for f in (:sqrt, :cbrt, :inv, :conj, :adjoint, :transpose)
+    @eval Base.$f(x::NoUnits) = NoUnits()
+end
 
 """
     unitless(x)
