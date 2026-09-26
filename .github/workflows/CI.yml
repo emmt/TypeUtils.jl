@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['1.0', '1.6', '1.10', '1', 'nightly']
+        version: ['1.0', 'lts', '1', 'nightly']
         os:
           - ubuntu-latest
         arch:
