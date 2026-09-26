@@ -671,8 +671,22 @@ same_value_and_type(x::T, y::T) where {T} = (x === y) || (x == y)
         @test @inferred(units_of(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
         @test @inferred(units_of(TypeUtils.NoUnits)) === TypeUtils.NoUnits()
         @test @inferred(pi*units_of(42)) === pi
+        @test @inferred(units_of(42)*pi) === pi
+        @test @inferred(pi/units_of(42)) === pi
+        @test @inferred(units_of(42)\pi) === pi
         @test @inferred(units_of(big(1.0))*pi) === pi
         @test @inferred(units_of(0x01)*units_of(typeof(pi))) === TypeUtils.NoUnits()
+        @test @inferred(units_of(0x01)/units_of(typeof(pi))) === TypeUtils.NoUnits()
+        @test @inferred(TypeUtils.NoUnits()^2) === TypeUtils.NoUnits()
+        @test @inferred(TypeUtils.NoUnits()^(1//2)) === TypeUtils.NoUnits()
+        @test @inferred(TypeUtils.NoUnits()^0.25) === TypeUtils.NoUnits()
+        @test @inferred(TypeUtils.NoUnits()^2) === TypeUtils.NoUnits()
+        @test @inferred(sqrt(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
+        @test @inferred(cbrt(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
+        @test @inferred(inv(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
+        @test @inferred(conj(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
+        @test @inferred(adjoint(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
+        @test @inferred(transpose(TypeUtils.NoUnits())) === TypeUtils.NoUnits()
         @test @inferred(units_of(3u"km/s")) === u"km/s"
         @test @inferred(units_of(typeof(3u"μm/s"))) === u"μm/s"
         @test @inferred(units_of(u"mm/s")) === u"mm/s"
