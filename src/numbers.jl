@@ -361,10 +361,10 @@ Return the units of `x`. The units of `x` are a *trait* that only depends on the
 @inline units_of(x::Union{Number,NoUnits}) = units_of(typeof(x))
 @inline units_of(::Type{<:Union{Number,NoUnits}}) = NoUnits()
 
-# Multiplying any number by `NoUnits()` yields the number.
-@inline Base.:(*)(x::NoUnits, y::NoUnits) = NoUnits()
-@inline Base.:(*)(x::Number, y::NoUnits) = x
-@inline Base.:(*)(x::NoUnits, y::Number) = y*x
+# Multiplication involving `NoUnits()`
+Base.:(*)(x::Union{Number,NoUnits}, y::NoUnits) = x
+Base.:(*)(x::NoUnits, y::Number) = y*x
+
 # Division involving `NoUnits()`.
 Base.:(/)(x::Union{Number,NoUnits}, y::NoUnits) = x
 
